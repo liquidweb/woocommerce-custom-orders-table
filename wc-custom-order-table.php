@@ -40,6 +40,7 @@ class WC_Custom_Order_Table {
 	 */
 	public function init() {
         require_once 'includes/class-wc-order-data-store-custom-table.php';
+        require_once 'includes/class-wc-custom-order-table-cli.php';
     }
 
 	/**
