@@ -339,6 +339,28 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 			'order'          => $args['order'],
 		);
 
+        /**
+         * wc_customer_query
+         */
+		$wc_customer_query = array();
+
+        if ( ! empty( $args['customer'] ) ) {
+            $values = is_array( $args['customer'] ) ? $args['customer'] : array( $args['customer'] );
+            $wc_customer_query = array_merge( $wc_customer_query, $values );
+        }
+
+        if ( ! empty( $args['email'] ) ) {
+            $values = is_array( $args['email'] ) ? $args['email'] : array( $args['email'] );
+            $wc_customer_query = array_merge( $wc_customer_query, $values );
+        }
+
+        if( ! empty( $wc_customer_query ) ) {
+            $wp_query_args['wc_customer_query'] = $wc_customer_query;
+        }
+
+        /**
+         * Standard Args
+         */
 		if ( ! is_null( $args['parent'] ) ) {
 			$wp_query_args['post_parent'] = absint( $args['parent'] );
 		}
@@ -347,11 +369,6 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 			$wp_query_args['offset'] = absint( $args['offset'] );
 		} else {
 			$wp_query_args['paged'] = absint( $args['page'] );
-		}
-
-		if ( ! empty( $args['customer'] ) ) {
-			$values = is_array( $args['customer'] ) ? $args['customer'] : array( $args['customer'] );
-			$wp_query_args['meta_query'][] = $this->get_orders_generate_customer_meta_query( $values );
 		}
 
 		if ( ! empty( $args['exclude'] ) ) {
@@ -411,6 +428,7 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 				'compare' => 'IN',
 			),
 		);
+
 		foreach ( $values as $value ) {
 			if ( is_array( $value ) ) {
 				$meta_query[] = $this->get_orders_generate_customer_meta_query( $value, 'and' );
