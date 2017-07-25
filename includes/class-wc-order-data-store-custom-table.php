@@ -191,6 +191,8 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
             'prices_include_tax'   => $order->get_prices_include_tax( 'edit' )
 		);
 
+		$changes = array();
+
 		if ( $this->creating ) {
 			$wpdb->insert(
 				"{$wpdb->prefix}woocommerce_orders",
@@ -198,6 +200,9 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 				    'order_id' => $order->get_id()
                 ), $edit_data )
 			);
+
+			// We are no longer creating the order, it is created.
+			$this->creating = false;
 		} else {
 		    $changes = array_intersect_key( $edit_data, $order->get_changes() );
 
@@ -681,4 +686,39 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
             }
         }
     }
+
+	/**
+	 * Query for Orders matching specific criteria.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @param array $query_vars query vars from a WC_Order_Query
+	 *
+	 * @return array|object
+	 */
+	public function query( $query_vars ) {
+		$args = $this->get_wp_query_args( $query_vars );
+
+		if ( ! empty( $args['errors'] ) ) {
+			$query = (object) array(
+				'posts' => array(),
+				'found_posts' => 0,
+				'max_num_pages' => 0,
+			);
+		} else {
+			$query = new WP_Query( $args );
+		}
+
+		$orders = ( isset( $query_vars['return'] ) && 'ids' === $query_vars['return'] ) ? $query->posts : array_filter( array_map( 'wc_get_order', $query->posts ) );
+
+		if ( isset( $query_vars['paginate'] ) && $query_vars['paginate'] ) {
+			return (object) array(
+				'orders'        => $orders,
+				'total'         => $query->found_posts,
+				'max_num_pages' => $query->max_num_pages,
+			);
+		}
+
+		return $orders;
+	}
 }
