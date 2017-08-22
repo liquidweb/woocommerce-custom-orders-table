@@ -11,6 +11,11 @@ class WC_Custom_Order_Table {
 
         add_filter( 'woocommerce_order_data_store', array( $this, 'order_data_store' ) );
         add_filter( 'posts_join', array( $this, 'wp_query_customer_query' ), 10, 2 );
+
+        // Register the CLI command if we're running WP_CLI
+        if (defined('WP_CLI') && WP_CLI) {
+            WP_CLI::add_command('wc-order-table', 'WC_Custom_Order_Table_CLI');
+        }
     }
 
     public function get_table_name() {
