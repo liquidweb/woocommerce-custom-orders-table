@@ -39,4 +39,4 @@ function wc_custom_order_table() {
 	return $wc_custom_order_table;
 }
 
-wc_custom_order_table();
+add_action('plugins_loaded', 'wc_custom_order_table');
