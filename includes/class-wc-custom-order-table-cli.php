@@ -1,7 +1,4 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
-}
 
 /**
  * CLI Tool for migrating order data to/from custom table.
