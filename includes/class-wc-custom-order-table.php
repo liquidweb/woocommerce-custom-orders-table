@@ -13,8 +13,6 @@ class WC_Custom_Order_Table {
 
         $this->table_name = $wpdb->prefix . 'woocommerce_orders';
 
-        add_action( 'plugins_loaded', array( $this, 'init' ) );
-
         add_filter( 'woocommerce_order_data_store', array( $this, 'order_data_store' ) );
         add_filter( 'posts_join', array( $this, 'wp_query_customer_query' ), 10, 2 );
 
@@ -23,14 +21,6 @@ class WC_Custom_Order_Table {
 
     public function get_table_name() {
         return apply_filters( 'wc_customer_order_table_name', $this->table_name );
-    }
-
-    /**
-     * Init the plugin.
-     */
-    public function init() {
-        require_once 'includes/class-wc-order-data-store-custom-table.php';
-        require_once 'includes/class-wc-custom-order-table-cli.php';
     }
 
     /**
