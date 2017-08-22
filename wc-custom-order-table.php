@@ -11,8 +11,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-if ( file_exists('vendor/autoload_52.php')) {
-    require('vendor/autoload_52.php');
+define('WC_CUSTOM_ORDER_TABLE_URL', plugin_dir_url(__FILE__));
+define('WC_CUSTOM_ORDER_TABLE_PATH', plugin_dir_path(__FILE__));
+
+if ( file_exists( WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php' ) ) {
+    require( WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php' );
 }
 
 function wc_custom_order_table() {
