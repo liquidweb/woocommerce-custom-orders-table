@@ -11,6 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+if ( file_exists('vendor/autoload.php')) {
+    require('vendor/autoload.php');
+}
+
 function wc_custom_order_table() {
 	global $wc_custom_order_table;
 
