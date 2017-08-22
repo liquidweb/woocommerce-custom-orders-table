@@ -5,10 +5,7 @@ class WC_Custom_Order_Table {
     protected $table_name = null;
     protected $table_version = 1;
 
-    /**
-     * Constructor.
-     */
-    public function __construct() {
+    public function setup() {
         global $wpdb;
 
         $this->table_name = $wpdb->prefix . 'woocommerce_orders';

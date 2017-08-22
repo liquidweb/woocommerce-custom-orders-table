@@ -23,6 +23,7 @@ function wc_custom_order_table() {
 
 	if( ! $wc_custom_order_table instanceof WC_Custom_Order_Table ) {
 		$wc_custom_order_table = new WC_Custom_Order_Table;
+		$wc_custom_order_table->setup();
 	}
 
 	return $wc_custom_order_table;
