@@ -75,7 +75,11 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command
 
         $progress = \WP_CLI\Utils\make_progress_bar('Order Data Migration', $order_count);
 
-        $orders_sql = $wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('" . implode("','", wc_get_order_types('reports')) . "') ORDER BY post_date DESC", 'shop_order');
+        $orders_sql = $wpdb->prepare("
+          SELECT ID FROM {$wpdb->posts}
+          WHERE post_type IN ('%s')
+          ORDER BY post_date DESC
+        ", implode(',', wc_get_order_types('reports')));
         $batches_processed = 0;
 
         for ($page = $orders_page; $page <= $total_pages; $page++) {
