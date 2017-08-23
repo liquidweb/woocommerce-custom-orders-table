@@ -152,7 +152,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command
             foreach ($orders as $order) {
                 // Accessing the order via wc_get_order will automatically migrate the order to the custom table.
                 $order = wc_get_order($order);
-                $order->data_store->backfill_postmeta( $order );
+                $order->get_data_store()->backfill_postmeta( $order );
 
                 $progress->tick();
             }
