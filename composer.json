@@ -1,0 +1,24 @@
+{
+  "name": "liquidweb/wc-custom-order-table",
+  "description": "Store WooCommerce order data in a custom table.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0",
+  "require": {
+    "composer/installers": "^1.4",
+    "xrstf/composer-php52": "^1.0"
+  },
+  "autoload": {
+    "classmap": ["includes"]
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "xrstf\\Composer52\\Generator::onPostInstallCmd"
+    ],
+    "post-update-cmd": [
+      "xrstf\\Composer52\\Generator::onPostInstallCmd"
+    ],
+    "post-autoload-dump": [
+      "xrstf\\Composer52\\Generator::onPostInstallCmd"
+    ]
+  }
+}
