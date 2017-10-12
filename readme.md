@@ -1,4 +1,4 @@
-# wp-custom-order-tables
+# WooCommerce Order Tables
 Managed WooCommerce plugin for Liquid Web.
 
 ## Background & Purpose
