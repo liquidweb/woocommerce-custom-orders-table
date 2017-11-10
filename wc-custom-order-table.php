@@ -1,10 +1,19 @@
 <?php
 /**
- * Plugin Name: WooCommerce - Custom Order Table
- * Description: Store WooCommerce order data in a custom table.
- * Version: 1.0.0
- * Requires at least: 4.7
- * Tested up to: 4.7
+ * WooCommerce - Custom Order Table
+ *
+ * @link                  https://github.com/liquidweb/WooCommerce-Order-Tables
+ * @package               WordPress
+ * @wordpress-plugin
+ *
+ * Plugin Name:           WooCommerce - Custom Order Table
+ * Plugin URI:            https://github.com/liquidweb/WooCommerce-Order-Tables
+ * Description:           Store WooCommerce order data in a custom table.
+ * Version:               1.0.0
+ * WC requires at least:  3.0.0
+ * WC tested up to:       3.2.3
+ * Requires at least:     4.7
+ * Tested up to:          4.9
  */
 
 define('WC_CUSTOM_ORDER_TABLE_URL', plugin_dir_url(__FILE__));
