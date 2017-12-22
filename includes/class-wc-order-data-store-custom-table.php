@@ -1,115 +1,132 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 /**
- * WC Order Data Store. Order is still a post, but data stored in new table.
+ * WooCommerce order data store.
  *
- * @version  1.0.0
- * @category Class
+ * Orders are still treated as posts within WordPress, but the data is stored in a separate table.
+ *
+ * @package WooCommerce_Custom_Order_Tables
+ * @author  Liquid Web
  */
+
 class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT implements WC_Object_Data_Store_Interface, WC_Order_Data_Store_Interface {
+
 	/**
 	 * Set to true when creating so we know to insert meta data.
+	 *
 	 * @var boolean
 	 */
 	protected $creating = false;
 
-    /**
-     * Map table columns to related postmeta keys
-     * @var array
-     */
+	/**
+	 * Map table columns to related postmeta keys.
+	 *
+	 * @var array
+	 */
 	protected $postmeta_mapping = array(
-	    'order_key'            => '_order_key',
-        'customer_id'          => '_customer_user',
-        'payment_method'       => '_payment_method',
-        'payment_method_title' => '_payment_method_title',
-        'transaction_id'       => '_transaction_id',
-        'customer_ip_address'  => '_customer_ip_address',
-        'customer_user_agent'  => '_customer_user_agent',
-        'created_via'          => '_created_via',
-        'date_completed'       => '_date_completed',
-        'date_paid'            => '_date_paid',
-        'cart_hash'            => '_cart_hash',
+		'order_key'            => '_order_key',
+		'customer_id'          => '_customer_user',
+		'payment_method'       => '_payment_method',
+		'payment_method_title' => '_payment_method_title',
+		'transaction_id'       => '_transaction_id',
+		'customer_ip_address'  => '_customer_ip_address',
+		'customer_user_agent'  => '_customer_user_agent',
+		'created_via'          => '_created_via',
+		'date_completed'       => '_date_completed',
+		'date_paid'            => '_date_paid',
+		'cart_hash'            => '_cart_hash',
 
-        'billing_first_name'   => '_billing_first_name',
-        'billing_last_name'    => '_billing_last_name',
-        'billing_company'      => '_billing_company',
-        'billing_address_1'    => '_billing_address_1',
-        'billing_address_2'    => '_billing_address_2',
-        'billing_city'         => '_billing_city',
-        'billing_state'        => '_billing_state',
-        'billing_postcode'     => '_billing_postcode',
-        'billing_country'      => '_billing_country',
+		'billing_first_name'   => '_billing_first_name',
+		'billing_last_name'    => '_billing_last_name',
+		'billing_company'      => '_billing_company',
+		'billing_address_1'    => '_billing_address_1',
+		'billing_address_2'    => '_billing_address_2',
+		'billing_city'         => '_billing_city',
+		'billing_state'        => '_billing_state',
+		'billing_postcode'     => '_billing_postcode',
+		'billing_country'      => '_billing_country',
+		'billing_email'        => '_billing_email',
+		'billing_phone'        => '_billing_phone',
 
-        'billing_email'        => '_billing_email',
-        'billing_phone'        => '_billing_phone',
+		'shipping_first_name'  => '_shipping_first_name',
+		'shipping_last_name'   => '_shipping_last_name',
+		'shipping_company'     => '_shipping_company',
+		'shipping_address_1'   => '_shipping_address_1',
+		'shipping_address_2'   => '_shipping_address_2',
+		'shipping_city'        => '_shipping_city',
+		'shipping_state'       => '_shipping_state',
+		'shipping_postcode'    => '_shipping_postcode',
+		'shipping_country'     => '_shipping_country',
 
-        'shipping_first_name'  => '_shipping_first_name',
-        'shipping_last_name'   => '_shipping_last_name',
-        'shipping_company'     => '_shipping_company',
-        'shipping_address_1'   => '_shipping_address_1',
-        'shipping_address_2'   => '_shipping_address_2',
-        'shipping_city'        => '_shipping_city',
-        'shipping_state'       => '_shipping_state',
-        'shipping_postcode'    => '_shipping_postcode',
-        'shipping_country'     => '_shipping_country',
+		'discount_total'       => '_cart_discount',
+		'discount_tax'         => '_cart_discount_tax',
+		'shipping_total'       => '_order_shipping',
+		'shipping_tax'         => '_order_shipping_tax',
+		'cart_tax'             => '_order_tax',
+		'total'                => '_order_total',
 
-        'discount_total'       => '_cart_discount',
-        'discount_tax'         => '_cart_discount_tax',
-        'shipping_total'       => '_order_shipping',
-        'shipping_tax'         => '_order_shipping_tax',
-        'cart_tax'             => '_order_tax',
-        'total'                => '_order_total',
-
-        'version'              => '_order_version',
-        'currency'             => '_order_currency',
-        'prices_include_tax'   => '_prices_include_tax'
-    );
-
-	public function get_postmeta_mapping() {
-	    return $this->postmeta_mapping;
-    }
-
-    /**
-     * Method to create a new order in the database.
-     * @param WC_Order $order
-     */
-    public function create( &$order ) {
-        $order->set_order_key( 'wc_' . apply_filters( 'woocommerce_generate_order_key', uniqid( 'order_' ) ) );
-        $this->creating = true;
-        parent::create( $order );
-    }
-
-    /**
-     * Method to delete an order from the database.
-     * @param WC_Order
-     * @param array $args Array of args to pass to the delete method.
-     */
-    public function delete( &$order, $args = array() ) {
-        global $wpdb;
-
-        $order_id = $order->get_id();
-
-        parent::delete( $order, $args );
-
-        if( $args['force_delete'] || 0 == $order->get_id() ) {
-            $wpdb->delete(
-                "{$wpdb->prefix}woocommerce_orders",
-                array(
-                    'order_id' => $order_id
-                )
-            );
-        }
-    }
+		'version'              => '_order_version',
+		'currency'             => '_order_currency',
+		'prices_include_tax'   => '_prices_include_tax',
+	);
 
 	/**
-	 * Read order data. Can be overridden by child classes to load other props.
+	 * Retrieve the database table column => post_meta mapping.
 	 *
-	 * @param WC_Order
-	 * @param object $post_object
-	 * @since 1.0.0
+	 * @return array An array of database columns and their corresponding post_meta keys.
+	 */
+	public function get_postmeta_mapping() {
+		return $this->postmeta_mapping;
+	}
+
+	/**
+	 * Create a new order in the database.
+	 *
+	 * @param WC_Order $order The order object, passed by reference.
+	 */
+	public function create( &$order ) {
+		/**
+		 * Filter the generated order ID.
+		 *
+		 * @param string $order_key The uniquely-generated ID for this order.
+		 */
+		$order_key = apply_filters( 'woocommerce_generate_order_key', uniqid( 'order_' ) );
+
+		$order->set_order_key( 'wc_' . $order_key );
+		$this->creating = true;
+
+		parent::create( $order );
+	}
+
+	/**
+	 * Delete an order from the database.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param WC_Order $order The order object, passed by reference.
+	 * @param array    $args  Additional arguments to pass to the delete method.
+	 */
+	public function delete( &$order, $args = array() ) {
+		global $wpdb;
+
+		$order_id = $order->get_id();
+
+		parent::delete( $order, $args );
+
+		if ( $args['force_delete'] || 0 == $order->get_id() ) {
+			$wpdb->delete(
+				"{$wpdb->prefix}woocommerce_orders",
+				array(
+					'order_id' => $order_id,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Read order data.
+	 *
+	 * @param WC_Order $order The order object, passed by reference.
+	 * @param object   $post_object The post object.
 	 */
 	protected function read_order_data( &$order, $post_object ) {
 		global $wpdb;
@@ -120,25 +137,37 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 
 		if ( ! empty( $data ) ) {
 			$order->set_props( $data );
+
 		} else {
-		    // Automatically backfill order data from meta, but allow for disabling.
-            if( apply_filters( 'wc_custom_order_table_automatic_migration', true ) ) {
-                $this->populate_from_meta( $order );
-            }
-        }
+			// Automatically backfill order data from meta, but allow for disabling.
+			if ( apply_filters( 'wc_custom_order_table_automatic_migration', true ) ) {
+				$this->populate_from_meta( $order );
+			}
+		}
 	}
 
+	/**
+	 * Retrieve a single order from the database.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param WC_Order $order The order object.
+	 *
+	 * @return object The order row, as an object.
+	 */
 	public function get_order_data_from_table( $order ) {
-	    global $wpdb;
+		global $wpdb;
 
-        return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}woocommerce_orders WHERE order_id = %d;", $order->get_id() ) );
-    }
+		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}woocommerce_orders WHERE order_id = %d;", $order->get_id() ) );
+	}
 
 	/**
-	 * Helper method that updates all the post meta for an order based on it's settings in the WC_Order class.
+	 * Helper method that updates all the post meta for an order based on its settings in the
+	 * WC_Order class.
 	 *
-	 * @param WC_Order
-	 * @since 1.0.0
+	 * @global $wpdb
+	 *
+	 * @param WC_Order $order The order object, passed by reference.
 	 */
 	protected function update_post_meta( &$order ) {
 		global $wpdb;
@@ -146,7 +175,7 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 		$edit_data = array(
 			'order_key'            => $order->get_order_key( 'edit' ),
 			'customer_id'          => $order->get_customer_id( 'edit' ),
-            'payment_method'       => $order->get_payment_method( 'edit' ),
+			'payment_method'       => $order->get_payment_method( 'edit' ),
 			'payment_method_title' => $order->get_payment_method_title( 'edit' ),
 			'transaction_id'       => $order->get_transaction_id( 'edit' ),
 			'customer_ip_address'  => $order->get_customer_ip_address( 'edit' ),
@@ -156,39 +185,39 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 			'date_paid'            => $order->get_date_paid( 'edit' ),
 			'cart_hash'            => $order->get_cart_hash( 'edit' ),
 
-            'billing_first_name'   => $order->get_billing_first_name( 'edit' ),
-            'billing_last_name'    => $order->get_billing_last_name( 'edit' ),
-            'billing_company'      => $order->get_billing_company( 'edit' ),
-            'billing_address_1'    => $order->get_billing_address_1( 'edit' ),
-            'billing_address_2'    => $order->get_billing_address_2( 'edit' ),
-            'billing_city'         => $order->get_billing_city( 'edit' ),
-            'billing_state'        => $order->get_billing_state( 'edit' ),
-            'billing_postcode'     => $order->get_billing_postcode( 'edit' ),
-            'billing_country'      => $order->get_billing_country( 'edit' ),
+			'billing_first_name'   => $order->get_billing_first_name( 'edit' ),
+			'billing_last_name'    => $order->get_billing_last_name( 'edit' ),
+			'billing_company'      => $order->get_billing_company( 'edit' ),
+			'billing_address_1'    => $order->get_billing_address_1( 'edit' ),
+			'billing_address_2'    => $order->get_billing_address_2( 'edit' ),
+			'billing_city'         => $order->get_billing_city( 'edit' ),
+			'billing_state'        => $order->get_billing_state( 'edit' ),
+			'billing_postcode'     => $order->get_billing_postcode( 'edit' ),
+			'billing_country'      => $order->get_billing_country( 'edit' ),
 
-            'billing_email'        => $order->get_billing_email( 'edit' ),
-            'billing_phone'        => $order->get_billing_phone( 'edit' ),
+			'billing_email'        => $order->get_billing_email( 'edit' ),
+			'billing_phone'        => $order->get_billing_phone( 'edit' ),
 
-            'shipping_first_name'  => $order->get_shipping_first_name( 'edit' ),
-            'shipping_last_name'   => $order->get_shipping_last_name( 'edit' ),
-            'shipping_company'     => $order->get_shipping_company( 'edit' ),
-            'shipping_address_1'   => $order->get_shipping_address_1( 'edit' ),
-            'shipping_address_2'   => $order->get_shipping_address_2( 'edit' ),
-            'shipping_city'        => $order->get_shipping_city( 'edit' ),
-            'shipping_state'       => $order->get_shipping_state( 'edit' ),
-            'shipping_postcode'    => $order->get_shipping_postcode( 'edit' ),
-            'shipping_country'     => $order->get_shipping_country( 'edit' ),
+			'shipping_first_name'  => $order->get_shipping_first_name( 'edit' ),
+			'shipping_last_name'   => $order->get_shipping_last_name( 'edit' ),
+			'shipping_company'     => $order->get_shipping_company( 'edit' ),
+			'shipping_address_1'   => $order->get_shipping_address_1( 'edit' ),
+			'shipping_address_2'   => $order->get_shipping_address_2( 'edit' ),
+			'shipping_city'        => $order->get_shipping_city( 'edit' ),
+			'shipping_state'       => $order->get_shipping_state( 'edit' ),
+			'shipping_postcode'    => $order->get_shipping_postcode( 'edit' ),
+			'shipping_country'     => $order->get_shipping_country( 'edit' ),
 
-            'discount_total'       => $order->get_discount_total( 'edit' ),
-            'discount_tax'         => $order->get_discount_tax( 'edit' ),
-            'shipping_total'       => $order->get_shipping_total( 'edit' ),
-            'shipping_tax'         => $order->get_shipping_tax( 'edit'),
-            'cart_tax'             => $order->get_total_tax( 'edit' ),
-            'total'                => $order->get_total( 'edit' ),
+			'discount_total'       => $order->get_discount_total( 'edit' ),
+			'discount_tax'         => $order->get_discount_tax( 'edit' ),
+			'shipping_total'       => $order->get_shipping_total( 'edit' ),
+			'shipping_tax'         => $order->get_shipping_tax( 'edit' ),
+			'cart_tax'             => $order->get_total_tax( 'edit' ),
+			'total'                => $order->get_total( 'edit' ),
 
-            'version'              => $order->get_version( 'edit' ),
-            'currency'             => $order->get_currency( 'edit' ),
-            'prices_include_tax'   => $order->get_prices_include_tax( 'edit' )
+			'version'              => $order->get_version( 'edit' ),
+			'currency'             => $order->get_currency( 'edit' ),
+			'prices_include_tax'   => $order->get_prices_include_tax( 'edit' ),
 		);
 
 		$changes = array();
@@ -197,24 +226,24 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 			$wpdb->insert(
 				"{$wpdb->prefix}woocommerce_orders",
 				array_merge( array(
-				    'order_id' => $order->get_id()
-                ), $edit_data )
+					'order_id' => $order->get_id(),
+				), $edit_data )
 			);
 
 			// We are no longer creating the order, it is created.
 			$this->creating = false;
 		} else {
-		    $changes = array_intersect_key( $edit_data, $order->get_changes() );
+			$changes = array_intersect_key( $edit_data, $order->get_changes() );
 
-		    if( ! empty( $changes ) ) {
-                $wpdb->update(
-                    "{$wpdb->prefix}woocommerce_orders",
-                    $changes,
-                    array(
-                        'order_id' => $order->get_id(),
-                    )
-                );
-            }
+			if ( ! empty( $changes ) ) {
+				$wpdb->update(
+					"{$wpdb->prefix}woocommerce_orders",
+					$changes,
+					array(
+						'order_id' => $order->get_id(),
+					)
+				);
+			}
 		}
 
 		$updated_props = array_keys( (array) $changes );
@@ -231,8 +260,9 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 	/**
 	 * Excerpt for post.
 	 *
-	 * @param  WC_Order $order
-	 * @return string
+	 * @param  WC_Order $order The order object.
+	 *
+	 * @return string The post excerpt.
 	 */
 	protected function get_post_excerpt( $order ) {
 		return $order->get_customer_note();
@@ -241,8 +271,11 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 	/**
 	 * Get amount already refunded.
 	 *
-	 * @param  WC_Order
-	 * @return string
+	 * @global $wpdb
+	 *
+	 * @param WC_Order $order The order object.
+	 *
+	 * @return string The refund amount.
 	 */
 	public function get_total_refunded( $order ) {
 		global $wpdb;
@@ -261,8 +294,11 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 	/**
 	 * Get the total tax refunded.
 	 *
-	 * @param  WC_Order
-	 * @return float
+	 * @global $wpdb
+	 *
+	 * @param WC_Order $order The order object.
+	 *
+	 * @return float The total refunded tax.
 	 */
 	public function get_total_tax_refunded( $order ) {
 		global $wpdb;
@@ -282,8 +318,11 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 	/**
 	 * Get the total shipping refunded.
 	 *
-	 * @param  WC_Order
-	 * @return float
+	 * @global $wpdb
+	 *
+	 * @param WC_Order $order The order object.
+	 *
+	 * @return float The total refunded shipping.
 	 */
 	public function get_total_shipping_refunded( $order ) {
 		global $wpdb;
@@ -301,32 +340,50 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 	}
 
 	/**
-	 * Finds an Order ID based on an order key.
+	 * Finds an order ID based on its order key.
 	 *
-	 * @param string $order_key An order key has generated by
+	 * @param string $order_key The order key.
+	 *
 	 * @return int The ID of an order, or 0 if the order could not be found
 	 */
 	public function get_order_id_by_order_key( $order_key ) {
 		global $wpdb;
-		return $wpdb->get_var( $wpdb->prepare( "SELECT order_id FROM {$wpdb->prefix}woocommerce_orders WHERE order_key = %s", $order_key ) );
+
+		return $wpdb->get_var( $wpdb->prepare(
+			"SELECT order_id FROM {$wpdb->prefix}woocommerce_orders WHERE order_key = %s",
+			$order_key
+		) );
 	}
 
 	/**
 	 * Return count of orders with a specific status.
 	 *
-	 * @param  string $status
-	 * @return int
+	 * @global $wpdb
+	 *
+	 * @param  string $status The post_status to filter orders by.
+	 *
+	 * @return int The number of orders with that status.
 	 */
 	public function get_order_count( $status ) {
 		global $wpdb;
-		return absint( $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( * ) FROM {$wpdb->posts} WHERE post_type = 'shop_order' AND post_status = %s", $status ) ) );
+
+		return absint( $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'shop_order' AND post_status = %s",
+			$status
+		) ) );
 	}
 
 	/**
 	 * Get all orders matching the passed in args.
 	 *
-	 * @see    wc_get_orders()
-	 * @param  array $args
+	 * @see wc_get_orders()
+	 *
+	 * @param array $args {
+	 *   Query arguments. All arguments are optional.
+	 *
+	 *   @var string $type The post type. Default is 'shop_order'.
+	 *   @var
+	 * }
 	 * @return object|array array of orders
 	 */
 	public function get_orders( $args = array() ) {
@@ -334,7 +391,7 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 		 * Generate WP_Query args. This logic will change if orders are moved to
 		 * custom tables in the future.
 		 */
-		$wp_query_args = array(
+		$wp_query_args     = array(
 			'post_type'      => $args['type'] ? $args['type'] : 'shop_order',
 			'post_status'    => $args['status'],
 			'posts_per_page' => $args['limit'],
@@ -343,29 +400,25 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 			'orderby'        => $args['orderby'],
 			'order'          => $args['order'],
 		);
-
-        /**
-         * wc_customer_query
-         */
 		$wc_customer_query = array();
 
-        if ( ! empty( $args['customer'] ) ) {
-            $values = is_array( $args['customer'] ) ? $args['customer'] : array( $args['customer'] );
-            $wc_customer_query = array_merge( $wc_customer_query, $values );
-        }
+		if ( ! empty( $args['customer'] ) ) {
+			$values = is_array( $args['customer'] ) ? $args['customer'] : array( $args['customer'] );
+			$wc_customer_query = array_merge( $wc_customer_query, $values );
+		}
 
-        if ( ! empty( $args['email'] ) ) {
-            $values = is_array( $args['email'] ) ? $args['email'] : array( $args['email'] );
-            $wc_customer_query = array_merge( $wc_customer_query, $values );
-        }
+		if ( ! empty( $args['email'] ) ) {
+			$values = is_array( $args['email'] ) ? $args['email'] : array( $args['email'] );
+			$wc_customer_query = array_merge( $wc_customer_query, $values );
+		}
 
-        if( ! empty( $wc_customer_query ) ) {
-            $wp_query_args['wc_customer_query'] = $wc_customer_query;
-        }
+		if ( ! empty( $wc_customer_query ) ) {
+			$wp_query_args['wc_customer_query'] = $wc_customer_query;
+		}
 
-        /**
-         * Standard Args
-         */
+		/**
+		 * Standard Args
+		 */
 		if ( ! is_null( $args['parent'] ) ) {
 			$wp_query_args['post_parent'] = absint( $args['parent'] );
 		}
@@ -392,8 +445,15 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 			$wp_query_args['date_query']['after'] = $args['date_after'];
 		}
 
-		// Get results.
-		$orders = new WP_Query( apply_filters( 'woocommerce_order_data_store_cpt_get_orders_query', $wp_query_args, $args, $this ) );
+		/**
+		 * Filter WP_Query arguments when retrieving orders from the database.
+		 *
+		 * @param array                            $wp_query_args The current WP_Query arguments.
+		 * @param array                            $args          Raw arguments passed to WC_Order_Data_Store_Custom_Table::get_orders().
+		 * @param WC_Order_Data_Store_Custom_Table $instance      The current instance of the WC_Order_Data_Store_Custom_Table class.
+		 */
+		$wp_query_args = apply_filters( 'woocommerce_order_data_store_cpt_get_orders_query', $wp_query_args, $args, $this );
+		$orders        = new WP_Query( $wp_query_args );
 
 		if ( 'objects' === $args['return'] ) {
 			$return = array_map( 'wc_get_order', $orders->posts );
@@ -415,9 +475,10 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 	/**
 	 * Generate meta query for wc_get_orders.
 	 *
-	 * @param  array $values
-	 * @param  string $relation
-	 * @return array
+	 * @param  array  $values   Values to populate the meta query.
+	 * @param  string $relation Optional The query relationship, either "and" or "or". Default is "or".
+	 *
+	 * @return array An array suitable for passing to WP_Query's meta_query argument.
 	 */
 	private function get_orders_generate_customer_meta_query( $values, $relation = 'or' ) {
 		$meta_query = array(
@@ -458,10 +519,11 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 	}
 
 	/**
-	 * Get unpaid orders after a certain date,
+	 * Get unpaid orders after a certain date.
 	 *
-	 * @param  int timestamp $date
-	 * @return array
+	 * @param int $date The Unix timestamp used for date filtering.
+	 *
+	 * @return array An array of unpaid orders.
 	 */
 	public function get_unpaid_orders( $date ) {
 		global $wpdb;
@@ -472,7 +534,7 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 			WHERE   posts.post_type   IN ('" . implode( "','", wc_get_order_types() ) . "')
 			AND     posts.post_status = 'wc-pending'
 			AND     posts.post_modified < %s
-		", date( "Y-m-d H:i:s", absint( $date ) ) ) );
+		", date( 'Y-m-d H:i:s', absint( $date ) ) ) );
 
 		return $unpaid_orders;
 	}
@@ -480,8 +542,9 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 	/**
 	 * Search order data for a term and return ids.
 	 *
-	 * @param  string $term
-	 * @return array of ids
+	 * @param  string $term The search term.
+	 *
+	 * @return array An array of order IDs.
 	 */
 	public function search_orders( $term ) {
 		global $wpdb;
@@ -492,207 +555,220 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 			$order_ids[] = absint( $term );
 		}
 
-		// @todo add order search capability
+		/**
+		 * Searches on meta data can be slow - this lets you choose what fields to search.
+		 *
+		 * WooCommerce 2.7.0 added _billing_address and _shipping_address meta which contains all
+		 * address data to make this faster. However, this won't work on older orders unless they
+		 * are updated, so search a few others (expand this using the filter if needed).
+		 */
+		$meta_search_fields = array_map( 'wc_clean', apply_filters( 'woocommerce_shop_order_search_fields', array(
+			// While we are searching the custom table, we will also search meta when filtered for backwards compatibility.
+		) ) );
 
-        /**
-         * Searches on meta data can be slow - this lets you choose what fields to search.
-         * 2.7.0 added _billing_address and _shipping_address meta which contains all address data to make this faster.
-         * This however won't work on older orders unless updated, so search a few others (expand this using the filter if needed).
-         * @var array
-         */
-        $meta_search_fields = array_map( 'wc_clean', apply_filters( 'woocommerce_shop_order_search_fields', array(
-            // While we are searching the custom table, we will also search meta when filtered for backwards compatibility.
-        ) ) );
+		$postmeta_search = ! empty( $meta_search_fields ) ? $wpdb->get_col(
+			$wpdb->prepare( "SELECT DISTINCT p1.post_id FROM {$wpdb->postmeta} p1 WHERE p1.meta_key IN ('" . implode( "','", array_map( 'esc_sql', $search_fields ) ) . "') AND p1.meta_value LIKE '%%%s%%';", wc_clean( $term ) )
+		) : array();
 
-        $postmeta_search = ! empty( $meta_search_fields ) ? $wpdb->get_col(
-            $wpdb->prepare( "SELECT DISTINCT p1.post_id FROM {$wpdb->postmeta} p1 WHERE p1.meta_key IN ('" . implode( "','", array_map( 'esc_sql', $search_fields ) ) . "') AND p1.meta_value LIKE '%%%s%%';", wc_clean( $term ) )
-        ) : array();
-
-        return array_unique( array_merge(
-            $order_ids,
-            $postmeta_search,
-            $wpdb->get_col(
-                $wpdb->prepare( "
+		return array_unique( array_merge(
+			$order_ids,
+			$postmeta_search,
+			$wpdb->get_col(
+				$wpdb->prepare( "
 						SELECT order_id
 						FROM {$wpdb->prefix}woocommerce_order_items as order_items
 						WHERE order_item_name LIKE '%%%s%%'
 						",
-                    $term
-                )
-            )
-        ) );
+					$term
+				)
+			)
+		) );
 	}
 
 	/**
 	 * Gets information about whether permissions were generated yet.
 	 *
-	 * @param WC_Order|int $order
+	 * @param WC_Order|int $order The order object or ID.
+	 *
 	 * @return bool
 	 */
 	public function get_download_permissions_granted( $order ) {
 		$order_id = WC_Order_Factory::get_order_id( $order );
+
 		return wc_string_to_bool( get_post_meta( $order_id, '_download_permissions_granted', true ) );
 	}
 
 	/**
 	 * Stores information about whether permissions were generated yet.
 	 *
-	 * @param WC_Order|int $order
-	 * @param bool $set
+	 * @param WC_Order|int $order The order object or ID.
+	 * @param bool         $set   Whether or not the permissions have been generated.
 	 */
 	public function set_download_permissions_granted( $order, $set ) {
 		$order_id = WC_Order_Factory::get_order_id( $order );
+
 		update_post_meta( $order_id, '_download_permissions_granted', wc_bool_to_string( $set ) );
 	}
 
 	/**
 	 * Gets information about whether sales were recorded.
 	 *
-	 * @param WC_Order|int $order
+	 * @param WC_Order|int $order The order object or ID.
+	 *
 	 * @return bool
 	 */
 	public function get_recorded_sales( $order ) {
 		$order_id = WC_Order_Factory::get_order_id( $order );
+
 		return wc_string_to_bool( get_post_meta( $order_id, '_recorded_sales', true ) );
 	}
 
 	/**
 	 * Stores information about whether sales were recorded.
 	 *
-	 * @param WC_Order|int $order
-	 * @param bool $set
+	 * @param WC_Order|int $order The order object or ID.
+	 * @param bool         $set   Whether or not the sales have been recorded.
 	 */
 	public function set_recorded_sales( $order, $set ) {
 		$order_id = WC_Order_Factory::get_order_id( $order );
+
 		update_post_meta( $order_id, '_recorded_sales', wc_bool_to_string( $set ) );
 	}
 
 	/**
 	 * Gets information about whether coupon counts were updated.
 	 *
-	 * @param WC_Order|int $order
+	 * @param WC_Order|int $order The order object or ID.
+	 *
 	 * @return bool
 	 */
 	public function get_recorded_coupon_usage_counts( $order ) {
 		$order_id = WC_Order_Factory::get_order_id( $order );
+
 		return wc_string_to_bool( get_post_meta( $order_id, '_recorded_coupon_usage_counts', true ) );
 	}
 
 	/**
 	 * Stores information about whether coupon counts were updated.
 	 *
-	 * @param WC_Order|int $order
-	 * @param bool $set
+	 * @param WC_Order|int $order The order object or ID.
+	 * @param bool         $set   Whether or not the coupon counts have been updated.
 	 */
 	public function set_recorded_coupon_usage_counts( $order, $set ) {
 		$order_id = WC_Order_Factory::get_order_id( $order );
+
 		update_post_meta( $order_id, '_recorded_coupon_usage_counts', wc_bool_to_string( $set ) );
 	}
 
 	/**
 	 * Gets information about whether stock was reduced.
 	 *
-	 * @param WC_Order|int $order
+	 * @param WC_Order|int $order The order object or ID.
+	 *
 	 * @return bool
 	 */
 	public function get_stock_reduced( $order ) {
 		$order_id = WC_Order_Factory::get_order_id( $order );
+
 		return wc_string_to_bool( get_post_meta( $order_id, '_order_stock_reduced', true ) );
 	}
 
 	/**
 	 * Stores information about whether stock was reduced.
 	 *
-	 * @param WC_Order|int $order
-	 * @param bool $set
+	 * @param WC_Order|int $order The order object or ID.
+	 *
+	 * @param bool         $set   Whether or not stock has been reduced.
 	 */
 	public function set_stock_reduced( $order, $set ) {
 		$order_id = WC_Order_Factory::get_order_id( $order );
+
 		update_post_meta( $order_id, '_order_stock_reduced', wc_bool_to_string( $set ) );
 	}
 
 	/**
 	 * Get the order type based on Order ID.
 	 *
-	 * @since 1.0.0
-	 * @param int $order_id
-	 * @return string
+	 * @param int $order_id The order ID.
+	 *
+	 * @return string The order post type.
 	 */
 	public function get_order_type( $order_id ) {
 		return get_post_type( $order_id );
 	}
 
-    /**
-     * Populate custom table with data from postmeta, for migrations.
-     *
-     * @since 1.0.0
-     * @param bool $save
-     * @param bool $delete
-     * @return bool
-     */
+	/**
+	 * Populate custom table with data from postmeta, for migrations.
+	 *
+	 * @param WC_Order $order  The order object, passed by reference.
+	 * @param bool     $save   Optional. Whether or not the post meta should be updated. Default
+	 *                         is true.
+	 * @param bool     $delete Optional. Whether or not the post meta should be deleted. Default
+	 *                         is false.
+	 *
+	 * @return WC_Order the order object.
+	 */
 	public function populate_from_meta( &$order, $save = true, $delete = false ) {
-	    $table_data = $this->get_order_data_from_table( $order );
+		$table_data = $this->get_order_data_from_table( $order );
 
-	    if( is_null( $table_data ) ) {
-	        $original_creating = $this->creating;
-	        $this->creating = true;
-        }
+		if ( is_null( $table_data ) ) {
+			$original_creating = $this->creating;
+			$this->creating = true;
+		}
 
-	    foreach( $this->get_postmeta_mapping() as $column => $meta_key ) {
-	        $meta = get_post_meta( $order->get_id(), $meta_key, true );
+		foreach ( $this->get_postmeta_mapping() as $column => $meta_key ) {
+			$meta = get_post_meta( $order->get_id(), $meta_key, true );
 
-	        if( empty( $table_data->$column ) && ! empty( $meta ) ) {
-	            switch( $column ) {
-                    case 'prices_include_tax':
-                        $order->set_prices_include_tax( 'yes' === $meta );
-                        break;
-                    default:
-                        $order->{"set_{$column}"}( $meta );
-                }
-            }
-        }
+			if ( empty( $table_data->$column ) && ! empty( $meta ) ) {
+				switch ( $column ) {
+					case 'prices_include_tax':
+						$order->set_prices_include_tax( 'yes' === $meta );
+						break;
 
-        if( true === $save ) {
-	        $this->update_post_meta( $order );
-        }
+					default:
+						$order->{"set_{$column}"}( $meta );
+				}
+			}
+		}
 
-        if( true === $delete ) {
-            foreach( $this->get_postmeta_mapping() as $column => $meta_key ) {
-                delete_post_meta( $order->get_id(), $meta_key );
-            }
-        }
+		if ( true === $save ) {
+			$this->update_post_meta( $order );
+		}
 
-        $this->creating = $original_creating;
+		if ( true === $delete ) {
+			foreach ( $this->get_postmeta_mapping() as $column => $meta_key ) {
+				delete_post_meta( $order->get_id(), $meta_key );
+			}
+		}
 
-	    return $order;
-    }
+		$this->creating = $original_creating;
 
-    /**
-     * Populate order postmeta from a custom table, for rolling back.
-     *
-     * @since 1.0.0
-     * @return void
-     */
-    public function backfill_postmeta( &$order ) {
-        $data = $this->get_order_data_from_table( $order );
+		return $order;
+	}
 
-        if( is_null( $data ) ) {
-            return;
-        }
+	/**
+	 * Populate order postmeta from a custom table, for rolling back.
+	 *
+	 * @param WC_Order $order The order object, passed by reference.
+	 */
+	public function backfill_postmeta( &$order ) {
+		$data = $this->get_order_data_from_table( $order );
 
-        foreach( $this->get_postmeta_mapping() as $column => $meta_key ) {
-            if( isset( $data->$column ) ) {
-                update_post_meta( $order->get_id(), $meta_key, $data->$column );
-            }
-        }
-    }
+		if ( is_null( $data ) ) {
+			return;
+		}
+
+		foreach ( $this->get_postmeta_mapping() as $column => $meta_key ) {
+			if ( isset( $data->$column ) ) {
+				update_post_meta( $order->get_id(), $meta_key, $data->$column );
+			}
+		}
+	}
 
 	/**
 	 * Query for Orders matching specific criteria.
 	 *
-	 * @since 3.1.0
-	 *
-	 * @param array $query_vars query vars from a WC_Order_Query
+	 * @param array $query_vars Query arguments from a WC_Order_Query.
 	 *
 	 * @return array|object
 	 */
