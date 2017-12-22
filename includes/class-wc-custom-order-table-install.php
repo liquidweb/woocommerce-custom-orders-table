@@ -20,39 +20,16 @@ class WC_Custom_Order_Table_Install {
 	 */
 	protected $table_version = 1;
 
-
 	/**
 	 * Actions to perform on plugin activation.
 	 */
 	public function activate() {
-		$this->maybe_install_tables();
-	}
-
-	/**
-	 * Retrieve the latest table schema version.
-	 *
-	 * @return int The latest schema version.
-	 */
-	public function get_latest_table_version() {
-		return absint( $this->table_version );
-	}
-
-	/**
-	 * Retrieve the current table version from the options table.
-	 *
-	 * @return int The current schema version.
-	 */
-	public function get_installed_table_version() {
-		return absint( get_option( self::SCHEMA_VERSION_KEY ) );
-	}
-
-	/**
-	 * Install or update the tables if the site is not using the current schema.
-	 */
-	protected function maybe_install_tables() {
-		if ( $this->get_installed_table_version() < $this->get_latest_table_version() ) {
-			$this->install_tables();
+		// We're already on the latest schema version.
+		if ( (int) $this->table_version === (int) get_option( self::SCHEMA_VERSION_KEY ) ) {
+			return false;
 		}
+
+		$this->install_tables();
 	}
 
 	/**
@@ -124,6 +101,6 @@ class WC_Custom_Order_Table_Install {
 		dbDelta( $tables );
 
 		// Store the table version in the options table.
-		update_option( self::SCHEMA_VERSION_KEY, $this->get_latest_table_version() );
+		update_option( self::SCHEMA_VERSION_KEY, (int) $this->table_version );
 	}
 }

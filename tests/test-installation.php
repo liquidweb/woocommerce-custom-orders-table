@@ -62,6 +62,16 @@ class InstallationTest extends TestCase {
 		);
 	}
 
+	public function test_returns_early_if_already_on_latest_schema_version() {
+		$instance = new WC_Custom_Order_Table_Install();
+		$instance->activate();
+
+		$this->assertFalse(
+			$instance->activate(),
+			'The activate() method should return false if the schema versions match.'
+		);
+	}
+
 	public function test_can_upgrade_table() {
 		$instance = new WC_Custom_Order_Table_Install();
 		$instance->activate();
