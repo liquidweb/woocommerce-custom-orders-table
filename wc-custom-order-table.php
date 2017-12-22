@@ -32,7 +32,7 @@ if ( file_exists( WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php' ) ) {
  */
 function wc_custom_order_table_install() {
 	$installer = new WC_Custom_Order_Table_Install();
-	register_activation_hook( __FILE__, array( $installer, 'activate' ) );
+	$installer->activate();
 }
 
 register_activation_hook( __FILE__, 'wc_custom_order_table_install' );
