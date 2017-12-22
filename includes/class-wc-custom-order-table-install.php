@@ -18,14 +18,14 @@ class WC_Custom_Order_Table_Install {
 	 *
 	 * @var int
 	 */
-	protected $table_version = 1;
+	protected static $table_version = 1;
 
 	/**
 	 * Actions to perform on plugin activation.
 	 */
 	public function activate() {
 		// We're already on the latest schema version.
-		if ( (int) $this->table_version === (int) get_option( self::SCHEMA_VERSION_KEY ) ) {
+		if ( (int) self::$table_version === (int) get_option( self::SCHEMA_VERSION_KEY ) ) {
 			return false;
 		}
 
@@ -101,6 +101,6 @@ class WC_Custom_Order_Table_Install {
 		dbDelta( $tables );
 
 		// Store the table version in the options table.
-		update_option( self::SCHEMA_VERSION_KEY, (int) $this->table_version );
+		update_option( self::SCHEMA_VERSION_KEY, (int) self::$table_version );
 	}
 }
