@@ -1,4 +1,10 @@
 <?php
+/**
+ * Core plugin functionality.
+ *
+ * @package WooCommerce_Custom_Order_Tables
+ * @author  Liquid Web
+ */
 
 class WC_Custom_Order_Table {
 

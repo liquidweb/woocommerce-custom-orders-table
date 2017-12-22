@@ -11,6 +11,9 @@
  *
  * WC requires at least: 3.0.0
  * WC tested up to:      3.2.6
+ *
+ * @package WooCommerce_Custom_Order_Tables
+ * @author  Liquid Web
  */
 
 /* Define constants to use throughout the plugin. */

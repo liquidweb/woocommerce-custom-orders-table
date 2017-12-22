@@ -1,6 +1,9 @@
 <?php
 /**
  * CLI Tool for migrating order data to/from custom table.
+ *
+ * @package WooCommerce_Custom_Order_Tables
+ * @author  Liquid Web
  */
 
 class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
