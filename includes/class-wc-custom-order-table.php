@@ -63,15 +63,15 @@ class WC_Custom_Order_Table {
 	 *
 	 * @global $wpdb
 	 *
-	 * @param string   $join  The SQL JOIN statement.
-	 * @param WP_Query $query The current WP_Query object.
+	 * @param string   $join     The SQL JOIN statement.
+	 * @param WP_Query $wp_query The current WP_Query object.
 	 *
 	 * @return string The [potentially] filtered JOIN statement.
 	 */
 	public function wp_query_customer_query( $join, $wp_query ) {
 		global $wpdb;
 
-		// If there is no wc_customer_query then no need to process anything
+		// If there is no wc_customer_query then no need to process anything.
 		if ( ! isset( $wp_query->query_vars['wc_customer_query'] ) ) {
 			return $join;
 		}
