@@ -49,8 +49,7 @@ class InstallationTest extends TestCase {
 			'The wp_woocommerce_orders table should not exist at the beginning of this test.'
 		);
 
-		$instance = new WC_Custom_Order_Table_Install();
-		$instance->activate();
+		WC_Custom_Order_Table_Install::activate();
 
 		$this->assertTrue(
 			self::orders_table_exists(),
@@ -63,27 +62,25 @@ class InstallationTest extends TestCase {
 	}
 
 	public function test_returns_early_if_already_on_latest_schema_version() {
-		$instance = new WC_Custom_Order_Table_Install();
-		$instance->activate();
+		WC_Custom_Order_Table_Install::activate();
 
 		$this->assertFalse(
-			$instance->activate(),
+			WC_Custom_Order_Table_Install::activate(),
 			'The activate() method should return false if the schema versions match.'
 		);
 	}
 
 	public function test_can_upgrade_table() {
-		$instance = new WC_Custom_Order_Table_Install();
-		$instance->activate();
+		WC_Custom_Order_Table_Install::activate();
 
 		// Get the current schema version, then increment it.
-		$property = new ReflectionProperty( $instance, 'table_version' );
+		$property = new ReflectionProperty( 'WC_Custom_Order_Table_Install', 'table_version' );
 		$property->setAccessible( true );
-		$version  = $property->getValue( $instance );
-		$property->setValue( $instance, $version + 1 );
+		$version  = $property->getValue();
+		$property->setValue( $version + 1 );
 
 		// Run the activation script again.
-		$instance->activate();
+		WC_Custom_Order_Table_Install::activate();
 
 		$this->assertEquals(
 			$version + 1,

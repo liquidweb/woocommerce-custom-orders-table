@@ -26,16 +26,9 @@ if ( file_exists( WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php' ) ) {
 }
 
 /**
- * Installation procedure for the plugin.
- *
- * This function is responsible for creating the new plugin database tables.
+ * Install the database tables upon plugin activation.
  */
-function wc_custom_order_table_install() {
-	$installer = new WC_Custom_Order_Table_Install();
-	$installer->activate();
-}
-
-register_activation_hook( __FILE__, 'wc_custom_order_table_install' );
+register_activation_hook( __FILE__, array( 'WC_Custom_Order_Table_Install', 'activate' ) );
 
 /**
  * Retrieve an instance of the WC_Custom_Order_Table class.

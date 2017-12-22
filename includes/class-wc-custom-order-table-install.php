@@ -23,13 +23,13 @@ class WC_Custom_Order_Table_Install {
 	/**
 	 * Actions to perform on plugin activation.
 	 */
-	public function activate() {
+	public static function activate() {
 		// We're already on the latest schema version.
 		if ( (int) self::$table_version === (int) get_option( self::SCHEMA_VERSION_KEY ) ) {
 			return false;
 		}
 
-		$this->install_tables();
+		self::install_tables();
 	}
 
 	/**
@@ -37,7 +37,7 @@ class WC_Custom_Order_Table_Install {
 	 *
 	 * @global $wpdb
 	 */
-	protected function install_tables() {
+	protected static function install_tables() {
 		global $wpdb;
 
 		// Load wp-admin/includes/upgrade.php, which defines dbDelta().
