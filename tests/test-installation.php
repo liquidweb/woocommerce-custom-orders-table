@@ -88,4 +88,19 @@ class InstallationTest extends TestCase {
 			'The schema version should have been incremented.'
 		);
 	}
+
+	public function test_current_schema_version_is_not_autoloaded() {
+		global $wpdb;
+
+		WC_Custom_Order_Table_Install::activate();
+
+		$this->assertEquals(
+			'no',
+			$wpdb->get_var( $wpdb->prepare(
+				"SELECT autoload FROM $wpdb->options WHERE option_name = %s LIMIT 1",
+				WC_Custom_Order_Table_Install::SCHEMA_VERSION_KEY
+			) ),
+			'The schema version should not be autoloaded.'
+		);
+	}
 }

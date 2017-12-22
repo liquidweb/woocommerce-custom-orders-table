@@ -101,6 +101,6 @@ class WC_Custom_Order_Table_Install {
 		dbDelta( $tables );
 
 		// Store the table version in the options table.
-		update_option( self::SCHEMA_VERSION_KEY, (int) self::$table_version );
+		update_option( self::SCHEMA_VERSION_KEY, (int) self::$table_version, false );
 	}
 }
