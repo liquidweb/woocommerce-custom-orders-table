@@ -9,6 +9,11 @@
 class WC_Custom_Order_Table_Install {
 
 	/**
+	 * The option key that contains the current schema version.
+	 */
+	const SCHEMA_VERSION_KEY = 'wc_orders_table_version';
+
+	/**
 	 * The database table schema version.
 	 *
 	 * @var int
@@ -38,7 +43,7 @@ class WC_Custom_Order_Table_Install {
 	 * @return int The current schema version.
 	 */
 	public function get_installed_table_version() {
-		return absint( get_option( 'wc_orders_table_version' ) );
+		return absint( get_option( self::SCHEMA_VERSION_KEY ) );
 	}
 
 	/**
@@ -119,6 +124,6 @@ class WC_Custom_Order_Table_Install {
 		dbDelta( $tables );
 
 		// Store the table version in the options table.
-		update_option( 'wc_orders_table_version', $this->get_latest_table_version() );
+		update_option( self::SCHEMA_VERSION_KEY, $this->get_latest_table_version() );
 	}
 }

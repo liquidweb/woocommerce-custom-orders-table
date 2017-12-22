@@ -57,7 +57,7 @@ class InstallationTest extends TestCase {
 			'Upon activation, the table should be created.'
 		);
 		$this->assertNotEmpty(
-			get_option( 'wc_orders_table_version' ),
+			get_option( WC_Custom_Order_Table_Install::SCHEMA_VERSION_KEY ),
 			'The schema version should be stored in the options table.'
 		);
 	}
@@ -77,7 +77,7 @@ class InstallationTest extends TestCase {
 
 		$this->assertEquals(
 			$version + 1,
-			get_option( 'wc_orders_table_version' ),
+			get_option( WC_Custom_Order_Table_Install::SCHEMA_VERSION_KEY ),
 			'The schema version should have been incremented.'
 		);
 	}
