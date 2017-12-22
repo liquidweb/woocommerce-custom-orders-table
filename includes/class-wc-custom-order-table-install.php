@@ -43,14 +43,9 @@ class WC_Custom_Order_Table_Install {
 		// Load wp-admin/includes/upgrade.php, which defines dbDelta().
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-		$collate = '';
-
-		if ( $wpdb->has_cap( 'collation' ) ) {
-			$collate = $wpdb->get_charset_collate();
-		}
-
-		$table  = wc_custom_order_table()->get_table_name();
-		$tables = "
+		$table   = wc_custom_order_table()->get_table_name();
+		$collate = $wpdb->get_charset_collate();
+		$tables  = "
 			CREATE TABLE {$table} (
 				order_id BIGINT UNSIGNED NOT NULL,
 				order_key varchar(100) NOT NULL,
