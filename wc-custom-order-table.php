@@ -13,27 +13,40 @@
  * WC tested up to:      3.2.6
  */
 
-define('WC_CUSTOM_ORDER_TABLE_URL', plugin_dir_url(__FILE__));
-define('WC_CUSTOM_ORDER_TABLE_PATH', plugin_dir_path(__FILE__));
+/* Define constants to use throughout the plugin. */
+define( 'WC_CUSTOM_ORDER_TABLE_URL', plugin_dir_url( __FILE__ ) );
+define( 'WC_CUSTOM_ORDER_TABLE_PATH', plugin_dir_path( __FILE__ ) );
 
+/* Load includes via a PHP 5.2-compatible autoloader. */
 if ( file_exists( WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php' ) ) {
-    require( WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php' );
+	require( WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php' );
 }
 
+/**
+ * Installation procedure for the plugin.
+ *
+ * This function is responsible for creating the new plugin database tables.
+ */
 function wc_custom_order_table_install() {
-    $installer = new WC_Custom_Order_Table_Install();
-    register_activation_hook( __FILE__, array( $installer, 'activate' ) );
+	$installer = new WC_Custom_Order_Table_Install();
+	register_activation_hook( __FILE__, array( $installer, 'activate' ) );
 }
 
 register_activation_hook( __FILE__, 'wc_custom_order_table_install' );
 
 /**
- * @return WC_Custom_Order_Table
+ * Retrieve an instance of the WC_Custom_Order_Table class.
+ *
+ * If one has not yet been instantiated, it will be created.
+ *
+ * @global $wc_custom_order_table
+ *
+ * @return WC_Custom_Order_Table The global WC_Custom_Order_Table instance.
  */
 function wc_custom_order_table() {
 	global $wc_custom_order_table;
 
-	if( ! $wc_custom_order_table instanceof WC_Custom_Order_Table ) {
+	if ( ! $wc_custom_order_table instanceof WC_Custom_Order_Table ) {
 		$wc_custom_order_table = new WC_Custom_Order_Table;
 		$wc_custom_order_table->setup();
 	}
