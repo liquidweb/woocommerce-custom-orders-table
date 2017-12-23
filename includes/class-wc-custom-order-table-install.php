@@ -6,6 +6,13 @@
  * @author  Liquid Web
  */
 
+/**
+ * Installer for WooCommerce Custom Order Tables.
+ *
+ * Usage:
+ *
+ *     WC_Custom_Order_Table_Install::activate();
+ */
 class WC_Custom_Order_Table_Install {
 
 	/**
@@ -18,14 +25,14 @@ class WC_Custom_Order_Table_Install {
 	 *
 	 * @var int
 	 */
-	protected static $table_version = 1;
+	protected static $table_version = 2;
 
 	/**
 	 * Actions to perform on plugin activation.
 	 */
 	public static function activate() {
 		// We're already on the latest schema version.
-		if ( (int) self::$table_version === (int) get_option( self::SCHEMA_VERSION_KEY ) ) {
+		if ( (int) get_option( self::SCHEMA_VERSION_KEY ) === (int) self::$table_version ) {
 			return false;
 		}
 
@@ -88,7 +95,10 @@ class WC_Custom_Order_Table_Install {
 				date_completed datetime DEFAULT NULL,
 				date_paid datetime DEFAULT NULL,
 				cart_hash varchar(32) NOT NULL,
-			PRIMARY KEY  (order_id)
+			PRIMARY KEY  (order_id),
+			UNIQUE KEY `order_key` (`order_key`),
+			KEY `customer_id` (`customer_id`),
+			KEY `order_total` (`total`)
 			) $collate;
 		";
 
