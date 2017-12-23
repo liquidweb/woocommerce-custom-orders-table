@@ -6,6 +6,9 @@
  * @author  Liquid Web
  */
 
+/**
+ * Core functionality for WooCommerce Custom Order Tables.
+ */
 class WC_Custom_Order_Table {
 
 	/**

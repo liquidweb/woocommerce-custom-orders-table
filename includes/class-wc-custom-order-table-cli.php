@@ -6,6 +6,9 @@
  * @author  Liquid Web
  */
 
+/**
+ * Manages the contents of the WooCommerce order table.
+ */
 class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 
 	/**
