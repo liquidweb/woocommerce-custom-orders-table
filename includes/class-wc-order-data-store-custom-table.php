@@ -2,12 +2,16 @@
 /**
  * WooCommerce order data store.
  *
- * Orders are still treated as posts within WordPress, but the data is stored in a separate table.
- *
  * @package WooCommerce_Custom_Order_Tables
  * @author  Liquid Web
  */
 
+/**
+ * Extension of the Abstract_WC_Order_Data_Store_CPT class, designed to map data between
+ * WooCommerce and the custom database table.
+ *
+ * Orders are still treated as posts within WordPress, but the data is stored in a separate table.
+ */
 class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT implements WC_Object_Data_Store_Interface, WC_Order_Data_Store_Interface {
 
 	/**

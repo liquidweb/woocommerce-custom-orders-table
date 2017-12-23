@@ -6,6 +6,13 @@
  * @author  Liquid Web
  */
 
+/**
+ * Installer for WooCommerce Custom Order Tables.
+ *
+ * Usage:
+ *
+ *     WC_Custom_Order_Table_Install::activate();
+ */
 class WC_Custom_Order_Table_Install {
 
 	/**
