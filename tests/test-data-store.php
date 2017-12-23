@@ -55,4 +55,31 @@ class DataStoreTest extends TestCase {
 
 		$this->assertEmpty( $pending, 'No unpaid orders should match the time window.' );
 	}
+
+	/**
+	 * @dataProvider order_type_provider()
+	 */
+	public function test_get_order_type( $order_type ) {
+		$order = $this->factory()->order->create_and_get( array(
+			'post_type' => $order_type,
+		) );
+
+		$this->assertEquals(
+			$order_type,
+			( new WC_Order_Data_Store_Custom_Table() )->get_order_type( $order )
+		);
+	}
+
+	/**
+	 * Provide a list of all available order types.
+	 */
+	public function order_type_provider() {
+		$types = array();
+
+		foreach ( wc_get_order_types() as $type ) {
+			$types[ $type ] = array( $type );
+		}
+
+		return $types;
+	}
 }
