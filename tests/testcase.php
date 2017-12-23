@@ -31,6 +31,8 @@ class TestCase extends WP_UnitTestCase {
 		global $wpdb;
 
 		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}woocommerce_orders" );
+
+		delete_option( WC_Custom_Order_Table_Install::SCHEMA_VERSION_KEY );
 	}
 
 	/**

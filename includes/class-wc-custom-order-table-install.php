@@ -9,45 +9,27 @@
 class WC_Custom_Order_Table_Install {
 
 	/**
+	 * The option key that contains the current schema version.
+	 */
+	const SCHEMA_VERSION_KEY = 'wc_orders_table_version';
+
+	/**
 	 * The database table schema version.
 	 *
 	 * @var int
 	 */
-	protected $table_version = 1;
-
+	protected static $table_version = 1;
 
 	/**
 	 * Actions to perform on plugin activation.
 	 */
-	public function activate() {
-		$this->maybe_install_tables();
-	}
-
-	/**
-	 * Retrieve the latest table schema version.
-	 *
-	 * @return int The latest schema version.
-	 */
-	public function get_latest_table_version() {
-		return absint( $this->table_version );
-	}
-
-	/**
-	 * Retrieve the current table version from the options table.
-	 *
-	 * @return int The current schema version.
-	 */
-	public function get_installed_table_version() {
-		return absint( get_option( 'wc_orders_table_version' ) );
-	}
-
-	/**
-	 * Install or update the tables if the site is not using the current schema.
-	 */
-	protected function maybe_install_tables() {
-		if ( $this->get_installed_table_version() < $this->get_latest_table_version() ) {
-			$this->install_tables();
+	public static function activate() {
+		// We're already on the latest schema version.
+		if ( (int) self::$table_version === (int) get_option( self::SCHEMA_VERSION_KEY ) ) {
+			return false;
 		}
+
+		self::install_tables();
 	}
 
 	/**
@@ -55,20 +37,15 @@ class WC_Custom_Order_Table_Install {
 	 *
 	 * @global $wpdb
 	 */
-	protected function install_tables() {
+	protected static function install_tables() {
 		global $wpdb;
 
 		// Load wp-admin/includes/upgrade.php, which defines dbDelta().
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-		$collate = '';
-
-		if ( $wpdb->has_cap( 'collation' ) ) {
-			$collate = $wpdb->get_charset_collate();
-		}
-
-		$table  = wc_custom_order_table()->get_table_name();
-		$tables = "
+		$table   = wc_custom_order_table()->get_table_name();
+		$collate = $wpdb->get_charset_collate();
+		$tables  = "
 			CREATE TABLE {$table} (
 				order_id BIGINT UNSIGNED NOT NULL,
 				order_key varchar(100) NOT NULL,
@@ -119,6 +96,6 @@ class WC_Custom_Order_Table_Install {
 		dbDelta( $tables );
 
 		// Store the table version in the options table.
-		update_option( 'wc_orders_table_version', $this->get_latest_table_version() );
+		update_option( self::SCHEMA_VERSION_KEY, (int) self::$table_version, false );
 	}
 }
