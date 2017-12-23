@@ -13,4 +13,10 @@
 			<exclude>tests/test-sample.php</exclude>
 		</testsuite>
 	</testsuites>
+	<filter>
+		<whitelist>
+			<directory suffix=".php">includes</directory>
+			<file>wc-custom-order-table.php</file>
+		</whitelist>
+	</filter>
 </phpunit>
