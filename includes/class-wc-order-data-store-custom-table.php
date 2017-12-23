@@ -572,7 +572,7 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 		) ) );
 
 		$postmeta_search = ! empty( $meta_search_fields ) ? $wpdb->get_col(
-			$wpdb->prepare( "SELECT DISTINCT p1.post_id FROM {$wpdb->postmeta} p1 WHERE p1.meta_key IN ('" . implode( "','", array_map( 'esc_sql', $search_fields ) ) . "') AND p1.meta_value LIKE '%%%s%%';", wc_clean( $term ) )
+			$wpdb->prepare( "SELECT DISTINCT p1.post_id FROM {$wpdb->postmeta} p1 WHERE p1.meta_key IN ('" . implode( "','", array_map( 'esc_sql', $meta_search_fields ) ) . "') AND p1.meta_value LIKE '%%%s%%';", wc_clean( $term ) )
 		) : array();
 
 		return array_unique( array_merge(

@@ -8,6 +8,15 @@
 
 class DataStoreTest extends TestCase {
 
+	/**
+	 * Remove any closures that have been assigned to filters.
+	 *
+	 * @after
+	 */
+	public function remove_filter_callbacks() {
+		remove_all_filters( 'woocommerce_shop_order_search_fields' );
+	}
+
 	public function test_get_order_count() {
 		$orders = $this->factory()->order->create_many( 5, array(
 			'post_status' => 'wc-pending',
@@ -54,6 +63,44 @@ class DataStoreTest extends TestCase {
 			->get_unpaid_orders( time() - HOUR_IN_SECONDS );
 
 		$this->assertEmpty( $pending, 'No unpaid orders should match the time window.' );
+	}
+
+	public function test_search_orders_can_search_by_order_id() {
+		$this->assertEquals(
+			array( 123 ),
+			( new WC_Order_Data_Store_Custom_Table() )->search_orders( 123 ),
+			'When given a numeric value, search_orders() should include that order ID.'
+		);
+	}
+
+	public function test_search_orders_can_check_post_meta() {
+		$product = $this->factory()->product->create();
+
+		add_post_meta( $product, 'some_custom_meta_key', 'search term' );
+
+		add_filter( 'woocommerce_shop_order_search_fields', function () {
+			return array( 'some_custom_meta_key' );
+		} );
+
+		$this->assertEquals(
+			array( $product ),
+			( new WC_Order_Data_Store_Custom_Table() )->search_orders( 'search' ),
+			'If post meta keys are specified, they should also be searched.'
+		);
+	}
+
+	/**
+	 * Same as test_search_orders_can_check_post_meta(), but the filter is never added.
+	 */
+	public function test_search_orders_only_checks_post_meta_if_specified() {
+		$product = $this->factory()->product->create();
+
+		add_post_meta( $product, 'some_custom_meta_key', 'search term' );
+
+		$this->assertEmpty(
+			( new WC_Order_Data_Store_Custom_Table() )->search_orders( 'search' ),
+			'Only search post meta if keys are provided.'
+		);
 	}
 
 	/**
