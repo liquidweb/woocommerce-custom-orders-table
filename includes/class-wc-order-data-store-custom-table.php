@@ -407,12 +407,12 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 		$wc_customer_query = array();
 
 		if ( ! empty( $args['customer'] ) ) {
-			$values = is_array( $args['customer'] ) ? $args['customer'] : array( $args['customer'] );
+			$values            = is_array( $args['customer'] ) ? $args['customer'] : array( $args['customer'] );
 			$wc_customer_query = array_merge( $wc_customer_query, $values );
 		}
 
 		if ( ! empty( $args['email'] ) ) {
-			$values = is_array( $args['email'] ) ? $args['email'] : array( $args['email'] );
+			$values            = is_array( $args['email'] ) ? $args['email'] : array( $args['email'] );
 			$wc_customer_query = array_merge( $wc_customer_query, $values );
 		}
 
@@ -486,13 +486,13 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 	 */
 	private function get_orders_generate_customer_meta_query( $values, $relation = 'or' ) {
 		$meta_query = array(
-			'relation' => strtoupper( $relation ),
+			'relation'        => strtoupper( $relation ),
 			'customer_emails' => array(
 				'key'     => '_billing_email',
 				'value'   => array(),
 				'compare' => 'IN',
 			),
-			'customer_ids' => array(
+			'customer_ids'    => array(
 				'key'     => '_customer_user',
 				'value'   => array(),
 				'compare' => 'IN',
@@ -717,7 +717,7 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 
 		if ( is_null( $table_data ) ) {
 			$original_creating = $this->creating;
-			$this->creating = true;
+			$this->creating    = true;
 		}
 
 		foreach ( $this->get_postmeta_mapping() as $column => $meta_key ) {
@@ -781,8 +781,8 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 
 		if ( ! empty( $args['errors'] ) ) {
 			$query = (object) array(
-				'posts' => array(),
-				'found_posts' => 0,
+				'posts'         => array(),
+				'found_posts'   => 0,
 				'max_num_pages' => 0,
 			);
 		} else {
