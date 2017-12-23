@@ -32,7 +32,7 @@ class WC_Custom_Order_Table_Install {
 	 */
 	public static function activate() {
 		// We're already on the latest schema version.
-		if ( (int) self::$table_version === (int) get_option( self::SCHEMA_VERSION_KEY ) ) {
+		if ( (int) get_option( self::SCHEMA_VERSION_KEY ) === (int) self::$table_version ) {
 			return false;
 		}
 
