@@ -4,9 +4,7 @@ dist: trusty
 language: php
 
 notifications:
-  email:
-    on_success: never
-    on_failure: change
+  email: false
 
 cache:
   directories:
