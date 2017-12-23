@@ -532,15 +532,16 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 	public function get_unpaid_orders( $date ) {
 		global $wpdb;
 
-		$unpaid_orders = $wpdb->get_col( $wpdb->prepare( "
-			SELECT posts.ID
-			FROM {$wpdb->posts} AS posts
-			WHERE   posts.post_type   IN ('" . implode( "','", wc_get_order_types() ) . "')
-			AND     posts.post_status = 'wc-pending'
-			AND     posts.post_modified < %s
-		", date( 'Y-m-d H:i:s', absint( $date ) ) ) );
+		$order_types = wc_get_order_types();
 
-		return $unpaid_orders;
+		return $wpdb->get_col( $wpdb->prepare(
+			"SELECT ID
+				FROM $wpdb->posts
+				WHERE post_type IN (" . implode( ',', array_fill( 0, count( $order_types ), '%s' ) ) . ")
+				AND post_status = 'wc-pending'
+				AND post_modified < %s",
+			array_merge( $order_types, array( date( 'Y-m-d H:i:s', (int) $date ) ) )
+		) );
 	}
 
 	/**
