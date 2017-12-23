@@ -6,7 +6,7 @@
  * @author  Liquid Web
  */
 
-class BootstrapTest extends WP_UnitTestCase {
+class BootstrapTest extends TestCase {
 
 	/**
 	 * Tear down the plugin after each test run.

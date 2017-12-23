@@ -1,14 +1,12 @@
 <?php
 /**
- * Class SampleTest
+ * Sample test case for WooCommerce Custom Order Tables.
  *
  * @package Woocommerce_Order_Tables
+ * @author  Liquid Web
  */
 
-/**
- * Sample test case.
- */
-class SampleTest extends WP_UnitTestCase {
+class SampleTest extends TestCase {
 
 	/**
 	 * A single example test.
