@@ -3,7 +3,7 @@
  * Plugin Name:          WooCommerce - Custom Order Tables
  * Plugin URI:           https://github.com/liquidweb/WooCommerce-Order-Tables
  * Description:          Store WooCommerce order data in a custom table.
- * Version:              1.0.1
+ * Version:              1.0.0
  * Author:               Liquid Web
  * Author URI:           https://www.liquidweb.com
  * License:              GPL2
