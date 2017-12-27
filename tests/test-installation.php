@@ -76,7 +76,7 @@ class InstallationTest extends TestCase {
 		// Get the current schema version, then increment it.
 		$property = new ReflectionProperty( 'WC_Custom_Order_Table_Install', 'table_version' );
 		$property->setAccessible( true );
-		$version  = $property->getValue();
+		$version = $property->getValue();
 		$property->setValue( $version + 1 );
 
 		// Run the activation script again.
