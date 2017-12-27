@@ -25,7 +25,7 @@ class WC_Custom_Order_Table_Install {
 	 *
 	 * @var int
 	 */
-	protected static $table_version = 1;
+	protected static $table_version = 2;
 
 	/**
 	 * Actions to perform on plugin activation.
@@ -95,7 +95,10 @@ class WC_Custom_Order_Table_Install {
 				date_completed datetime DEFAULT NULL,
 				date_paid datetime DEFAULT NULL,
 				cart_hash varchar(32) NOT NULL,
-			PRIMARY KEY  (order_id)
+			PRIMARY KEY  (order_id),
+			UNIQUE KEY `order_key` (`order_key`),
+			KEY `customer_id` (`customer_id`),
+			KEY `order_total` (`total`)
 			) $collate;
 		";
 
