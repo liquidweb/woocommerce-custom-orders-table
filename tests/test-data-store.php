@@ -141,6 +141,21 @@ class DataStoreTest extends TestCase {
 		);
 	}
 
+	public function test_search_orders_checks_table_for_product_item_matches_with_like_comparison() {
+		$product = $this->factory()->product->create_and_get( array(
+			'post_title' => 'foo bar baz',
+		) );
+		$order = $this->factory()->order->create_and_get();
+		$order->add_product( $product );
+		$order->save();
+
+		$this->assertEquals(
+			array( $order->get_id() ),
+			( new WC_Order_Data_Store_Custom_Table() )->search_orders( 'bar' ),
+			'Product items should be searched using a LIKE comparison and wildcards.'
+		);
+	}
+
 	/**
 	 * @dataProvider order_type_provider()
 	 */

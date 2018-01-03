@@ -582,9 +582,9 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 				$wpdb->prepare( "
 						SELECT order_id
 						FROM {$wpdb->prefix}woocommerce_order_items as order_items
-						WHERE order_item_name LIKE '%%%s%%'
+						WHERE order_item_name LIKE %s
 						",
-					$term
+					'%' . $wpdb->esc_like( $term ) . '%'
 				)
 			)
 		) );
