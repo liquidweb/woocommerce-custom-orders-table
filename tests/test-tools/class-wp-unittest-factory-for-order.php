@@ -21,4 +21,8 @@ class WP_UnitTest_Factory_For_Order extends WP_UnitTest_Factory_For_Post {
 			'post_type'     => 'shop_order',
 		);
 	}
+
+	function get_object_by_id( $order_id ) {
+		return wc_get_order( $order_id );
+	}
 }

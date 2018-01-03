@@ -22,4 +22,8 @@ class WP_UnitTest_Factory_For_Product extends WP_UnitTest_Factory_For_Post {
 			'post_type'    => 'post',
 		);
 	}
+
+	function get_object_by_id( $product_id ) {
+		return wc_get_product( $product_id );
+	}
 }

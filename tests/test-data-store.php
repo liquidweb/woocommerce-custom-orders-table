@@ -9,12 +9,35 @@
 class DataStoreTest extends TestCase {
 
 	/**
+	 * Fire the necessary actions to bootstrap WordPress.
+	 *
+	 * @before
+	 */
+	public function init() {
+		do_action( 'init' );
+	}
+
+	/**
 	 * Remove any closures that have been assigned to filters.
 	 *
 	 * @after
 	 */
 	public function remove_filter_callbacks() {
 		remove_all_filters( 'woocommerce_shop_order_search_fields' );
+	}
+
+	public function test_create() {
+		$instance  = new WC_Order_Data_Store_Custom_Table();
+		$order     = $this->factory()->order->create_and_get();
+		$order_key = 'my_custom_order_key';
+
+		add_filter( 'woocommerce_generate_order_key', function () use ( $order_key ) {
+			return $order_key;
+		} );
+
+		$instance->create( $order );
+
+		$this->assertEquals( 'wc_' . $order_key, $order->get_order_key() );
 	}
 
 	public function test_get_order_count() {
@@ -107,7 +130,7 @@ class DataStoreTest extends TestCase {
 	 * @dataProvider order_type_provider()
 	 */
 	public function test_get_order_type( $order_type ) {
-		$order = $this->factory()->order->create_and_get( array(
+		$order = $this->factory()->order->create( array(
 			'post_type' => $order_type,
 		) );
 
