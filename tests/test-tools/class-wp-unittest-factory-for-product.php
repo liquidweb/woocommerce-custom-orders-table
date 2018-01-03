@@ -19,7 +19,7 @@ class WP_UnitTest_Factory_For_Product extends WP_UnitTest_Factory_For_Post {
 			'post_title'   => new WP_UnitTest_Generator_Sequence( 'Product name %s' ),
 			'post_content' => new WP_UnitTest_Generator_Sequence( 'Product description %s' ),
 			'post_excerpt' => new WP_UnitTest_Generator_Sequence( 'Product short description %s' ),
-			'post_type'    => 'post',
+			'post_type'    => 'product',
 		);
 	}
 

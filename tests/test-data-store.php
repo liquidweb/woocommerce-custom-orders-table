@@ -128,6 +128,19 @@ class DataStoreTest extends TestCase {
 		);
 	}
 
+	public function test_search_orders_checks_table_for_product_item_matches() {
+		$product = $this->factory()->product->create_and_get();
+		$order = $this->factory()->order->create_and_get();
+		$order->add_product( $product );
+		$order->save();
+
+		$this->assertEquals(
+			array( $order->get_id() ),
+			( new WC_Order_Data_Store_Custom_Table() )->search_orders( $product->get_name() ),
+			'Order searches should extend to the names of product items.'
+		);
+	}
+
 	/**
 	 * @dataProvider order_type_provider()
 	 */
