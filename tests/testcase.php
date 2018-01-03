@@ -20,6 +20,7 @@ class TestCase extends WP_UnitTestCase {
 			$instance = new WP_UnitTest_Factory();
 
 			// Add additional factories.
+			$instance->customer = new WP_UnitTest_Factory_For_Customer( $instance );
 			$instance->order = new WP_UnitTest_Factory_For_Order( $instance );
 			$instance->product = new WP_UnitTest_Factory_For_Product( $instance );
 
