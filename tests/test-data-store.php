@@ -97,17 +97,18 @@ class DataStoreTest extends TestCase {
 	}
 
 	public function test_search_orders_can_check_post_meta() {
-		$product = $this->factory()->product->create();
+		$order = $this->factory()->order->create();
+		$term  = uniqid( 'search term ' );
 
-		add_post_meta( $product, 'some_custom_meta_key', 'search term' );
+		add_post_meta( $order, 'some_custom_meta_key', $term );
 
 		add_filter( 'woocommerce_shop_order_search_fields', function () {
 			return array( 'some_custom_meta_key' );
 		} );
 
 		$this->assertEquals(
-			array( $product ),
-			( new WC_Order_Data_Store_Custom_Table() )->search_orders( 'search' ),
+			array( $order ),
+			( new WC_Order_Data_Store_Custom_Table() )->search_orders( $term ),
 			'If post meta keys are specified, they should also be searched.'
 		);
 	}
@@ -116,12 +117,13 @@ class DataStoreTest extends TestCase {
 	 * Same as test_search_orders_can_check_post_meta(), but the filter is never added.
 	 */
 	public function test_search_orders_only_checks_post_meta_if_specified() {
-		$product = $this->factory()->product->create();
+		$order = $this->factory()->order->create();
+		$term  = uniqid( 'search term ' );
 
-		add_post_meta( $product, 'some_custom_meta_key', 'search term' );
+		add_post_meta( $order, 'some_custom_meta_key', $term );
 
 		$this->assertEmpty(
-			( new WC_Order_Data_Store_Custom_Table() )->search_orders( 'search' ),
+			( new WC_Order_Data_Store_Custom_Table() )->search_orders( $term ),
 			'Only search post meta if keys are provided.'
 		);
 	}
