@@ -23,6 +23,9 @@
     ],
     "post-autoload-dump": [
       "xrstf\\Composer52\\Generator::onPostInstallCmd"
+    ],
+    "test-coverage": [
+      "phpunit --coverage-html=tests/coverage"
     ]
   }
 }
