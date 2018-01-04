@@ -6,11 +6,18 @@
 	convertErrorsToExceptions="true"
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
+	defaultTestSuite="plugin"
 	>
 	<testsuites>
-		<testsuite>
+		<!-- Plugin-specific tests. -->
+		<testsuite name="plugin">
 			<directory prefix="test-" suffix=".php">./tests/</directory>
 			<exclude>tests/test-sample.php</exclude>
+		</testsuite>
+
+		<!-- WooCommerce core test suite. -->
+		<testsuite name="core">
+			<directory suffix=".php">./vendor/woocommerce/woocommerce/tests/unit-tests</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>
