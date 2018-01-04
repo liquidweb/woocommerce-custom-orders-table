@@ -6,7 +6,7 @@
  * @author  Liquid Web
  */
 
-class TestCase extends WP_UnitTestCase {
+class TestCase extends WC_Unit_Test_Case {
 
 	/**
 	 * Determine if the custom orders table exists.

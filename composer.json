@@ -7,8 +7,18 @@
     "composer/installers": "^1.4",
     "xrstf/composer-php52": "^1.0"
   },
+  "require-dev": {
+    "woocommerce/woocommerce": "dev-master"
+  },
   "autoload": {
-    "classmap": ["includes"]
+    "classmap": [
+      "includes"
+    ]
+  },
+  "autoload-dev": {
+    "classmap": [
+      "vendor/woocommerce/woocommerce/tests/framework"
+    ]
   },
   "scripts": {
     "post-install-cmd": [
@@ -20,5 +30,12 @@
     "post-autoload-dump": [
       "xrstf\\Composer52\\Generator::onPostInstallCmd"
     ]
+  },
+  "extra": {
+    "installer-paths": {
+      "vendor/{$vendor}/{$name}": [
+        "woocommerce/woocommerce"
+      ]
+    }
   }
 }
