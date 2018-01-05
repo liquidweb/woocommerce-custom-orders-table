@@ -53,13 +53,14 @@ class DataStoreTest extends TestCase {
 	}
 
 	public function test_get_order_count_filters_by_status() {
+		$instance = new WC_Order_Data_Store_Custom_Table();
 		$this->factory()->order->create( array(
 			'post_status' => 'not_a_pending_status',
 		) );
 
 		$this->assertEquals(
 			0,
-			( new WC_Order_Data_Store_Custom_Table() )->get_order_count( 'wc-pending' ),
+			$instance->get_order_count( 'wc-pending' ),
 			'The get_order_count() method should only count records matching $status.'
 		);
 	}
@@ -90,9 +91,11 @@ class DataStoreTest extends TestCase {
 	}
 
 	public function test_search_orders_can_search_by_order_id() {
+		$instance = new WC_Order_Data_Store_Custom_Table();
+
 		$this->assertEquals(
 			array( 123 ),
-			( new WC_Order_Data_Store_Custom_Table() )->search_orders( 123 ),
+			$instance->search_orders( 123 ),
 			'When given a numeric value, search_orders() should include that order ID.'
 		);
 	}
