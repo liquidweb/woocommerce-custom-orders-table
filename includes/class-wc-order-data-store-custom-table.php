@@ -12,7 +12,7 @@
  *
  * Orders are still treated as posts within WordPress, but the data is stored in a separate table.
  */
-class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT implements WC_Object_Data_Store_Interface, WC_Order_Data_Store_Interface {
+class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 	/**
 	 * Set to true when creating so we know to insert meta data.
