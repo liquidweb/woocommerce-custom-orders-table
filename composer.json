@@ -18,11 +18,9 @@
   },
   "autoload-dev": {
     "classmap": [
+      "tests/test-tools",
       "vendor/woocommerce/woocommerce/tests/framework"
     ]
-  },
-  "autoload-dev": {
-    "classmap": ["tests/test-tools"]
   },
   "scripts": {
     "post-install-cmd": [
@@ -35,7 +33,7 @@
       "xrstf\\Composer52\\Generator::onPostInstallCmd"
     ],
     "test-coverage": [
-      "phpunit --coverage-html=tests/coverage"
+      "phpunit --testsuite=plugin --coverage-html=tests/coverage"
     ]
   },
   "extra": {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "173c6a9e5a12528c9f0f8762e81e63a9",
+    "content-hash": "fe30de23a7822b2387c810e945f9be02",
     "packages": [
         {
             "name": "composer/installers",
@@ -165,12 +165,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/woocommerce.git",
-                "reference": "ae9a98b0a01ba7767907aa2c3e98f006a10cfaad"
+                "reference": "aad66effb7ae796321348664b47117fd6fcb60f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/ae9a98b0a01ba7767907aa2c3e98f006a10cfaad",
-                "reference": "ae9a98b0a01ba7767907aa2c3e98f006a10cfaad",
+                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/aad66effb7ae796321348664b47117fd6fcb60f2",
+                "reference": "aad66effb7ae796321348664b47117fd6fcb60f2",
                 "shasum": ""
             },
             "require": {
@@ -199,7 +199,7 @@
             ],
             "description": "An eCommerce toolkit that helps you sell anything. Beautifully.",
             "homepage": "https://woocommerce.com/",
-            "time": "2018-01-04T16:17:30+00:00"
+            "time": "2018-01-05T20:03:12+00:00"
         }
     ],
     "aliases": [],
@@ -209,6 +209,8 @@
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": ">=5.2"
+    },
     "platform-dev": []
 }
