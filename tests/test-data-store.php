@@ -46,6 +46,28 @@ class DataStoreTest extends TestCase {
 		$this->assertEquals( 1, did_action( 'wp_insert_post' ), 'Expected the "wp_insert_post" action to have been fired.' );
 	}
 
+	public function test_delete() {
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$order    = WC_Helper_Order::create_order();
+
+		$instance->delete( $order, array( 'force_delete' => false ) );
+
+		$this->assertNotNull(
+			$this->get_order_row( $order->get_id() ),
+			'Unless force_delete is true, the table row should not be removed.'
+		);
+	}
+
+	public function test_delete_can_force_delete() {
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$order    = WC_Helper_Order::create_order();
+		$order_id = $order->get_id();
+
+		$instance->delete( $order, array( 'force_delete' => true ) );
+
+		$this->assertNull( $this->get_order_row( $order_id ), 'When force deleting, the table row should be removed.' );
+	}
+
 	public function test_update_post_meta_for_new_order() {
 		$order = new WC_Order( wp_insert_post( array(
 			'post_type' => 'product',

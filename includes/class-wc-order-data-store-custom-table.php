@@ -108,13 +108,9 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		parent::delete( $order, $args );
 
-		if ( $args['force_delete'] || 0 == $order->get_id() ) {
-			$wpdb->delete(
-				"{$wpdb->prefix}woocommerce_orders",
-				array(
-					'order_id' => $order_id,
-				)
-			);
+		// Delete the database row if force_delete is true.
+		if ( isset( $args['force_delete'] ) && $args['force_delete'] ) {
+			$wpdb->delete("{$wpdb->prefix}woocommerce_orders", array( 'order_id' => $order_id ) );
 		}
 	}
 
