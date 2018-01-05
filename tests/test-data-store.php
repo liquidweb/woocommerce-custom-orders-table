@@ -158,34 +158,6 @@ class DataStoreTest extends TestCase {
 	}
 
 	/**
-	 * @dataProvider order_type_provider()
-	 */
-	public function test_get_order_type( $order_type ) {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = $this->factory()->order->create( array(
-			'post_type' => $order_type,
-		) );
-
-		$this->assertEquals(
-			$order_type,
-			$instance->get_order_type( $order )
-		);
-	}
-
-	/**
-	 * Provide a list of all available order types.
-	 */
-	public function order_type_provider() {
-		$types = array();
-
-		foreach ( wc_get_order_types() as $type ) {
-			$types[ $type ] = array( $type );
-		}
-
-		return $types;
-	}
-
-	/**
 	 * Shortcut for setting up reflection methods + properties for update_post_meta().
 	 *
 	 * @param WC_Order $order    The order object, passed by reference.
