@@ -228,7 +228,7 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 
 		if ( $this->creating ) {
 			$wpdb->insert(
-				"{$wpdb->prefix}woocommerce_orders",
+				wc_custom_order_table()->get_table_name(),
 				array_merge( array(
 					'order_id' => $order->get_id(),
 				), $edit_data )
