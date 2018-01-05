@@ -77,56 +77,6 @@ class DataStoreTest extends TestCase {
 		$this->assertEquals( $time, strtotime( $row['date_completed'] ) );
 	}
 
-	public function test_get_order_count() {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$orders   = $this->factory()->order->create_many( 5, array(
-			'post_status' => 'wc-pending',
-		) );
-
-		$this->assertEquals(
-			count( $orders ),
-			$instance->get_order_count( 'wc-pending' )
-		);
-	}
-
-	public function test_get_order_count_filters_by_status() {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$this->factory()->order->create( array(
-			'post_status' => 'not_a_pending_status',
-		) );
-
-		$this->assertEquals(
-			0,
-			$instance->get_order_count( 'wc-pending' ),
-			'The get_order_count() method should only count records matching $status.'
-		);
-	}
-
-	public function test_get_unpaid_orders() {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = $this->factory()->order->create( array(
-			'post_status' => 'wc-pending',
-		) );
-		$pending  = $instance->get_unpaid_orders( time() + DAY_IN_SECONDS );
-
-		$this->assertCount( 1, $pending, 'There should be only one unpaid order.' );
-		$this->assertEquals(
-			$order,
-			array_shift( $pending ),
-			'The ID of the one unpaid order should be that of $order.'
-		);
-	}
-
-	public function test_get_unpaid_orders_uses_date_filtering() {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = $this->factory()->order->create( array(
-			'post_status' => 'wc-pending',
-		) );
-		$pending  = $instance->get_unpaid_orders( time() - HOUR_IN_SECONDS );
-
-		$this->assertEmpty( $pending, 'No unpaid orders should match the time window.' );
-	}
-
 	public function test_search_orders_can_search_by_order_id() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
 

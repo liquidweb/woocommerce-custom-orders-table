@@ -262,17 +262,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	}
 
 	/**
-	 * Excerpt for post.
-	 *
-	 * @param  WC_Order $order The order object.
-	 *
-	 * @return string The post excerpt.
-	 */
-	protected function get_post_excerpt( $order ) {
-		return $order->get_customer_note();
-	}
-
-	/**
 	 * Get amount already refunded.
 	 *
 	 * @global $wpdb
@@ -357,24 +346,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			"SELECT order_id FROM {$wpdb->prefix}woocommerce_orders WHERE order_key = %s",
 			$order_key
 		) );
-	}
-
-	/**
-	 * Return count of orders with a specific status.
-	 *
-	 * @global $wpdb
-	 *
-	 * @param  string $status The post_status to filter orders by.
-	 *
-	 * @return int The number of orders with that status.
-	 */
-	public function get_order_count( $status ) {
-		global $wpdb;
-
-		return absint( $wpdb->get_var( $wpdb->prepare(
-			"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'shop_order' AND post_status = %s",
-			$status
-		) ) );
 	}
 
 	/**
@@ -477,74 +448,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	}
 
 	/**
-	 * Generate meta query for wc_get_orders.
-	 *
-	 * @param  array  $values   Values to populate the meta query.
-	 * @param  string $relation Optional The query relationship, either "and" or "or". Default is "or".
-	 *
-	 * @return array An array suitable for passing to WP_Query's meta_query argument.
-	 */
-	private function get_orders_generate_customer_meta_query( $values, $relation = 'or' ) {
-		$meta_query = array(
-			'relation'        => strtoupper( $relation ),
-			'customer_emails' => array(
-				'key'     => '_billing_email',
-				'value'   => array(),
-				'compare' => 'IN',
-			),
-			'customer_ids'    => array(
-				'key'     => '_customer_user',
-				'value'   => array(),
-				'compare' => 'IN',
-			),
-		);
-
-		foreach ( $values as $value ) {
-			if ( is_array( $value ) ) {
-				$meta_query[] = $this->get_orders_generate_customer_meta_query( $value, 'and' );
-			} elseif ( is_email( $value ) ) {
-				$meta_query['customer_emails']['value'][] = sanitize_email( $value );
-			} else {
-				$meta_query['customer_ids']['value'][] = strval( absint( $value ) );
-			}
-		}
-
-		if ( empty( $meta_query['customer_emails']['value'] ) ) {
-			unset( $meta_query['customer_emails'] );
-			unset( $meta_query['relation'] );
-		}
-
-		if ( empty( $meta_query['customer_ids']['value'] ) ) {
-			unset( $meta_query['customer_ids'] );
-			unset( $meta_query['relation'] );
-		}
-
-		return $meta_query;
-	}
-
-	/**
-	 * Get unpaid orders after a certain date.
-	 *
-	 * @param int $date The Unix timestamp used for date filtering.
-	 *
-	 * @return array An array of unpaid orders.
-	 */
-	public function get_unpaid_orders( $date ) {
-		global $wpdb;
-
-		$order_types = wc_get_order_types();
-
-		return $wpdb->get_col( $wpdb->prepare(
-			"SELECT ID
-				FROM $wpdb->posts
-				WHERE post_type IN (" . implode( ',', array_fill( 0, count( $order_types ), '%s' ) ) . ")
-				AND post_status = 'wc-pending'
-				AND post_modified < %s",
-			array_merge( $order_types, array( date( 'Y-m-d H:i:s', (int) $date ) ) )
-		) );
-	}
-
-	/**
 	 * Search order data for a term and return ids.
 	 *
 	 * @param  string $term The search term.
@@ -598,118 +501,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 				)
 			)
 		) );
-	}
-
-	/**
-	 * Gets information about whether permissions were generated yet.
-	 *
-	 * @param WC_Order|int $order The order object or ID.
-	 *
-	 * @return bool
-	 */
-	public function get_download_permissions_granted( $order ) {
-		$order_id = WC_Order_Factory::get_order_id( $order );
-
-		return wc_string_to_bool( get_post_meta( $order_id, '_download_permissions_granted', true ) );
-	}
-
-	/**
-	 * Stores information about whether permissions were generated yet.
-	 *
-	 * @param WC_Order|int $order The order object or ID.
-	 * @param bool         $set   Whether or not the permissions have been generated.
-	 */
-	public function set_download_permissions_granted( $order, $set ) {
-		$order_id = WC_Order_Factory::get_order_id( $order );
-
-		update_post_meta( $order_id, '_download_permissions_granted', wc_bool_to_string( $set ) );
-	}
-
-	/**
-	 * Gets information about whether sales were recorded.
-	 *
-	 * @param WC_Order|int $order The order object or ID.
-	 *
-	 * @return bool
-	 */
-	public function get_recorded_sales( $order ) {
-		$order_id = WC_Order_Factory::get_order_id( $order );
-
-		return wc_string_to_bool( get_post_meta( $order_id, '_recorded_sales', true ) );
-	}
-
-	/**
-	 * Stores information about whether sales were recorded.
-	 *
-	 * @param WC_Order|int $order The order object or ID.
-	 * @param bool         $set   Whether or not the sales have been recorded.
-	 */
-	public function set_recorded_sales( $order, $set ) {
-		$order_id = WC_Order_Factory::get_order_id( $order );
-
-		update_post_meta( $order_id, '_recorded_sales', wc_bool_to_string( $set ) );
-	}
-
-	/**
-	 * Gets information about whether coupon counts were updated.
-	 *
-	 * @param WC_Order|int $order The order object or ID.
-	 *
-	 * @return bool
-	 */
-	public function get_recorded_coupon_usage_counts( $order ) {
-		$order_id = WC_Order_Factory::get_order_id( $order );
-
-		return wc_string_to_bool( get_post_meta( $order_id, '_recorded_coupon_usage_counts', true ) );
-	}
-
-	/**
-	 * Stores information about whether coupon counts were updated.
-	 *
-	 * @param WC_Order|int $order The order object or ID.
-	 * @param bool         $set   Whether or not the coupon counts have been updated.
-	 */
-	public function set_recorded_coupon_usage_counts( $order, $set ) {
-		$order_id = WC_Order_Factory::get_order_id( $order );
-
-		update_post_meta( $order_id, '_recorded_coupon_usage_counts', wc_bool_to_string( $set ) );
-	}
-
-	/**
-	 * Gets information about whether stock was reduced.
-	 *
-	 * @param WC_Order|int $order The order object or ID.
-	 *
-	 * @return bool
-	 */
-	public function get_stock_reduced( $order ) {
-		$order_id = WC_Order_Factory::get_order_id( $order );
-
-		return wc_string_to_bool( get_post_meta( $order_id, '_order_stock_reduced', true ) );
-	}
-
-	/**
-	 * Stores information about whether stock was reduced.
-	 *
-	 * @param WC_Order|int $order The order object or ID.
-	 *
-	 * @param bool         $set   Whether or not stock has been reduced.
-	 */
-	public function set_stock_reduced( $order, $set ) {
-		$order_id = WC_Order_Factory::get_order_id( $order );
-
-		update_post_meta( $order_id, '_order_stock_reduced', wc_bool_to_string( $set ) );
-	}
-
-	/**
-	 * Get the order type based on Order ID.
-	 *
-	 * @param int $order_id The order ID.
-	 *
-	 * @return string The order post type.
-	 */
-	public function get_order_type( $order_id ) {
-		return get_post_type( $order_id );
 	}
 
 	/**
@@ -778,38 +569,5 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 				update_post_meta( $order->get_id(), $meta_key, $data->$column );
 			}
 		}
-	}
-
-	/**
-	 * Query for Orders matching specific criteria.
-	 *
-	 * @param array $query_vars Query arguments from a WC_Order_Query.
-	 *
-	 * @return array|object
-	 */
-	public function query( $query_vars ) {
-		$args = $this->get_wp_query_args( $query_vars );
-
-		if ( ! empty( $args['errors'] ) ) {
-			$query = (object) array(
-				'posts'         => array(),
-				'found_posts'   => 0,
-				'max_num_pages' => 0,
-			);
-		} else {
-			$query = new WP_Query( $args );
-		}
-
-		$orders = ( isset( $query_vars['return'] ) && 'ids' === $query_vars['return'] ) ? $query->posts : array_filter( array_map( 'wc_get_order', $query->posts ) );
-
-		if ( isset( $query_vars['paginate'] ) && $query_vars['paginate'] ) {
-			return (object) array(
-				'orders'        => $orders,
-				'total'         => $query->found_posts,
-				'max_num_pages' => $query->max_num_pages,
-			);
-		}
-
-		return $orders;
 	}
 }
