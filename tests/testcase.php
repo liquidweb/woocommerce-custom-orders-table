@@ -9,6 +9,29 @@
 class TestCase extends WC_Unit_Test_Case {
 
 	/**
+	 * Retrieve the core test suite's factory object, but add extra factories.
+	 *
+	 * @return WP_UnitTest_Factory
+	 */
+	protected static function factory() {
+		static $factory = null;
+
+		if ( ! $factory ) {
+			$instance = new WP_UnitTest_Factory();
+
+			// Add additional factories.
+			$instance->customer = new WP_UnitTest_Factory_For_Customer( $instance );
+			$instance->order = new WP_UnitTest_Factory_For_Order( $instance );
+			$instance->product = new WP_UnitTest_Factory_For_Product( $instance );
+
+			// Save the instance in the static $factory variable.
+			$factory = $instance;
+		}
+
+		return $factory;
+	}
+
+	/**
 	 * Determine if the custom orders table exists.
 	 *
 	 * @global $wpdb

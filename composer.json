@@ -4,6 +4,7 @@
   "type": "wordpress-plugin",
   "license": "GPL-2.0",
   "require": {
+    "php": ">=5.2",
     "composer/installers": "^1.4",
     "xrstf/composer-php52": "^1.0"
   },
@@ -20,6 +21,9 @@
       "vendor/woocommerce/woocommerce/tests/framework"
     ]
   },
+  "autoload-dev": {
+    "classmap": ["tests/test-tools"]
+  },
   "scripts": {
     "post-install-cmd": [
       "xrstf\\Composer52\\Generator::onPostInstallCmd"
@@ -29,6 +33,9 @@
     ],
     "post-autoload-dump": [
       "xrstf\\Composer52\\Generator::onPostInstallCmd"
+    ],
+    "test-coverage": [
+      "phpunit --coverage-html=tests/coverage"
     ]
   },
   "extra": {
