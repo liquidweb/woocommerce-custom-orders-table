@@ -40,6 +40,43 @@ class DataStoreTest extends TestCase {
 		$this->assertEquals( 'wc_' . $order_key, $order->get_order_key() );
 	}
 
+	public function test_update_post_meta_for_new_order() {
+		$order = new WC_Order( wp_insert_post( array(
+			'post_type' => 'product',
+		) ) );
+		$order->set_currency( 'USD' );
+		$order->set_prices_include_tax( false );
+		$order->set_customer_ip_address( '127.0.0.1' );
+		$order->set_customer_user_agent( 'PHPUnit' );
+
+		$this->invoke_update_post_meta( $order, true );
+
+		$row = $this->get_order_row( $order->get_id() );
+
+		$this->assertEquals( 'USD', $row['currency'] );
+		$this->assertEquals( '127.0.0.1', $row['customer_ip_address'] );
+		$this->assertEquals( 'PHPUnit', $row['customer_user_agent'] );
+	}
+
+	/**
+	 * When inserting rows into the database, $wpdb->prepare() can't accept WC_DateTime objects.
+	 */
+	public function test_update_post_meta_casts_dates_as_strings() {
+		$order = new WC_Order( wp_insert_post( array(
+			'post_type' => 'product',
+		) ) );
+		$time  = time();
+		$order->set_date_paid( $time );
+		$order->set_date_completed( $time );
+
+		$this->invoke_update_post_meta( $order, true );
+
+		$row = $this->get_order_row( $order->get_id() );
+
+		$this->assertEquals( $time, strtotime( $row['date_paid'] ) );
+		$this->assertEquals( $time, strtotime( $row['date_completed'] ) );
+	}
+
 	public function test_get_order_count() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
 		$orders   = $this->factory()->order->create_many( 5, array(
@@ -190,5 +227,24 @@ class DataStoreTest extends TestCase {
 		}
 
 		return $types;
+	}
+
+	/**
+	 * Shortcut for setting up reflection methods + properties for update_post_meta().
+	 *
+	 * @param WC_Order $order    The order object, passed by reference.
+	 * @param bool     $creating Optional. The value 'creating' property in the new instance.
+	 *                           Default is false.
+	 */
+	protected function invoke_update_post_meta( &$order, $creating = false ) {
+		$instance = new WC_Order_Data_Store_Custom_Table();
+
+		$property = new ReflectionProperty( $instance, 'creating' );
+		$property->setAccessible( true );
+		$property->setValue( $instance, (bool) $creating );
+
+		$method   = new ReflectionMethod( $instance, 'update_post_meta' );
+		$method->setAccessible( true );
+		$method->invokeArgs( $instance, array( &$order ) );
 	}
 }

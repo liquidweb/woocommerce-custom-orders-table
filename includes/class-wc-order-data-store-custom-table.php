@@ -185,8 +185,8 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 			'customer_ip_address'  => $order->get_customer_ip_address( 'edit' ),
 			'customer_user_agent'  => $order->get_customer_user_agent( 'edit' ),
 			'created_via'          => $order->get_created_via( 'edit' ),
-			'date_completed'       => $order->get_date_completed( 'edit' ),
-			'date_paid'            => $order->get_date_paid( 'edit' ),
+			'date_completed'       => (string) $order->get_date_completed( 'edit' ),
+			'date_paid'            => (string) $order->get_date_paid( 'edit' ),
 			'cart_hash'            => $order->get_cart_hash( 'edit' ),
 
 			'billing_first_name'   => $order->get_billing_first_name( 'edit' ),
