@@ -7,10 +7,10 @@
  */
 
 /**
- * Extension of the Abstract_WC_Order_Data_Store_CPT class, designed to map data between
- * WooCommerce and the custom database table.
+ * Extend the WC_Order_Data_Store_CPT class, overloading methods that require database access in
+ * order to use the new table.
  *
- * Orders are still treated as posts within WordPress, but the data is stored in a separate table.
+ * Orders are still treated as posts within WordPress, but the meta is stored in a separate table.
  */
 class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
