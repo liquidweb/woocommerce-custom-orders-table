@@ -41,13 +41,14 @@ class DataStoreTest extends TestCase {
 	}
 
 	public function test_get_order_count() {
-		$orders = $this->factory()->order->create_many( 5, array(
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$orders   = $this->factory()->order->create_many( 5, array(
 			'post_status' => 'wc-pending',
 		) );
 
 		$this->assertEquals(
 			count( $orders ),
-			( new WC_Order_Data_Store_Custom_Table() )->get_order_count( 'wc-pending' )
+			$instance->get_order_count( 'wc-pending' )
 		);
 	}
 
@@ -64,11 +65,11 @@ class DataStoreTest extends TestCase {
 	}
 
 	public function test_get_unpaid_orders() {
-		$order   = $this->factory()->order->create( array(
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$order    = $this->factory()->order->create( array(
 			'post_status' => 'wc-pending',
 		) );
-		$pending = ( new WC_Order_Data_Store_Custom_Table() )
-			->get_unpaid_orders( time() + DAY_IN_SECONDS );
+		$pending  = $instance->get_unpaid_orders( time() + DAY_IN_SECONDS );
 
 		$this->assertCount( 1, $pending, 'There should be only one unpaid order.' );
 		$this->assertEquals(
@@ -79,11 +80,11 @@ class DataStoreTest extends TestCase {
 	}
 
 	public function test_get_unpaid_orders_uses_date_filtering() {
-		$order   = $this->factory()->order->create( array(
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$order    = $this->factory()->order->create( array(
 			'post_status' => 'wc-pending',
 		) );
-		$pending = ( new WC_Order_Data_Store_Custom_Table() )
-			->get_unpaid_orders( time() - HOUR_IN_SECONDS );
+		$pending  = $instance->get_unpaid_orders( time() - HOUR_IN_SECONDS );
 
 		$this->assertEmpty( $pending, 'No unpaid orders should match the time window.' );
 	}
@@ -97,8 +98,9 @@ class DataStoreTest extends TestCase {
 	}
 
 	public function test_search_orders_can_check_post_meta() {
-		$order = $this->factory()->order->create();
-		$term  = uniqid( 'search term ' );
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$order    = $this->factory()->order->create();
+		$term     = uniqid( 'search term ' );
 
 		add_post_meta( $order, 'some_custom_meta_key', $term );
 
@@ -108,7 +110,7 @@ class DataStoreTest extends TestCase {
 
 		$this->assertEquals(
 			array( $order ),
-			( new WC_Order_Data_Store_Custom_Table() )->search_orders( $term ),
+			$instance->search_orders( $term ),
 			'If post meta keys are specified, they should also be searched.'
 		);
 	}
@@ -117,41 +119,44 @@ class DataStoreTest extends TestCase {
 	 * Same as test_search_orders_can_check_post_meta(), but the filter is never added.
 	 */
 	public function test_search_orders_only_checks_post_meta_if_specified() {
-		$order = $this->factory()->order->create();
-		$term  = uniqid( 'search term ' );
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$order    = $this->factory()->order->create();
+		$term     = uniqid( 'search term ' );
 
 		add_post_meta( $order, 'some_custom_meta_key', $term );
 
 		$this->assertEmpty(
-			( new WC_Order_Data_Store_Custom_Table() )->search_orders( $term ),
+			$instance->search_orders( $term ),
 			'Only search post meta if keys are provided.'
 		);
 	}
 
 	public function test_search_orders_checks_table_for_product_item_matches() {
-		$product = $this->factory()->product->create_and_get();
-		$order = $this->factory()->order->create_and_get();
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$product  = $this->factory()->product->create_and_get();
+		$order    = $this->factory()->order->create_and_get();
 		$order->add_product( $product );
 		$order->save();
 
 		$this->assertEquals(
 			array( $order->get_id() ),
-			( new WC_Order_Data_Store_Custom_Table() )->search_orders( $product->get_name() ),
+			$instance->search_orders( $product->get_name() ),
 			'Order searches should extend to the names of product items.'
 		);
 	}
 
 	public function test_search_orders_checks_table_for_product_item_matches_with_like_comparison() {
-		$product = $this->factory()->product->create_and_get( array(
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$product  = $this->factory()->product->create_and_get( array(
 			'post_title' => 'foo bar baz',
 		) );
-		$order = $this->factory()->order->create_and_get();
+		$order    = $this->factory()->order->create_and_get();
 		$order->add_product( $product );
 		$order->save();
 
 		$this->assertEquals(
 			array( $order->get_id() ),
-			( new WC_Order_Data_Store_Custom_Table() )->search_orders( 'bar' ),
+			$instance->search_orders( 'bar' ),
 			'Product items should be searched using a LIKE comparison and wildcards.'
 		);
 	}
@@ -160,13 +165,14 @@ class DataStoreTest extends TestCase {
 	 * @dataProvider order_type_provider()
 	 */
 	public function test_get_order_type( $order_type ) {
-		$order = $this->factory()->order->create( array(
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$order    = $this->factory()->order->create( array(
 			'post_type' => $order_type,
 		) );
 
 		$this->assertEquals(
 			$order_type,
-			( new WC_Order_Data_Store_Custom_Table() )->get_order_type( $order )
+			$instance->get_order_type( $order )
 		);
 	}
 
