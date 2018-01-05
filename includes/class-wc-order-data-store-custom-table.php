@@ -88,14 +88,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 * @param WC_Order $order The order object, passed by reference.
 	 */
 	public function create( &$order ) {
-		/**
-		 * Filter the generated order ID.
-		 *
-		 * @param string $order_key The uniquely-generated ID for this order.
-		 */
-		$order_key = apply_filters( 'woocommerce_generate_order_key', uniqid( 'order_' ) );
-
-		$order->set_order_key( 'wc_' . $order_key );
 		$this->creating = true;
 
 		parent::create( $order );

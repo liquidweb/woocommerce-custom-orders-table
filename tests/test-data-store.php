@@ -27,17 +27,23 @@ class DataStoreTest extends TestCase {
 	}
 
 	public function test_create() {
-		$instance  = new WC_Order_Data_Store_Custom_Table();
-		$order     = $this->factory()->order->create_and_get();
-		$order_key = 'my_custom_order_key';
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$property = new ReflectionProperty( $instance, 'creating' );
+		$property->setAccessible( true );
+		$order    = new WC_Order( wp_insert_post( array(
+			'post_type' => 'product',
+		) ) );
 
-		add_filter( 'woocommerce_generate_order_key', function () use ( $order_key ) {
-			return $order_key;
+		add_action( 'wp_insert_post', function () use ( $property, $instance ) {
+			$this->assertTrue(
+				$property->getValue( $instance ),
+				'As an order is being created, WC_Order_Data_Store_Custom_Table::$creating should be true'
+			);
 		} );
 
 		$instance->create( $order );
 
-		$this->assertEquals( 'wc_' . $order_key, $order->get_order_key() );
+		$this->assertEquals( 1, did_action( 'wp_insert_post' ), 'Expected the "wp_insert_post" action to have been fired.' );
 	}
 
 	public function test_update_post_meta_for_new_order() {
