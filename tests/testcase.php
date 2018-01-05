@@ -32,6 +32,24 @@ class TestCase extends WC_Unit_Test_Case {
 	}
 
 	/**
+	 * Retrieve a single row from the Orders table.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param int $order_id The order ID to retrieve.
+	 *
+	 * @return array|null The contents of the database row or null if the given row doesn't exist.
+	 */
+	protected function get_order_row( $order_id ) {
+		global $wpdb;
+
+		return $wpdb->get_row( $wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}woocommerce_orders WHERE order_id = %d",
+			$order_id
+		), ARRAY_A );
+	}
+
+	/**
 	 * Determine if the custom orders table exists.
 	 *
 	 * @global $wpdb
