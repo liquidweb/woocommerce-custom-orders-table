@@ -83,6 +83,13 @@ class DataStoreTest extends TestCase {
 		$this->assertEquals( $time, strtotime( $row['date_completed'] ) );
 	}
 
+	public function test_get_order_id_by_order_key() {
+		$order = WC_Helper_Order::create_order();
+		$instance = new WC_Order_Data_Store_Custom_Table();
+
+		$this->assertEquals( $order->get_id(), $instance->get_order_id_by_order_key( $order->get_order_key() ) );
+	}
+
 	public function test_search_orders_can_search_by_order_id() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
 
