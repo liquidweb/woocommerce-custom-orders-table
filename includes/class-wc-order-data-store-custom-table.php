@@ -532,15 +532,16 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 	public function get_unpaid_orders( $date ) {
 		global $wpdb;
 
-		$unpaid_orders = $wpdb->get_col( $wpdb->prepare( "
-			SELECT posts.ID
-			FROM {$wpdb->posts} AS posts
-			WHERE   posts.post_type   IN ('" . implode( "','", wc_get_order_types() ) . "')
-			AND     posts.post_status = 'wc-pending'
-			AND     posts.post_modified < %s
-		", date( 'Y-m-d H:i:s', absint( $date ) ) ) );
+		$order_types = wc_get_order_types();
 
-		return $unpaid_orders;
+		return $wpdb->get_col( $wpdb->prepare(
+			"SELECT ID
+				FROM $wpdb->posts
+				WHERE post_type IN (" . implode( ',', array_fill( 0, count( $order_types ), '%s' ) ) . ")
+				AND post_status = 'wc-pending'
+				AND post_modified < %s",
+			array_merge( $order_types, array( date( 'Y-m-d H:i:s', (int) $date ) ) )
+		) );
 	}
 
 	/**
@@ -555,9 +556,13 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 
 		$order_ids = array();
 
+		// Treat a numeric search term as an order ID.
 		if ( is_numeric( $term ) ) {
 			$order_ids[] = absint( $term );
 		}
+
+		// Search given post meta columns for the query.
+		$postmeta_search = array();
 
 		/**
 		 * Searches on meta data can be slow - this lets you choose what fields to search.
@@ -566,13 +571,19 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 		 * address data to make this faster. However, this won't work on older orders unless they
 		 * are updated, so search a few others (expand this using the filter if needed).
 		 */
-		$meta_search_fields = array_map( 'wc_clean', apply_filters( 'woocommerce_shop_order_search_fields', array(
-			// While we are searching the custom table, we will also search meta when filtered for backwards compatibility.
-		) ) );
+		$meta_search_fields = array_map( 'wc_clean', apply_filters( 'woocommerce_shop_order_search_fields', array() ) );
 
-		$postmeta_search = ! empty( $meta_search_fields ) ? $wpdb->get_col(
-			$wpdb->prepare( "SELECT DISTINCT p1.post_id FROM {$wpdb->postmeta} p1 WHERE p1.meta_key IN ('" . implode( "','", array_map( 'esc_sql', $search_fields ) ) . "') AND p1.meta_value LIKE '%%%s%%';", wc_clean( $term ) )
-		) : array();
+		// If we were given meta fields to search, make it happen.
+		if ( ! empty( $meta_search_fields ) ) {
+			$postmeta_search = $wpdb->get_col( $wpdb->prepare( "
+					SELECT DISTINCT post_id
+					FROM {$wpdb->postmeta}
+					WHERE meta_key IN (" . implode( ',', array_fill( 0, count( $meta_search_fields ), '%s' ) ) . ')
+					AND meta_value LIKE %s
+				',
+				array_merge( $meta_search_fields, array( '%' . $wpdb->esc_like( $term ) . '%' ) )
+			) );
+		}
 
 		return array_unique( array_merge(
 			$order_ids,
@@ -581,9 +592,9 @@ class WC_Order_Data_Store_Custom_Table extends Abstract_WC_Order_Data_Store_CPT 
 				$wpdb->prepare( "
 						SELECT order_id
 						FROM {$wpdb->prefix}woocommerce_order_items as order_items
-						WHERE order_item_name LIKE '%%%s%%'
-						",
-					$term
+						WHERE order_item_name LIKE %s
+					",
+					'%' . $wpdb->esc_like( $term ) . '%'
 				)
 			)
 		) );

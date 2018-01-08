@@ -47,3 +47,13 @@ Once master has been updated, the release should be tagged, then `master` should
 WooCommerce Custom Order Tables uses [the WordPress core testing suite](https://make.wordpress.org/core/handbook/testing/automated-testing/writing-phpunit-tests/) to provide automated tests for its functionality.
 
 When submitting pull requests, please include relevant tests for your new features and bugfixes. This helps prevent regressions in future iterations of the plugin, and helps instill confidence in store owners using this to enhance their WooCommerce stores.
+
+#### Test coverage
+
+To generate a code coverage report (test coverage percentage as well as areas of untested or under-tested code that could pose risk), you run the following:
+
+```sh
+$ composer test-coverage
+```
+
+The report will be saved to `tests/coverage/`. Please note that XDebug must be enabled in order to generate code coverage reports!

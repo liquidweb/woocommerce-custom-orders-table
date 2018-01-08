@@ -4,11 +4,15 @@
   "type": "wordpress-plugin",
   "license": "GPL-2.0",
   "require": {
+    "php": ">=5.2",
     "composer/installers": "^1.4",
     "xrstf/composer-php52": "^1.0"
   },
   "autoload": {
     "classmap": ["includes"]
+  },
+  "autoload-dev": {
+    "classmap": ["tests/test-tools"]
   },
   "scripts": {
     "post-install-cmd": [
@@ -19,6 +23,9 @@
     ],
     "post-autoload-dump": [
       "xrstf\\Composer52\\Generator::onPostInstallCmd"
+    ],
+    "test-coverage": [
+      "phpunit --coverage-html=tests/coverage"
     ]
   }
 }
