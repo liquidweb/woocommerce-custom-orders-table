@@ -20,4 +20,10 @@
 			<directory suffix=".php">./vendor/woocommerce/woocommerce/tests/unit-tests</directory>
 		</testsuite>
 	</testsuites>
+	<filter>
+		<whitelist>
+			<directory suffix=".php">includes</directory>
+			<file>wc-custom-order-table.php</file>
+		</whitelist>
+	</filter>
 </phpunit>
