@@ -9,6 +9,19 @@
 class TestCase extends WC_Unit_Test_Case {
 
 	/**
+	 * Delete all data from the orders table after each test.
+	 *
+	 * @after
+	 *
+	 * @global $wpdb
+	 */
+	function truncate_table() {
+		global $wpdb;
+
+		$wpdb->query( "DELETE FROM {$wpdb->prefix}woocommerce_orders" );
+	}
+
+	/**
 	 * Retrieve the core test suite's factory object, but add extra factories.
 	 *
 	 * @return WP_UnitTest_Factory
