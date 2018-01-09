@@ -21,60 +21,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 */
 	protected $creating = false;
 
-	/**
-	 * Map table columns to related postmeta keys.
-	 *
-	 * @var array
-	 */
-	protected $postmeta_mapping = array(
-		'order_key'            => '_order_key',
-		'customer_id'          => '_customer_user',
-		'payment_method'       => '_payment_method',
-		'payment_method_title' => '_payment_method_title',
-		'transaction_id'       => '_transaction_id',
-		'customer_ip_address'  => '_customer_ip_address',
-		'customer_user_agent'  => '_customer_user_agent',
-		'created_via'          => '_created_via',
-		'date_completed'       => '_date_completed',
-		'date_paid'            => '_date_paid',
-		'cart_hash'            => '_cart_hash',
-
-		'billing_first_name'   => '_billing_first_name',
-		'billing_last_name'    => '_billing_last_name',
-		'billing_company'      => '_billing_company',
-		'billing_address_1'    => '_billing_address_1',
-		'billing_address_2'    => '_billing_address_2',
-		'billing_city'         => '_billing_city',
-		'billing_state'        => '_billing_state',
-		'billing_postcode'     => '_billing_postcode',
-		'billing_country'      => '_billing_country',
-		'billing_email'        => '_billing_email',
-		'billing_phone'        => '_billing_phone',
-
-		'shipping_first_name'  => '_shipping_first_name',
-		'shipping_last_name'   => '_shipping_last_name',
-		'shipping_company'     => '_shipping_company',
-		'shipping_address_1'   => '_shipping_address_1',
-		'shipping_address_2'   => '_shipping_address_2',
-		'shipping_city'        => '_shipping_city',
-		'shipping_state'       => '_shipping_state',
-		'shipping_postcode'    => '_shipping_postcode',
-		'shipping_country'     => '_shipping_country',
-
-		'discount_total'       => '_cart_discount',
-		'discount_tax'         => '_cart_discount_tax',
-		'shipping_total'       => '_order_shipping',
-		'shipping_tax'         => '_order_shipping_tax',
-		'cart_tax'             => '_order_tax',
-		'total'                => '_order_total',
-
-		'version'              => '_order_version',
-		'currency'             => '_order_currency',
-		'prices_include_tax'   => '_prices_include_tax',
-	);
-
 	public function __construct() {
-		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', array( $this, 'filter_database_queries' ), 10, 2 );
+
+		// When creating a WooCommerce order data store request, filter the MySQL query.
+		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', __CLASS__ . '::filter_database_queries', 10, 2 );
 	}
 
 	/**
@@ -82,8 +32,53 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 *
 	 * @return array An array of database columns and their corresponding post_meta keys.
 	 */
-	public function get_postmeta_mapping() {
-		return $this->postmeta_mapping;
+	public static function get_postmeta_mapping() {
+		return array(
+			'order_key'            => '_order_key',
+			'customer_id'          => '_customer_user',
+			'payment_method'       => '_payment_method',
+			'payment_method_title' => '_payment_method_title',
+			'transaction_id'       => '_transaction_id',
+			'customer_ip_address'  => '_customer_ip_address',
+			'customer_user_agent'  => '_customer_user_agent',
+			'created_via'          => '_created_via',
+			'date_completed'       => '_date_completed',
+			'date_paid'            => '_date_paid',
+			'cart_hash'            => '_cart_hash',
+
+			'billing_first_name'   => '_billing_first_name',
+			'billing_last_name'    => '_billing_last_name',
+			'billing_company'      => '_billing_company',
+			'billing_address_1'    => '_billing_address_1',
+			'billing_address_2'    => '_billing_address_2',
+			'billing_city'         => '_billing_city',
+			'billing_state'        => '_billing_state',
+			'billing_postcode'     => '_billing_postcode',
+			'billing_country'      => '_billing_country',
+			'billing_email'        => '_billing_email',
+			'billing_phone'        => '_billing_phone',
+
+			'shipping_first_name'  => '_shipping_first_name',
+			'shipping_last_name'   => '_shipping_last_name',
+			'shipping_company'     => '_shipping_company',
+			'shipping_address_1'   => '_shipping_address_1',
+			'shipping_address_2'   => '_shipping_address_2',
+			'shipping_city'        => '_shipping_city',
+			'shipping_state'       => '_shipping_state',
+			'shipping_postcode'    => '_shipping_postcode',
+			'shipping_country'     => '_shipping_country',
+
+			'discount_total'       => '_cart_discount',
+			'discount_tax'         => '_cart_discount_tax',
+			'shipping_total'       => '_order_shipping',
+			'shipping_tax'         => '_order_shipping_tax',
+			'cart_tax'             => '_order_tax',
+			'total'                => '_order_total',
+
+			'version'              => '_order_version',
+			'currency'             => '_order_currency',
+			'prices_include_tax'   => '_prices_include_tax',
+		);
 	}
 
 	/**
@@ -140,49 +135,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 				$this->populate_from_meta( $order );
 			}
 		}
-	}
-
-	/**
-	 * Determine if any filters are required on the MySQL query and, if so, apply them.
-	 *
-	 * @param array $query_args The arguments to be passed to WP_Query.
-	 * @param array $query_vars The raw query vars passed to build the query.
-	 *
-	 * @return array The potentially-filtered $query_args array.
-	 */
-	public function filter_database_queries( $query_args, $query_vars ) {
-
-		// No 'meta_query' node means no changes are needed.
-		if ( ! isset( $query_args['meta_query'] ) || empty( $query_args['meta_query'] ) ) {
-			return $query_args;
-		}
-
-		// Chances are we'll have some modifications.
-		$query_args['wc_order_meta_query'] = array();
-
-		/*
-		 * Remove some of the query adjustments that may have been made in the
-		 * WC_Order_Data_Store_CPT::get_wp_query_args() method.
-		 */
-		foreach ( $query_args['meta_query'] as $index => $meta_query ) {
-			if ( isset( $meta_query['customer_ids'] ) || isset( $meta_query['customer_emails'] ) ) {
-				unset( $query_args['meta_query'][ $index ] );
-				add_filter( 'posts_where', __CLASS__ . '::customer_query_where', 10, 2 );
-
-			} elseif ( $column = array_search( $meta_query['key'], $this->get_postmeta_mapping(), true ) ) {
-				$query_args['wc_order_meta_query'][] = array_merge( $meta_query, array(
-					'key'      => $column,
-					'_old_key' => $meta_query['key'],
-				) );
-
-			}
-		}
-
-		// Add filters to address specific portions of the query.
-		add_filter( 'posts_join', __CLASS__ . '::posts_join' );
-		add_filter( 'posts_where', __CLASS__ . '::meta_query_where', 100, 2 );
-
-		return $query_args;
 	}
 
 	/**
@@ -387,7 +339,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			$this->creating    = true;
 		}
 
-		foreach ( $this->get_postmeta_mapping() as $column => $meta_key ) {
+		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
 			$meta = get_post_meta( $order->get_id(), $meta_key, true );
 
 			if ( empty( $table_data->$column ) && ! empty( $meta ) ) {
@@ -407,7 +359,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		}
 
 		if ( true === $delete ) {
-			foreach ( $this->get_postmeta_mapping() as $column => $meta_key ) {
+			foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
 				delete_post_meta( $order->get_id(), $meta_key );
 			}
 		}
@@ -429,7 +381,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			return;
 		}
 
-		foreach ( $this->get_postmeta_mapping() as $column => $meta_key ) {
+		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
 			if ( isset( $data->$column ) ) {
 				update_post_meta( $order->get_id(), $meta_key, $data->$column );
 			}
@@ -437,21 +389,78 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	}
 
 	/**
+	 * Determine if any filters are required on the MySQL query and, if so, apply them.
+	 *
+	 * @param array $query_args The arguments to be passed to WP_Query.
+	 * @param array $query_vars The raw query vars passed to build the query.
+	 *
+	 * @return array The potentially-filtered $query_args array.
+	 */
+	public static function filter_database_queries( $query_args, $query_vars ) {
+		$query_args['wc_order_meta_query']  = array();
+		$query_args['_wc_has_meta_columns'] = false;
+
+		// Iterate over the meta_query to find special cases.
+		if ( isset( $query_args['meta_query'] ) ) {
+			foreach ( $query_args['meta_query'] as $index => $meta_query ) {
+
+				// Customer-related queries get their own add-on for the WHERE query.
+				if ( isset( $meta_query['customer_ids'] ) || isset( $meta_query['customer_emails'] ) ) {
+					unset( $query_args['meta_query'][ $index ] );
+					add_filter( 'posts_where', __CLASS__ . '::customer_query_where', 10, 2 );
+
+				// If the key matches a known column, copy the meta query to wc_order_meta_query.
+				} elseif ( isset( $meta_query['key'] ) && ( $column = array_search( $meta_query['key'], self::get_postmeta_mapping(), true ) ) ) {
+					$query_args['wc_order_meta_query'][] = array_merge( $meta_query, array(
+						'key'      => $column,
+						'_old_key' => $meta_query['key'],
+					) );
+
+				// Let this meta query pass through unaltered.
+				} else {
+					$query_args['_wc_has_meta_columns'] = true;
+				}
+			}
+		}
+
+		// Add filters to address specific portions of the query.
+		add_filter( 'posts_join', __CLASS__ . '::posts_join', 10, 2 );
+		add_filter( 'posts_where', __CLASS__ . '::meta_query_where', 100, 2 );
+
+		return $query_args;
+	}
+
+	/**
 	 * Filter the JOIN statement generated by WP_Query.
 	 *
 	 * @global $wpdb
 	 *
-	 * @param string $join The MySQL JOIN statement.
+	 * @param string   $join  The MySQL JOIN statement.
+	 * @param WP_Query $query The WP_Query object, passed by reference.
 	 *
 	 * @return string The filtered JOIN statement.
 	 */
-	public static function posts_join( $join ) {
+	public static function posts_join( $join, $wp_query ) {
 		global $wpdb;
 
-		remove_filter( 'posts_join', __CLASS__ . '::posts_join' );
+		/*
+		 * Remove the now-unnecessary INNER JOIN with the post_meta table unless there's some post
+		 * meta that doesn't have a column in the custom table.
+		 *
+		 * @see WP_Meta_Query::get_sql_for_clause()
+		 */
+		if ( ! $wp_query->get( '_wc_has_meta_columns', false ) ) {
+			// Match the post_meta table INNER JOIN, with or without an alias.
+			$regex = "/\sINNER\sJOIN\s{$wpdb->postmeta}\s+(AS\s[^\s]+)?\s*ON\s\([^\)]+\)/i";
+
+			$join = preg_replace( $regex, '', $join );
+		}
 
 		$table = wc_custom_order_table()->get_table_name();
 		$join .= " JOIN {$table} ON ( {$wpdb->posts}.ID = {$table}.order_id ) ";
+
+		// Don't necessarily apply this to subsequent posts_join filter callbacks.
+		remove_filter( 'posts_join', __CLASS__ . '::posts_join', 10, 2 );
 
 		return $join;
 	}
@@ -546,11 +555,8 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		}
 
 		foreach ( $meta_query as $query ) {
-			$where = str_replace(
-				$wpdb->prepare( "( {$wpdb->postmeta}.meta_key = %s AND {$wpdb->postmeta}.meta_value ", $query['_old_key'] ),
-				"( {$table}.{$query['key']} ",
-				$where
-			);
+			$regex = $wpdb->prepare( "/\(\s?(\w+\.)?meta_key = %s AND (\w+\.)?meta_value /i", $query['_old_key'] );
+			$where = preg_replace( $regex, "( {$table}.{$query['key']} ", $where );
 		}
 
 		// Ensure this doesn't affect all subsequent queries.
