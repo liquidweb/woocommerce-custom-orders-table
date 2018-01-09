@@ -208,7 +208,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 			'version'              => $order->get_version( 'edit' ),
 			'currency'             => $order->get_currency( 'edit' ),
-			'prices_include_tax'   => $order->get_prices_include_tax( 'edit' ),
+			'prices_include_tax'   => wc_bool_to_string( $order->get_prices_include_tax( 'edit' ) ),
 		);
 
 		$changes = array();
