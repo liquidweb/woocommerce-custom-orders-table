@@ -457,7 +457,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		}
 
 		$table = wc_custom_order_table()->get_table_name();
-		$join .= " JOIN {$table} ON ( {$wpdb->posts}.ID = {$table}.order_id ) ";
+		$join .= " LEFT JOIN {$table} ON ( {$wpdb->posts}.ID = {$table}.order_id ) ";
 
 		// Don't necessarily apply this to subsequent posts_join filter callbacks.
 		remove_filter( 'posts_join', __CLASS__ . '::posts_join', 10, 2 );
