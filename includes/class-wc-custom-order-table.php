@@ -29,6 +29,7 @@ class WC_Custom_Order_Table {
 		$this->table_name = $wpdb->prefix . 'woocommerce_orders';
 
 		// Inject the plugin into order processing.
+		add_filter( 'woocommerce_customer_data_store', array( $this, 'customer_data_store' ) );
 		add_filter( 'woocommerce_order_data_store', array( $this, 'order_data_store' ) );
 
 		// Register the CLI command if we're running WP_CLI.
@@ -49,6 +50,15 @@ class WC_Custom_Order_Table {
 		 * @param string $table The WooCommerce orders table name.
 		 */
 		return apply_filters( 'wc_customer_order_table_name', $this->table_name );
+	}
+
+	/**
+	 * Retrieve the class name of the WooCommerce customer data store.
+	 *
+	 * @return string The data store class name.
+	 */
+	public function customer_data_store() {
+		return 'WC_Customer_Data_Store_Custom_Table';
 	}
 
 	/**
