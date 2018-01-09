@@ -27,6 +27,8 @@ require_once $_tests_dir . '/includes/functions.php';
 // Manually load the plugin on muplugins_loaded.
 function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/wc-custom-order-table.php';
+
+	WC_Custom_Order_Table_Install::activate();
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
