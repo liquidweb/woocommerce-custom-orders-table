@@ -29,6 +29,8 @@ function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/wc-custom-order-table.php';
 
 	WC_Custom_Order_Table_Install::activate();
+
+	add_filter( 'woocommerce_email_actions', '__return_empty_array' );
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
