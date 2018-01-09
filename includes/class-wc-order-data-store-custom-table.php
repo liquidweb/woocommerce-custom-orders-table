@@ -404,13 +404,26 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		if ( isset( $query_args['meta_query'] ) ) {
 			foreach ( $query_args['meta_query'] as $index => $meta_query ) {
 
-				// Customer-related queries get their own add-on for the WHERE query.
-				if ( isset( $meta_query['customer_ids'] ) || isset( $meta_query['customer_emails'] ) ) {
-					unset( $query_args['meta_query'][ $index ] );
-					add_filter( 'posts_where', __CLASS__ . '::customer_query_where', 10, 2 );
+				// Flatten complex meta queries.
+				if ( is_array( $meta_query ) && 1 === count( $meta_query ) && is_array( current( $meta_query ) ) ) {
+					$meta_query = current( $meta_query );
+				}
 
-				// If the key matches a known column, copy the meta query to wc_order_meta_query.
-				} elseif ( isset( $meta_query['key'] ) && ( $column = array_search( $meta_query['key'], self::get_postmeta_mapping(), true ) ) ) {
+				if ( isset( $meta_query['customer_emails'] ) ) {
+					$query_args['wc_order_meta_query'][] = array_merge( $meta_query['customer_emails'], array(
+						'key'      => 'billing_email',
+						'_old_key' => $meta_query['customer_emails']['key'],
+					) );
+				}
+
+				if ( isset( $meta_query['customer_ids'] ) ) {
+					$query_args['wc_order_meta_query'][] = array_merge( $meta_query['customer_ids'], array(
+						'key'      => 'customer_id',
+						'_old_key' => $meta_query['customer_ids']['key'],
+					) );
+				}
+
+				if ( isset( $meta_query['key'] ) && ( $column = array_search( $meta_query['key'], self::get_postmeta_mapping(), true ) ) ) {
 					$query_args['wc_order_meta_query'][] = array_merge( $meta_query, array(
 						'key'      => $column,
 						'_old_key' => $meta_query['key'],
@@ -463,74 +476,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		remove_filter( 'posts_join', __CLASS__ . '::posts_join', 10, 2 );
 
 		return $join;
-	}
-
-	/**
-	 * Given 'customer' arguments, build a corresponding WHERE query fragment.
-	 *
-	 * @global $wpdb
-	 *
-	 * @param string   $where The MySQL WHERE statement.
-	 * @param WP_Query $query The WP_Query object, passed by reference.
-	 *
-	 * @return string The [potentially-] filtered JOIN statement.
-	 */
-	public static function customer_query_where( $where, $wp_query ) {
-		global $wpdb;
-
-		$customer    = (array) $wp_query->get( 'customer' );
-		$table       = wc_custom_order_table()->get_table_name();
-		$query_parts = array(
-			'ids'    => array(),
-			'emails' => array(),
-		);
-		$id_query    = '';
-		$email_query = '';
-
-		// Return early if there's no 'customer' parameter.
-		if ( ! $customer ) {
-			return $where;
-		}
-
-		foreach ( $customer as $term ) {
-			if ( is_email( $term ) ) {
-				$query_parts['emails'][] = $term;
-			} else {
-				$query_parts['ids'][] = (int) $term;
-			}
-		}
-
-		// Return early if we didn't get anything out of the loop.
-		if ( empty( $query_parts['ids'] ) && empty( $query_parts['emails'] ) ) {
-			return $where;
-		}
-
-		// Build the ID portion of the query.
-		if ( ! empty( $query_parts['ids'] ) ) {
-			$id_query = $wpdb->prepare(
-				"{$table}.customer_id IN (" . implode( ', ', array_fill( 0, count( $query_parts['ids'] ), '%d' ) ) . ')',
-				$query_parts['ids']
-			);
-		}
-
-		// Build the email portion of the query.
-		if ( ! empty( $query_parts['emails'] ) ) {
-			$email_query = $wpdb->prepare(
-				"{$table}.billing_email IN (" . implode( ', ', array_fill( 0, count( $query_parts['emails'] ), '%s' ) ) . ')',
-				$query_parts['emails']
-			);
-		}
-
-		if ( $id_query && $email_query ) {
-			$where .= " AND ( $id_query OR $email_query ) ";
-		} else {
-			$where .= " AND ( $id_query $email_query )";
-		}
-
-		// Ensure this doesn't affect all subsequent queries.
-		remove_filter( 'posts_where', __CLASS__ . '::customer_query_where', 10, 2 );
-
-		return $where;
 	}
 
 	/**
