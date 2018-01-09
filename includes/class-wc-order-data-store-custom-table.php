@@ -203,7 +203,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'discount_tax'         => $order->get_discount_tax( 'edit' ),
 			'shipping_total'       => $order->get_shipping_total( 'edit' ),
 			'shipping_tax'         => $order->get_shipping_tax( 'edit' ),
-			'cart_tax'             => $order->get_total_tax( 'edit' ),
+			'cart_tax'             => $order->get_cart_tax( 'edit' ),
 			'total'                => $order->get_total( 'edit' ),
 
 			'version'              => $order->get_version( 'edit' ),
