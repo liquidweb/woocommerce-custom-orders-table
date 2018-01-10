@@ -289,50 +289,78 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function search_orders( $term ) {
 		global $wpdb;
 
-		$order_ids = array();
+		/**
+		 * Searches on meta data can be slow - this lets you choose what fields to search.
+		 * 3.0.0 added _billing_address and _shipping_address meta which contains all address data to make this faster.
+		 * This however won't work on older orders unless updated, so search a few others (expand this using the filter if needed).
+		 *
+		 * @var array
+		 */
+		$search_fields = array_map(
+			'wc_clean', apply_filters(
+				'woocommerce_shop_order_search_fields', array(
+					'_billing_address_index',
+					'_shipping_address_index',
+					'_billing_last_name',
+					'_billing_email',
+				)
+			)
+		);
+		$term          = wc_clean( $term );
+		$order_ids     = array();
 
 		// Treat a numeric search term as an order ID.
 		if ( is_numeric( $term ) ) {
 			$order_ids[] = absint( $term );
 		}
 
-		// Search given post meta columns for the query.
-		$postmeta_search = array();
+		// Search for order meta fields.
+		if ( ! empty( $search_fields ) ) {
+			$mapping   = self::get_postmeta_mapping();
+			$in_table  = array_intersect( $search_fields, $mapping );
+			$meta_keys = array_diff( $search_fields, $in_table );
+			$table     = wc_custom_order_table()->get_table_name();
 
-		/**
-		 * Searches on meta data can be slow - this lets you choose what fields to search.
-		 *
-		 * WooCommerce 2.7.0 added _billing_address and _shipping_address meta which contains all
-		 * address data to make this faster. However, this won't work on older orders unless they
-		 * are updated, so search a few others (expand this using the filter if needed).
-		 */
-		$meta_search_fields = array_map( 'wc_clean', apply_filters( 'woocommerce_shop_order_search_fields', array() ) );
+			// Find results based on search fields that map to table columns.
+			if ( ! empty( $in_table ) ) {
+				$columns = array_keys( array_intersect( $mapping, $in_table ) );
+				$where   = array();
 
-		// If we were given meta fields to search, make it happen.
-		if ( ! empty( $meta_search_fields ) ) {
-			$postmeta_search = $wpdb->get_col( $wpdb->prepare( "
-					SELECT DISTINCT post_id
-					FROM {$wpdb->postmeta}
-					WHERE meta_key IN (" . implode( ',', array_fill( 0, count( $meta_search_fields ), '%s' ) ) . ')
-					AND meta_value LIKE %s
-				',
-				array_merge( $meta_search_fields, array( '%' . $wpdb->esc_like( $term ) . '%' ) )
-			) );
+				foreach ( $columns as $column ) {
+					$where[] = "{$column} LIKE %s";
+				}
+
+				$order_ids = array_merge( $order_ids, $wpdb->get_col( $wpdb->prepare( "
+					SELECT DISTINCT order_id FROM {$table} WHERE " . implode( ' OR ', $where ),
+					array_fill( 0, count( $where ), '%' . $wpdb->esc_like( $term ) . '%' )
+				) ) );
+			}
+
+			// For anything else, fall back to postmeta.
+			if ( ! empty( $meta_keys ) ) {
+				$order_ids = array_merge( $order_ids, $wpdb->get_col( $wpdb->prepare( "
+					SELECT DISTINCT post_id FROM {$wpdb->postmeta}
+					WHERE meta_value LIKE %s
+					AND meta_key IN (" . implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) ) . ')',
+					array_merge(
+						array( '%' . $wpdb->esc_like( $term ) . '%' ),
+						$meta_keys
+					)
+				) ) );
+			}
 		}
 
-		return array_unique( array_merge(
-			$order_ids,
-			$postmeta_search,
-			$wpdb->get_col(
-				$wpdb->prepare( "
-						SELECT order_id
-						FROM {$wpdb->prefix}woocommerce_order_items as order_items
-						WHERE order_item_name LIKE %s
-					",
-					'%' . $wpdb->esc_like( $term ) . '%'
-				)
-			)
-		) );
+		// Search item names.
+		$order_ids = array_merge( $order_ids, $wpdb->get_col( $wpdb->prepare( "
+			SELECT order_id FROM {$wpdb->prefix}woocommerce_order_items
+			WHERE order_item_name LIKE %s",
+			'%' . $wpdb->esc_like( $term ) . '%'
+		) ) );
+
+		// Reduce the array of order IDs to unique values.
+		$order_ids = array_unique( $order_ids );
+
+		return apply_filters( 'woocommerce_shop_order_search_results', $order_ids, $term, $search_fields );
 	}
 
 	/**
