@@ -46,6 +46,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'date_paid'            => '_date_paid',
 			'cart_hash'            => '_cart_hash',
 
+			'billing_index'        => '_billing_address_index',
 			'billing_first_name'   => '_billing_first_name',
 			'billing_last_name'    => '_billing_last_name',
 			'billing_company'      => '_billing_company',
@@ -58,6 +59,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'billing_email'        => '_billing_email',
 			'billing_phone'        => '_billing_phone',
 
+			'shipping_index'       => '_shipping_address_index',
 			'shipping_first_name'  => '_shipping_first_name',
 			'shipping_last_name'   => '_shipping_last_name',
 			'shipping_company'     => '_shipping_company',
@@ -163,7 +165,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	protected function update_post_meta( &$order ) {
 		global $wpdb;
 
-		$edit_data = array(
+		$table      = wc_custom_order_table()->get_table_name();
+		$changes    = array();
+		$order_data = array(
+			'order_id'             => $order->get_id( 'edit' ),
 			'order_key'            => $order->get_order_key( 'edit' ),
 			'customer_id'          => $order->get_customer_id( 'edit' ),
 			'payment_method'       => $order->get_payment_method( 'edit' ),
@@ -176,6 +181,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'date_paid'            => $order->get_date_paid( 'edit' ),
 			'cart_hash'            => $order->get_cart_hash( 'edit' ),
 
+			'billing_index'        => implode( ' ', $order->get_address( 'billing' ) ),
 			'billing_first_name'   => $order->get_billing_first_name( 'edit' ),
 			'billing_last_name'    => $order->get_billing_last_name( 'edit' ),
 			'billing_company'      => $order->get_billing_company( 'edit' ),
@@ -189,6 +195,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'billing_email'        => $order->get_billing_email( 'edit' ),
 			'billing_phone'        => $order->get_billing_phone( 'edit' ),
 
+			'shipping_index'       => implode( ' ', $order->get_address( 'shipping' ) ),
 			'shipping_first_name'  => $order->get_shipping_first_name( 'edit' ),
 			'shipping_last_name'   => $order->get_shipping_last_name( 'edit' ),
 			'shipping_company'     => $order->get_shipping_company( 'edit' ),
@@ -213,34 +220,35 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// Convert dates to timestamps, if they exist.
 		foreach ( array( 'date_completed', 'date_paid' ) as $date ) {
-			if ( $edit_data[ $date ] instanceof WC_DateTime ) {
-				$edit_data[ $date ] = $edit_data[ $date ]->getTimestamp();
+			if ( $order_data[ $date ] instanceof WC_DateTime ) {
+				$order_data[ $date ] = $order_data[ $date ]->getTimestamp();
 			}
 		}
 
-		$changes = array();
-
+		// Insert or update the database record.
 		if ( $this->creating ) {
-			$wpdb->insert(
-				wc_custom_order_table()->get_table_name(),
-				array_merge( array(
-					'order_id' => $order->get_id(),
-				), $edit_data )
-			);
+			$wpdb->insert( $table, $order_data );
 
-			// We are no longer creating the order, it is created.
 			$this->creating = false;
+
 		} else {
-			$changes = array_intersect_key( $edit_data, $order->get_changes() );
+			$changes = array_intersect_key( $order_data, $order->get_changes() );
+
+			/*
+			 * WC_Order::get_changes() will mark all address fields as changed if one has changed.
+			 *
+			 * If any of these fields are present, be sure we update the index column.
+			 */
+			if ( isset( $changes['billing_first_name'] ) ) {
+				$changes['billing_index'] = $order_data['billing_index'];
+			}
+
+			if ( isset( $changes['shipping_first_name'] ) ) {
+				$changes['shipping_index'] = $order_data['shipping_index'];
+			}
 
 			if ( ! empty( $changes ) ) {
-				$wpdb->update(
-					"{$wpdb->prefix}woocommerce_orders",
-					$changes,
-					array(
-						'order_id' => $order->get_id(),
-					)
-				);
+				$wpdb->update( $table, $changes, array( 'order_id' => $order->get_id() ) );
 			}
 		}
 
