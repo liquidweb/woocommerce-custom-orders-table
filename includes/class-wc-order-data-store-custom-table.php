@@ -172,8 +172,8 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'customer_ip_address'  => $order->get_customer_ip_address( 'edit' ),
 			'customer_user_agent'  => $order->get_customer_user_agent( 'edit' ),
 			'created_via'          => $order->get_created_via( 'edit' ),
-			'date_completed'       => (string) $order->get_date_completed( 'edit' ),
-			'date_paid'            => (string) $order->get_date_paid( 'edit' ),
+			'date_completed'       => $order->get_date_completed( 'edit' ),
+			'date_paid'            => $order->get_date_paid( 'edit' ),
 			'cart_hash'            => $order->get_cart_hash( 'edit' ),
 
 			'billing_first_name'   => $order->get_billing_first_name( 'edit' ),
@@ -210,6 +210,13 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'currency'             => $order->get_currency( 'edit' ),
 			'prices_include_tax'   => wc_bool_to_string( $order->get_prices_include_tax( 'edit' ) ),
 		);
+
+		// Convert dates to timestamps, if they exist.
+		foreach ( array( 'date_completed', 'date_paid' ) as $date ) {
+			if ( $edit_data[ $date ] instanceof WC_DateTime ) {
+				$edit_data[ $date ] = $edit_data[ $date ]->getTimestamp();
+			}
+		}
 
 		$changes = array();
 

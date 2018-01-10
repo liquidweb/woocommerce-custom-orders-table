@@ -86,25 +86,6 @@ class DataStoreTest extends TestCase {
 		$this->assertEquals( 'PHPUnit', $row['customer_user_agent'] );
 	}
 
-	/**
-	 * When inserting rows into the database, $wpdb->prepare() can't accept WC_DateTime objects.
-	 */
-	public function test_update_post_meta_casts_dates_as_strings() {
-		$order = new WC_Order( wp_insert_post( array(
-			'post_type' => 'product',
-		) ) );
-		$time  = time();
-		$order->set_date_paid( $time );
-		$order->set_date_completed( $time );
-
-		$this->invoke_update_post_meta( $order, true );
-
-		$row = $this->get_order_row( $order->get_id() );
-
-		$this->assertEquals( $time, strtotime( $row['date_paid'] ) );
-		$this->assertEquals( $time, strtotime( $row['date_completed'] ) );
-	}
-
 	public function test_get_order_id_by_order_key() {
 		$order = WC_Helper_Order::create_order();
 		$instance = new WC_Order_Data_Store_Custom_Table();
