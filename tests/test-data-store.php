@@ -8,24 +8,6 @@
 
 class DataStoreTest extends TestCase {
 
-	/**
-	 * Fire the necessary actions to bootstrap WordPress.
-	 *
-	 * @before
-	 */
-	public function init() {
-		do_action( 'init' );
-	}
-
-	/**
-	 * Remove any closures that have been assigned to filters.
-	 *
-	 * @after
-	 */
-	public function remove_filter_callbacks() {
-		remove_all_filters( 'woocommerce_shop_order_search_fields' );
-	}
-
 	public function test_create() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
 		$property = new ReflectionProperty( $instance, 'creating' );
@@ -111,6 +93,7 @@ class DataStoreTest extends TestCase {
 		add_post_meta( $order, 'some_custom_meta_key', $term );
 
 		add_filter( 'woocommerce_shop_order_search_fields', function () {
+			remove_filter( 'woocommerce_shop_order_search_fields', __FUNCTION__ );
 			return array( 'some_custom_meta_key' );
 		} );
 
