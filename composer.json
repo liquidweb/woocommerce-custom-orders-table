@@ -3,13 +3,19 @@
   "description": "Store WooCommerce order data in a custom table.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/liquidweb/woocommerce"
+    }
+  ],
   "require": {
     "php": ">=5.2",
     "composer/installers": "^1.4",
     "xrstf/composer-php52": "^1.0"
   },
   "require-dev": {
-    "woocommerce/woocommerce": "dev-master"
+    "woocommerce/woocommerce": "dev-fix/get-customer-last-order"
   },
   "autoload": {
     "classmap": [
