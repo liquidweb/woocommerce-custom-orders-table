@@ -151,7 +151,12 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function get_order_data_from_table( $order ) {
 		global $wpdb;
 
-		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}woocommerce_orders WHERE order_id = %d;", $order->get_id() ) );
+		$table = wc_custom_order_table()->get_table_name();
+
+		return $wpdb->get_row( $wpdb->prepare(
+			"SELECT * FROM {$table} WHERE order_id = %d",
+			$order->get_id()
+		) );
 	}
 
 	/**
