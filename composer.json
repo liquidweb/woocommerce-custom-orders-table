@@ -10,7 +10,11 @@
   },
   "require-dev": {
     "php": "^7.0",
-    "woocommerce/woocommerce": "dev-master"
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+    "wimg/php-compatibility": "^8.1",
+    "woocommerce/woocommerce": "dev-master",
+    "woocommerce/woocommerce-sniffs": "^0.0.1",
+    "wp-coding-standards/wpcs": "^0.14"
   },
   "autoload": {
     "classmap": [
