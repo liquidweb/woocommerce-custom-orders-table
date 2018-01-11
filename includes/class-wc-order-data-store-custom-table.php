@@ -270,7 +270,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		// If customer changed, update any downloadable permissions.
 		$customer_props = array( 'customer_user', 'billing_email' );
 
-		if ( ! empty( array_intersect( $customer_props, $updated_props ) ) ) {
+		if ( array_intersect( $customer_props, $updated_props ) ) {
 			$data_store = WC_Data_Store::load( 'customer-download' );
 			$data_store->update_user_by_order_id( $order->get_id(), $order->get_customer_id(), $order->get_billing_email() );
 		}
