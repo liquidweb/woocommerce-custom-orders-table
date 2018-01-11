@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "144174375d25fca49925f1402b0cca31",
+    "content-hash": "fe30de23a7822b2387c810e945f9be02",
     "packages": [
         {
             "name": "composer/installers",
@@ -161,16 +161,16 @@
     "packages-dev": [
         {
             "name": "woocommerce/woocommerce",
-            "version": "dev-fix/get-customer-last-order",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/liquidweb/woocommerce.git",
-                "reference": "493298504d00ddb7bbd7c32475657ad4e866120c"
+                "url": "https://github.com/woocommerce/woocommerce.git",
+                "reference": "fbbbc7a8df9aaa44d19381325b6e7482c83367d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liquidweb/woocommerce/zipball/493298504d00ddb7bbd7c32475657ad4e866120c",
-                "reference": "493298504d00ddb7bbd7c32475657ad4e866120c",
+                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/fbbbc7a8df9aaa44d19381325b6e7482c83367d2",
+                "reference": "fbbbc7a8df9aaa44d19381325b6e7482c83367d2",
                 "shasum": ""
             },
             "require": {
@@ -193,38 +193,13 @@
                     "phpcbf": "Fix coding standards warnings/errors automatically with PHP Code Beautifier"
                 }
             },
-            "scripts": {
-                "pre-update-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::preHooks"
-                ],
-                "pre-install-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::preHooks"
-                ],
-                "post-install-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::postHooks"
-                ],
-                "post-update-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::postHooks"
-                ],
-                "test": [
-                    "phpunit"
-                ],
-                "phpcs": [
-                    "phpcs -s -p"
-                ],
-                "phpcbf": [
-                    "phpcbf -p"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0+"
             ],
             "description": "An eCommerce toolkit that helps you sell anything. Beautifully.",
             "homepage": "https://woocommerce.com/",
-            "support": {
-                "source": "https://github.com/liquidweb/woocommerce/tree/fix/get-customer-last-order"
-            },
-            "time": "2018-01-10T18:39:35+00:00"
+            "time": "2018-01-11T13:46:09+00:00"
         }
     ],
     "aliases": [],
