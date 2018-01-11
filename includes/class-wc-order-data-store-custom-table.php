@@ -111,7 +111,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// Delete the database row if force_delete is true.
 		if ( isset( $args['force_delete'] ) && $args['force_delete'] ) {
-			$wpdb->delete("{$wpdb->prefix}woocommerce_orders", array( 'order_id' => $order_id ) );
+			$wpdb->delete( "{$wpdb->prefix}woocommerce_orders", array( 'order_id' => $order_id ) );
 		}
 	}
 
@@ -479,8 +479,8 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 						'_old_key' => $meta_query['key'],
 					) );
 
-				// Let this meta query pass through unaltered.
 				} else {
+					// Let this meta query pass through unaltered.
 					$query_args['_wc_has_meta_columns'] = true;
 				}
 			}
@@ -550,7 +550,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		}
 
 		foreach ( $meta_query as $query ) {
-			$regex = $wpdb->prepare( "/\(\s?(\w+\.)?meta_key = %s AND (\w+\.)?meta_value /i", $query['_old_key'] );
+			$regex = $wpdb->prepare( '/\(\s?(\w+\.)?meta_key = %s AND (\w+\.)?meta_value /i', $query['_old_key'] );
 			$where = preg_replace( $regex, "( {$table}.{$query['key']} ", $where );
 		}
 
