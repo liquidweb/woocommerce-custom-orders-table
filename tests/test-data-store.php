@@ -87,10 +87,10 @@ class DataStoreTest extends TestCase {
 
 	public function test_search_orders_can_check_post_meta() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = $this->factory()->order->create();
+		$order    = WC_Helper_Order::create_order();
 		$term     = uniqid( 'search term ' );
 
-		add_post_meta( $order, 'some_custom_meta_key', $term );
+		add_post_meta( $order->get_id(), 'some_custom_meta_key', $term );
 
 		add_filter( 'woocommerce_shop_order_search_fields', function () {
 			remove_filter( 'woocommerce_shop_order_search_fields', __FUNCTION__ );
@@ -98,7 +98,7 @@ class DataStoreTest extends TestCase {
 		} );
 
 		$this->assertEquals(
-			array( $order ),
+			array( $order->get_id() ),
 			$instance->search_orders( $term ),
 			'If post meta keys are specified, they should also be searched.'
 		);
@@ -109,10 +109,10 @@ class DataStoreTest extends TestCase {
 	 */
 	public function test_search_orders_only_checks_post_meta_if_specified() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = $this->factory()->order->create();
+		$order    = WC_Helper_Order::create_order();
 		$term     = uniqid( 'search term ' );
 
-		add_post_meta( $order, 'some_custom_meta_key', $term );
+		add_post_meta( $order->get_id(), 'some_custom_meta_key', $term );
 
 		$this->assertEmpty(
 			$instance->search_orders( $term ),
@@ -122,8 +122,8 @@ class DataStoreTest extends TestCase {
 
 	public function test_search_orders_checks_table_for_product_item_matches() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
-		$product  = $this->factory()->product->create_and_get();
-		$order    = $this->factory()->order->create_and_get();
+		$product  = WC_Helper_Product::create_simple_product();
+		$order    = WC_Helper_Order::create_order();
 		$order->add_product( $product );
 		$order->save();
 
@@ -136,10 +136,10 @@ class DataStoreTest extends TestCase {
 
 	public function test_search_orders_checks_table_for_product_item_matches_with_like_comparison() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
-		$product  = $this->factory()->product->create_and_get( array(
-			'post_title' => 'foo bar baz',
-		) );
-		$order    = $this->factory()->order->create_and_get();
+		$product  = WC_Helper_Product::create_simple_product();
+		$product->set_name( 'Foo Bar Baz' );
+		$product->save();
+		$order    = WC_Helper_Order::create_order();
 		$order->add_product( $product );
 		$order->save();
 
