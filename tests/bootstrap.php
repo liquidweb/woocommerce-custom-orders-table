@@ -17,7 +17,7 @@ if ( ! file_exists( $_bootstrap ) ) {
 	exit( 1 );
 
 } elseif ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
-	echo "\033[0;31mCould not find $_tests_dir/includes/functions.php, have you run `bin/install-wp-tests.sh`?\033[0;m" . PHP_EOL;
+	echo "\033[0;31mCould not find $_tests_dir/includes/functions.php, have you run `tests/bin/install-wp-tests.sh`?\033[0;m" . PHP_EOL;
 	exit( 1 );
 }
 
@@ -27,6 +27,10 @@ require_once $_tests_dir . '/includes/functions.php';
 // Manually load the plugin on muplugins_loaded.
 function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/wc-custom-order-table.php';
+
+	WC_Custom_Order_Table_Install::activate();
+
+	add_filter( 'woocommerce_email_actions', '__return_empty_array' );
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 

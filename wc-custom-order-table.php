@@ -22,7 +22,7 @@ define( 'WC_CUSTOM_ORDER_TABLE_PATH', plugin_dir_path( __FILE__ ) );
 
 /* Load includes via a PHP 5.2-compatible autoloader. */
 if ( file_exists( WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php' ) ) {
-	require( WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php' );
+	require WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php';
 }
 
 /**
@@ -43,7 +43,7 @@ function wc_custom_order_table() {
 	global $wc_custom_order_table;
 
 	if ( ! $wc_custom_order_table instanceof WC_Custom_Order_Table ) {
-		$wc_custom_order_table = new WC_Custom_Order_Table;
+		$wc_custom_order_table = new WC_Custom_Order_Table();
 		$wc_custom_order_table->setup();
 	}
 

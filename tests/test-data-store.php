@@ -9,35 +9,48 @@
 class DataStoreTest extends TestCase {
 
 	/**
-	 * Fire the necessary actions to bootstrap WordPress.
-	 *
-	 * @before
+	 * @requires PHP 5.4 In order to support inline closures for hook callbacks.
 	 */
-	public function init() {
-		do_action( 'init' );
-	}
-
-	/**
-	 * Remove any closures that have been assigned to filters.
-	 *
-	 * @after
-	 */
-	public function remove_filter_callbacks() {
-		remove_all_filters( 'woocommerce_shop_order_search_fields' );
-	}
-
 	public function test_create() {
-		$instance  = new WC_Order_Data_Store_Custom_Table();
-		$order     = $this->factory()->order->create_and_get();
-		$order_key = 'my_custom_order_key';
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$property = new ReflectionProperty( $instance, 'creating' );
+		$property->setAccessible( true );
+		$order    = new WC_Order( wp_insert_post( array(
+			'post_type' => 'product',
+		) ) );
 
-		add_filter( 'woocommerce_generate_order_key', function () use ( $order_key ) {
-			return $order_key;
+		add_action( 'wp_insert_post', function () use ( $property, $instance ) {
+			$this->assertTrue(
+				$property->getValue( $instance ),
+				'As an order is being created, WC_Order_Data_Store_Custom_Table::$creating should be true'
+			);
 		} );
 
 		$instance->create( $order );
 
-		$this->assertEquals( 'wc_' . $order_key, $order->get_order_key() );
+		$this->assertEquals( 1, did_action( 'wp_insert_post' ), 'Expected the "wp_insert_post" action to have been fired.' );
+	}
+
+	public function test_delete() {
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$order    = WC_Helper_Order::create_order();
+
+		$instance->delete( $order, array( 'force_delete' => false ) );
+
+		$this->assertNotNull(
+			$this->get_order_row( $order->get_id() ),
+			'Unless force_delete is true, the table row should not be removed.'
+		);
+	}
+
+	public function test_delete_can_force_delete() {
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$order    = WC_Helper_Order::create_order();
+		$order_id = $order->get_id();
+
+		$instance->delete( $order, array( 'force_delete' => true ) );
+
+		$this->assertNull( $this->get_order_row( $order_id ), 'When force deleting, the table row should be removed.' );
 	}
 
 	public function test_update_post_meta_for_new_order() {
@@ -58,73 +71,11 @@ class DataStoreTest extends TestCase {
 		$this->assertEquals( 'PHPUnit', $row['customer_user_agent'] );
 	}
 
-	/**
-	 * When inserting rows into the database, $wpdb->prepare() can't accept WC_DateTime objects.
-	 */
-	public function test_update_post_meta_casts_dates_as_strings() {
-		$order = new WC_Order( wp_insert_post( array(
-			'post_type' => 'product',
-		) ) );
-		$time  = time();
-		$order->set_date_paid( $time );
-		$order->set_date_completed( $time );
-
-		$this->invoke_update_post_meta( $order, true );
-
-		$row = $this->get_order_row( $order->get_id() );
-
-		$this->assertEquals( $time, strtotime( $row['date_paid'] ) );
-		$this->assertEquals( $time, strtotime( $row['date_completed'] ) );
-	}
-
-	public function test_get_order_count() {
+	public function test_get_order_id_by_order_key() {
+		$order = WC_Helper_Order::create_order();
 		$instance = new WC_Order_Data_Store_Custom_Table();
-		$orders   = $this->factory()->order->create_many( 5, array(
-			'post_status' => 'wc-pending',
-		) );
 
-		$this->assertEquals(
-			count( $orders ),
-			$instance->get_order_count( 'wc-pending' )
-		);
-	}
-
-	public function test_get_order_count_filters_by_status() {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$this->factory()->order->create( array(
-			'post_status' => 'not_a_pending_status',
-		) );
-
-		$this->assertEquals(
-			0,
-			$instance->get_order_count( 'wc-pending' ),
-			'The get_order_count() method should only count records matching $status.'
-		);
-	}
-
-	public function test_get_unpaid_orders() {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = $this->factory()->order->create( array(
-			'post_status' => 'wc-pending',
-		) );
-		$pending  = $instance->get_unpaid_orders( time() + DAY_IN_SECONDS );
-
-		$this->assertCount( 1, $pending, 'There should be only one unpaid order.' );
-		$this->assertEquals(
-			$order,
-			array_shift( $pending ),
-			'The ID of the one unpaid order should be that of $order.'
-		);
-	}
-
-	public function test_get_unpaid_orders_uses_date_filtering() {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = $this->factory()->order->create( array(
-			'post_status' => 'wc-pending',
-		) );
-		$pending  = $instance->get_unpaid_orders( time() - HOUR_IN_SECONDS );
-
-		$this->assertEmpty( $pending, 'No unpaid orders should match the time window.' );
+		$this->assertEquals( $order->get_id(), $instance->get_order_id_by_order_key( $order->get_order_key() ) );
 	}
 
 	public function test_search_orders_can_search_by_order_id() {
@@ -139,20 +90,29 @@ class DataStoreTest extends TestCase {
 
 	public function test_search_orders_can_check_post_meta() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = $this->factory()->order->create();
+		$order    = WC_Helper_Order::create_order();
 		$term     = uniqid( 'search term ' );
 
-		add_post_meta( $order, 'some_custom_meta_key', $term );
+		add_post_meta( $order->get_id(), 'some_custom_meta_key', $term );
 
-		add_filter( 'woocommerce_shop_order_search_fields', function () {
-			return array( 'some_custom_meta_key' );
-		} );
+		add_filter( 'woocommerce_shop_order_search_fields', __CLASS__ . '::return_array_for_test_search_orders_can_check_post_meta' );
 
 		$this->assertEquals(
-			array( $order ),
+			array( $order->get_id() ),
 			$instance->search_orders( $term ),
 			'If post meta keys are specified, they should also be searched.'
 		);
+
+		remove_filter( 'woocommerce_shop_order_search_fields', __CLASS__ . '::return_array_for_test_search_orders_can_check_post_meta' );
+	}
+
+	/**
+	 * Filter callback for test_search_orders_can_check_post_meta().
+	 *
+	 * Can be dropped once PHP 5.3 isn't a requirement, as closures are far nicer.
+	 */
+	public static function return_array_for_test_search_orders_can_check_post_meta() {
+		return array( 'some_custom_meta_key' );
 	}
 
 	/**
@@ -160,10 +120,10 @@ class DataStoreTest extends TestCase {
 	 */
 	public function test_search_orders_only_checks_post_meta_if_specified() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = $this->factory()->order->create();
+		$order    = WC_Helper_Order::create_order();
 		$term     = uniqid( 'search term ' );
 
-		add_post_meta( $order, 'some_custom_meta_key', $term );
+		add_post_meta( $order->get_id(), 'some_custom_meta_key', $term );
 
 		$this->assertEmpty(
 			$instance->search_orders( $term ),
@@ -173,8 +133,8 @@ class DataStoreTest extends TestCase {
 
 	public function test_search_orders_checks_table_for_product_item_matches() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
-		$product  = $this->factory()->product->create_and_get();
-		$order    = $this->factory()->order->create_and_get();
+		$product  = WC_Helper_Product::create_simple_product();
+		$order    = WC_Helper_Order::create_order();
 		$order->add_product( $product );
 		$order->save();
 
@@ -187,10 +147,10 @@ class DataStoreTest extends TestCase {
 
 	public function test_search_orders_checks_table_for_product_item_matches_with_like_comparison() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
-		$product  = $this->factory()->product->create_and_get( array(
-			'post_title' => 'foo bar baz',
-		) );
-		$order    = $this->factory()->order->create_and_get();
+		$product  = WC_Helper_Product::create_simple_product();
+		$product->set_name( 'Foo Bar Baz' );
+		$product->save();
+		$order    = WC_Helper_Order::create_order();
 		$order->add_product( $product );
 		$order->save();
 
@@ -199,34 +159,6 @@ class DataStoreTest extends TestCase {
 			$instance->search_orders( 'bar' ),
 			'Product items should be searched using a LIKE comparison and wildcards.'
 		);
-	}
-
-	/**
-	 * @dataProvider order_type_provider()
-	 */
-	public function test_get_order_type( $order_type ) {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = $this->factory()->order->create( array(
-			'post_type' => $order_type,
-		) );
-
-		$this->assertEquals(
-			$order_type,
-			$instance->get_order_type( $order )
-		);
-	}
-
-	/**
-	 * Provide a list of all available order types.
-	 */
-	public function order_type_provider() {
-		$types = array();
-
-		foreach ( wc_get_order_types() as $type ) {
-			$types[ $type ] = array( $type );
-		}
-
-		return $types;
 	}
 
 	/**

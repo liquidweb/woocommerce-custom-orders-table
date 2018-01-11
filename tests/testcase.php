@@ -9,26 +9,16 @@
 class TestCase extends WC_Unit_Test_Case {
 
 	/**
-	 * Retrieve the core test suite's factory object, but add extra factories.
+	 * Delete all data from the orders table after each test.
 	 *
-	 * @return WP_UnitTest_Factory
+	 * @after
+	 *
+	 * @global $wpdb
 	 */
-	protected static function factory() {
-		static $factory = null;
+	function truncate_table() {
+		global $wpdb;
 
-		if ( ! $factory ) {
-			$instance = new WP_UnitTest_Factory();
-
-			// Add additional factories.
-			$instance->customer = new WP_UnitTest_Factory_For_Customer( $instance );
-			$instance->order = new WP_UnitTest_Factory_For_Order( $instance );
-			$instance->product = new WP_UnitTest_Factory_For_Product( $instance );
-
-			// Save the instance in the static $factory variable.
-			$factory = $instance;
-		}
-
-		return $factory;
+		$wpdb->query( "DELETE FROM {$wpdb->prefix}woocommerce_orders" );
 	}
 
 	/**
