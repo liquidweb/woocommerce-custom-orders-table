@@ -2,7 +2,10 @@
 <ruleset name="WordPress Coding Standards for Plugins">
 	<description>Generally-applicable sniffs for WordPress plugins</description>
 
-	<rule ref="vendor/woocommerce/woocommerce/phpcs.xml" />
+	<rule ref="vendor/woocommerce/woocommerce/phpcs.xml">
+		<!-- Let the plugin files have @author tags. -->
+		<exclude name="Core.Commenting.CommentTags.AuthorTag" />
+	</rule>
 
 
 	<!-- Check all PHP files in directory tree by default. -->
