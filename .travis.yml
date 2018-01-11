@@ -30,5 +30,5 @@ script:
   - phpunit
   - |
     if [[ ${RUN_PHPCS} == 1 ]]; then
-      phpcs
+      ./vendor/bin/phpcs
     fi
