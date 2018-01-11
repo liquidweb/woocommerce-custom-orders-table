@@ -345,10 +345,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 					$where[] = "{$column} LIKE %s";
 				}
 
-				$order_ids = array_merge( $order_ids, $wpdb->get_col( $wpdb->prepare( "
-					SELECT DISTINCT order_id FROM {$table} WHERE " . implode( ' OR ', $where ),
+				$order_ids = array_merge( $order_ids, $wpdb->get_col( $wpdb->prepare(
+					'SELECT DISTINCT order_id FROM ' . esc_sql( $table ) . ' WHERE ' . implode( ' OR ', $where ),
 					array_fill( 0, count( $where ), '%' . $wpdb->esc_like( $term ) . '%' )
-				) ) );
+				) ) );  // WPCS: DB call OK, Unprepared SQL ok, PreparedSQLPlaceholders replacement count ok.
 			}
 
 			// For anything else, fall back to postmeta.
