@@ -23,7 +23,7 @@ matrix:
 
 before_script:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - bash tests/bin/install.sh woocommerce_test root '' localhost $WP_VERSION
+  - bash tests/bin/install-wp-tests.sh woocommerce_test root '' localhost $WP_VERSION
   - composer install --prefer-source
 
 script:
