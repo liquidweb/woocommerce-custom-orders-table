@@ -481,12 +481,15 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 					) );
 				}
 
-				if ( isset( $meta_query['key'] ) && ( $column = array_search( $meta_query['key'], self::get_postmeta_mapping(), true ) ) ) {
-					$query_args['wc_order_meta_query'][] = array_merge( $meta_query, array(
-						'key'      => $column,
-						'_old_key' => $meta_query['key'],
-					) );
+				if ( isset( $meta_query['key'] ) ) {
+					$column = array_search( $meta_query['key'], self::get_postmeta_mapping(), true );
 
+					if ( $column ) {
+						$query_args['wc_order_meta_query'][] = array_merge( $meta_query, array(
+							'key'      => $column,
+							'_old_key' => $meta_query['key'],
+						) );
+					}
 				} else {
 					// Let this meta query pass through unaltered.
 					$query_args['_wc_has_meta_columns'] = true;
