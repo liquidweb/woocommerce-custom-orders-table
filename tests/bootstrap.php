@@ -17,7 +17,7 @@ if ( ! file_exists( $_bootstrap ) ) {
 	exit( 1 );
 
 } elseif ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
-	echo "\033[0;31mCould not find $_tests_dir/includes/functions.php, have you run `bin/install-wp-tests.sh`?\033[0;m" . PHP_EOL;
+	echo "\033[0;31mCould not find $_tests_dir/includes/functions.php, have you run `tests/bin/install-wp-tests.sh`?\033[0;m" . PHP_EOL;
 	exit( 1 );
 }
 
