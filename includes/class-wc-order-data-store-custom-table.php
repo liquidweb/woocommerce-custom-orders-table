@@ -124,8 +124,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	protected function read_order_data( &$order, $post_object ) {
 		global $wpdb;
 
-		parent::read_order_data( $order, $post_object );
-
 		$data = $this->get_order_data_from_table( $order );
 
 		if ( ! empty( $data ) ) {
@@ -152,11 +150,15 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		global $wpdb;
 
 		$table = wc_custom_order_table()->get_table_name();
-
-		return $wpdb->get_row( $wpdb->prepare(
+		$data  = $wpdb->get_row( $wpdb->prepare(
 			"SELECT * FROM {$table} WHERE order_id = %d",
 			$order->get_id()
-		) );
+		), ARRAY_A );
+
+		// Expand anything that might need assistance.
+		$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
+
+		return $data;
 	}
 
 	/**
