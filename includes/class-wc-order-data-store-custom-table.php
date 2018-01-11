@@ -114,7 +114,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// Delete the database row if force_delete is true.
 		if ( isset( $args['force_delete'] ) && $args['force_delete'] ) {
-			$wpdb->delete( "{$wpdb->prefix}woocommerce_orders", array( 'order_id' => $order_id ) );
+			$wpdb->delete(
+				"{$wpdb->prefix}woocommerce_orders",
+				array( 'order_id' => $order_id )
+			); // WPCS: DB call OK.
 		}
 	}
 
@@ -154,9 +157,9 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		$table = wc_custom_order_table()->get_table_name();
 		$data  = $wpdb->get_row( $wpdb->prepare(
-			"SELECT * FROM {$table} WHERE order_id = %d",
+			'SELECT * FROM ' . esc_sql( $table ) . ' WHERE order_id = %d LIMIT 1',
 			$order->get_id()
-		), ARRAY_A );
+		), ARRAY_A ); // WPCS: DB call OK.
 
 		// Expand anything that might need assistance.
 		$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
@@ -237,7 +240,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// Insert or update the database record.
 		if ( $this->creating ) {
-			$wpdb->insert( $table, $order_data );
+			$wpdb->insert( $table, $order_data ); // WPCS: DB call OK.
 
 			$this->creating = false;
 
@@ -258,14 +261,16 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			}
 
 			if ( ! empty( $changes ) ) {
-				$wpdb->update( $table, $changes, array( 'order_id' => $order->get_id() ) );
+				$wpdb->update( $table, $changes, array( 'order_id' => $order->get_id() ) ); // WPCS: DB call OK.
 			}
 		}
 
 		$updated_props = array_keys( (array) $changes );
 
 		// If customer changed, update any downloadable permissions.
-		if ( in_array( 'customer_user', $updated_props ) || in_array( 'billing_email', $updated_props ) ) {
+		$customer_props = array( 'customer_user', 'billing_email' );
+
+		if ( ! empty( array_intersect( $customer_props, $updated_props ) ) ) {
 			$data_store = WC_Data_Store::load( 'customer-download' );
 			$data_store->update_user_by_order_id( $order->get_id(), $order->get_customer_id(), $order->get_billing_email() );
 		}
@@ -286,7 +291,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		return $wpdb->get_var( $wpdb->prepare(
 			"SELECT order_id FROM {$wpdb->prefix}woocommerce_orders WHERE order_key = %s",
 			$order_key
-		) );
+		) ); // WPCS: DB call OK.
 	}
 
 	/**
@@ -356,7 +361,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 						array( '%' . $wpdb->esc_like( $term ) . '%' ),
 						$meta_keys
 					)
-				) ) );
+				) ) ); // WPCS: DB call OK.
 			}
 		}
 
@@ -365,7 +370,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			SELECT order_id FROM {$wpdb->prefix}woocommerce_order_items
 			WHERE order_item_name LIKE %s",
 			'%' . $wpdb->esc_like( $term ) . '%'
-		) ) );
+		) ) ); // WPCS: DB call OK.
 
 		// Reduce the array of order IDs to unique values.
 		$order_ids = array_unique( $order_ids );
