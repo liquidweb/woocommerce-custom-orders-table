@@ -9,6 +9,7 @@
     "xrstf/composer-php52": "^1.0"
   },
   "require-dev": {
+    "php": "^7.0",
     "woocommerce/woocommerce": "dev-master"
   },
   "autoload": {
