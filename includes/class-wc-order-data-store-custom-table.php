@@ -21,6 +21,9 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 */
 	protected $creating = false;
 
+	/**
+	 * Hook into WooCommerce database queries related to orders.
+	 */
 	public function __construct() {
 
 		// When creating a WooCommerce order data store request, filter the MySQL query.
@@ -498,8 +501,8 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 *
 	 * @global $wpdb
 	 *
-	 * @param string   $join  The MySQL JOIN statement.
-	 * @param WP_Query $query The WP_Query object, passed by reference.
+	 * @param string   $join     The MySQL JOIN statement.
+	 * @param WP_Query $wp_query The WP_Query object, passed by reference.
 	 *
 	 * @return string The filtered JOIN statement.
 	 */
@@ -534,8 +537,8 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 *
 	 * @global $wpdb
 	 *
-	 * @param string   $where The MySQL WHERE statement.
-	 * @param WP_Query $query The WP_Query object, passed by reference.
+	 * @param string   $where    The MySQL WHERE statement.
+	 * @param WP_Query $wp_query The WP_Query object, passed by reference.
 	 *
 	 * @return string The [potentially-] filtered WHERE statement.
 	 */
