@@ -8,6 +8,9 @@
 
 class DataStoreTest extends TestCase {
 
+	/**
+	 * @requires PHP 5.4 In order to support inline closures for hook callbacks.
+	 */
 	public function test_create() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
 		$property = new ReflectionProperty( $instance, 'creating' );
@@ -92,16 +95,24 @@ class DataStoreTest extends TestCase {
 
 		add_post_meta( $order->get_id(), 'some_custom_meta_key', $term );
 
-		add_filter( 'woocommerce_shop_order_search_fields', function () {
-			remove_filter( 'woocommerce_shop_order_search_fields', __FUNCTION__ );
-			return array( 'some_custom_meta_key' );
-		} );
+		add_filter( 'woocommerce_shop_order_search_fields', __CLASS__ . '::return_array_for_test_search_orders_can_check_post_meta' );
 
 		$this->assertEquals(
 			array( $order->get_id() ),
 			$instance->search_orders( $term ),
 			'If post meta keys are specified, they should also be searched.'
 		);
+
+		remove_filter( 'woocommerce_shop_order_search_fields', __CLASS__ . '::return_array_for_test_search_orders_can_check_post_meta' );
+	}
+
+	/**
+	 * Filter callback for test_search_orders_can_check_post_meta().
+	 *
+	 * Can be dropped once PHP 5.3 isn't a requirement, as closures are far nicer.
+	 */
+	public static function return_array_for_test_search_orders_can_check_post_meta() {
+		return array( 'some_custom_meta_key' );
 	}
 
 	/**
