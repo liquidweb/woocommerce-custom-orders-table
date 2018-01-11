@@ -14,8 +14,12 @@ matrix:
   include:
     - php: 7.2
       env: WP_VERSION=trunk WP_MULTISITE=0 RUN_PHPCS=1
+    # The following WooCommerce core test currently fails in multisite, with or without this
+    # plugin being active:
+    #
+    # WC_Tests_Setup_Functions::test_wizard_in_cart_payment_gateways()
     - php: 7.2
-      env: WP_VERSION=trunk WP_MULTISITE=1
+      env: WP_VERSION=trunk WP_MULTISITE=1 TRAVIS_ALLOW_FAILURE=1
     - php: 7.1
       env: WP_VERSION=latest WP_MULTISITE=0
     - php: 7.0
