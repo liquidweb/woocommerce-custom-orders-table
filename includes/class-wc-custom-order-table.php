@@ -28,11 +28,11 @@ class WC_Custom_Order_Table {
 
 		$this->table_name = $wpdb->prefix . 'woocommerce_orders';
 
-		// Inject the plugin into order processing.
+		// Use the plugin's custom data stores for customers and orders.
 		add_filter( 'woocommerce_customer_data_store', array( $this, 'customer_data_store' ) );
 		add_filter( 'woocommerce_order_data_store', array( $this, 'order_data_store' ) );
 
-		// Register the CLI command if we're running WP_CLI.
+		// If we're in a WP-CLI context, load the WP-CLI command.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			WP_CLI::add_command( 'wc-order-table', 'WC_Custom_Order_Table_CLI' );
 		}
