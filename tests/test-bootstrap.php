@@ -8,25 +8,11 @@
 
 class BootstrapTest extends TestCase {
 
-	/**
-	 * Tear down the plugin after each test run.
-	 *
-	 * @before
-	 */
-	public function tear_down_plugin() {
-		global $wc_custom_order_table;
-
-		// Destroy the global $wc_custom_order_table instance.
-		unset( $wc_custom_order_table );
-	}
-
 	public function test_plugin_only_loads_after_woocommerce() {
 		global $wc_custom_order_table;
 
-		$this->assertNull(
-			$wc_custom_order_table,
-			'Before bootstrapping, $wc_custom_order_table should be empty.'
-		);
+		// Test bootstrapping may have initialized it for us.
+		$wc_custom_order_table = null;
 
 		do_action( 'woocommerce_init' );
 
