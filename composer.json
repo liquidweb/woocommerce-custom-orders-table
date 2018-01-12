@@ -9,7 +9,12 @@
     "xrstf/composer-php52": "^1.0"
   },
   "require-dev": {
-    "woocommerce/woocommerce": "dev-master"
+    "php": "^7.0",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+    "wimg/php-compatibility": "^8.1",
+    "woocommerce/woocommerce": "dev-master",
+    "woocommerce/woocommerce-sniffs": "^0.0.1",
+    "wp-coding-standards/wpcs": "^0.14"
   },
   "autoload": {
     "classmap": [
@@ -20,9 +25,6 @@
     "classmap": [
       "vendor/woocommerce/woocommerce/tests/framework"
     ]
-  },
-  "autoload-dev": {
-    "classmap": ["tests/test-tools"]
   },
   "scripts": {
     "post-install-cmd": [
@@ -35,7 +37,7 @@
       "xrstf\\Composer52\\Generator::onPostInstallCmd"
     ],
     "test-coverage": [
-      "phpunit --coverage-html=tests/coverage"
+      "phpunit --testsuite=plugin --coverage-html=tests/coverage"
     ]
   },
   "extra": {
