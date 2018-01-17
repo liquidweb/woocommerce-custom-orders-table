@@ -28,6 +28,9 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// When creating a WooCommerce order data store request, filter the MySQL query.
 		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', __CLASS__ . '::filter_database_queries', 10, 2 );
+
+		// Filter order report queries.
+		add_filter( 'woocommerce_reports_get_order_report_query', __CLASS__ . '::filter_order_report_query' );
 	}
 
 	/**
@@ -569,5 +572,91 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		remove_filter( 'posts_where', __CLASS__ . '::meta_query_where', 100, 2 );
 
 		return $where;
+	}
+
+	/**
+	 * Filter the query constructed by WC_Admin_Report::get_order_report_data() so that report data
+	 * comes from the orders table, not postmeta.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param array $query Components of the MySQL query.
+	 *
+	 * @return array The filtered query components.
+	 */
+	public static function filter_order_report_query( $query ) {
+		global $wpdb;
+
+		if ( empty( $query['join'] ) ) {
+			return $query;
+		}
+
+		/*
+		 * Determine which JOIN statements are in play.
+		 *
+		 * This regular expression is designed to match queries in the following formats:
+		 *
+		 * - INNER JOIN $wpdb->postmeta AS meta_{key} ON (post.ID = meta_{key}.post_id AND meta_{key}.meta_key = {key})
+		 * - INNER JOIN $wpdb->postmeta AS parent_meta_{key} ON (posts.post_parent = parent_meta_{key}.post_id) AND
+		 *   (parent_meta_{key}.meta_key = {key})
+		 */
+		$regex = '/(?:INNER|LEFT)\s+JOIN\s+' . preg_quote( $wpdb->postmeta ) . '\s+AS\s((?:parent_)?meta_([^\s]+))\s+ON\s+(\((?:[^)]+\)\s+AND\s+\()?[^\)]+\))/im';
+
+		// Return early if we have no matches.
+		if ( ! preg_match_all( $regex, $query['join'], $matches ) ) {
+			return $query;
+		}
+
+		/*
+		 * Build a list of replacements.
+		 *
+		 * These will take the form of 'meta_{key}.meta_value' => 'meta_{key}.{table_column}'.
+		 */
+		$mapping      = self::get_postmeta_mapping();
+		$joins        = array(
+			'post_id'     => false,
+			'post_parent' => false,
+		);
+		$table        = wc_custom_order_table()->get_table_name();
+		$replacements = array();
+
+		foreach ( $matches[0] as $key => $value ) {
+			$table_plus_meta_value = $matches[1][ $key ] . '.meta_value';
+			$order_table_column    = array_search( $matches[2][ $key ], $mapping, true );
+
+			// Don't replace the string if there isn't a table column mapped to this key.
+			if ( false === $order_table_column ) {
+				continue;
+			}
+
+			if ( false !== strpos( $matches[3][ $key ], 'posts.post_parent =' ) ) {
+				$table_alias          = 'order_parent_meta';
+				$joins['post_parent'] = true;
+			} else {
+				$table_alias          = 'order_meta';
+				$joins['post_id']     = true;
+			}
+
+			$replacements[ $table_plus_meta_value ] = $table_alias . '.' . $order_table_column;
+			$replacements[ $matches[0][ $key ] ]    = '';
+		}
+
+		// Update query fragments.
+		$replacement_keys = array_keys( $replacements );
+		$replacement_vals = array_values( $replacements );
+		$query['select']  = str_replace( $replacement_keys, $replacement_vals, $query['select'] );
+		$query['where']   = str_replace( $replacement_keys, $replacement_vals, $query['where'] );
+		$query['join']    = str_replace( $replacement_keys, $replacement_vals, $query['join'] );
+
+		// If replacements have been made, join on the orders table.
+		if ( $joins['post_id'] ) {
+			$query['join'] .= " LEFT JOIN {$table} AS order_meta ON ( posts.ID = order_meta.order_id ) ";
+		}
+
+		if ( $joins['post_parent'] ) {
+			$query['join'] .= " LEFT JOIN {$table} AS order_parent_meta ON ( posts.post_parent = order_parent_meta.order_id ) ";
+		}
+
+		return $query;
 	}
 }
