@@ -15,10 +15,49 @@ class TestCase extends WC_Unit_Test_Case {
 	 *
 	 * @global $wpdb
 	 */
-	function truncate_table() {
+	protected function truncate_table() {
 		global $wpdb;
 
 		$wpdb->query( "DELETE FROM {$wpdb->prefix}woocommerce_orders" );
+	}
+
+	/**
+	 * Toggle whether or not the custom table should be used.
+	 *
+	 * @param bool $enabled Optional. Whether or not the custom table should be used. Default is true.
+	 */
+	protected function toggle_use_custom_table( $enabled = true ) {
+		$instance = wc_custom_order_table();
+
+		if ( $enabled ) {
+			add_filter( 'woocommerce_customer_data_store', array( $instance, 'customer_data_store' ) );
+			add_filter( 'woocommerce_order_data_store', array( $instance, 'order_data_store' ) );
+		} else {
+			remove_filter( 'woocommerce_customer_data_store', array( $instance, 'customer_data_store' ) );
+			remove_filter( 'woocommerce_order_data_store', array( $instance, 'order_data_store' ) );
+		}
+	}
+
+	/**
+	 * Given an array of IDs, see how many of those IDs exist in the table.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param array $order_ids An array of order IDs to look for.
+	 *
+	 * @return int The number of matches found in the database.
+	 */
+	protected function count_orders_in_table_with_ids( $order_ids = array() ) {
+		global $wpdb;
+
+		if ( empty( $order_ids ) ) {
+			return 0;
+		}
+
+		return (int) $wpdb->get_var( $wpdb->prepare( "
+			SELECT COUNT(order_id) FROM {$wpdb->prefix}woocommerce_orders
+			WHERE order_id IN (" . implode( ', ', array_fill( 0, count( $order_ids ), '%d' ) ) . ')',
+		$order_ids ) );
 	}
 
 	/**
