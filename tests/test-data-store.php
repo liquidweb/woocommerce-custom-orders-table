@@ -250,6 +250,50 @@ class DataStoreTest extends TestCase {
 		);
 	}
 
+	public function test_rest_populate_address_indexes() {
+		global $wpdb;
+
+		$order = WC_Helper_Order::create_order();
+
+		$wpdb->update( wc_custom_order_table()->get_table_name(), array(
+			'billing_index'  => null,
+			'shipping_index' => null,
+		), array(
+			'order_id' => $order->get_id(),
+		) );
+
+		WC_Order_Data_Store_Custom_Table::rest_populate_address_indexes( array(
+			'id' => 'add_order_indexes',
+		) );
+
+		$order_row = $this->get_order_row( $order->get_id() );
+
+		$this->assertNotEmpty( $order_row['billing_index'] );
+		$this->assertNotEmpty( $order_row['shipping_index'] );
+	}
+
+	public function test_rest_populate_address_indexes_only_runs_for_add_order_indexes() {
+		global $wpdb;
+
+		$order = WC_Helper_Order::create_order();
+
+		$wpdb->update( wc_custom_order_table()->get_table_name(), array(
+			'billing_index'  => null,
+			'shipping_index' => null,
+		), array(
+			'order_id' => $order->get_id(),
+		) );
+
+		WC_Order_Data_Store_Custom_Table::rest_populate_address_indexes( array(
+			'id' => 'some_other_id',
+		) );
+
+		$order_row = $this->get_order_row( $order->get_id() );
+
+		$this->assertEmpty( $order_row['billing_index'] );
+		$this->assertEmpty( $order_row['shipping_index'] );
+	}
+
 	/**
 	 * Shortcut for setting up reflection methods + properties for update_post_meta().
 	 *

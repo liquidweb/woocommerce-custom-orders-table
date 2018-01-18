@@ -31,6 +31,9 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// Filter order report queries.
 		add_filter( 'woocommerce_reports_get_order_report_query', __CLASS__ . '::filter_order_report_query' );
+
+		// Fill-in after re-indexing of billing/shipping addresses.
+		do_action( "woocommerce_rest_system_status_tool_executed", __CLASS__ . '::rest_populate_address_indexes' );
 	}
 
 	/**
@@ -658,5 +661,30 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		}
 
 		return $query;
+	}
+
+	/**
+	 * When the add_order_indexes system status tool is run, populate missing address indexes in
+	 * the order table.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param array $tool Details about the tool that has been executed.
+	 */
+	public static function rest_populate_address_indexes( $tool ) {
+		global $wpdb;
+
+		if ( ! isset( $tool['id'] ) || 'add_order_indexes' !== $tool['id'] ) {
+			return;
+		}
+
+		$table = wc_custom_order_table()->get_table_name();
+
+		$wpdb->query( 'UPDATE ' . esc_sql( $table ) . "
+			SET billing_index = CONCAT_WS( ' ', billing_first_name, billing_last_name, billing_company, billing_company, billing_address_1, billing_address_2, billing_city, billing_state, billing_postcode, billing_country, billing_email, billing_phone )
+			WHERE billing_index IS NULL OR billing_index = ''" );
+		$wpdb->query( 'UPDATE ' . esc_sql( $table ) . "
+			SET shipping_index = CONCAT_WS( ' ', shipping_first_name, shipping_last_name, shipping_company, shipping_company, shipping_address_1, shipping_address_2, shipping_city, shipping_state, shipping_postcode, shipping_country )
+			WHERE shipping_index IS NULL OR shipping_index = ''" );
 	}
 }
