@@ -24,14 +24,15 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		global $wpdb;
 
 		$order_table = wc_custom_order_table()->get_table_name();
+		$order_types = wc_get_order_types( 'reports' );
 		$order_count = $wpdb->get_var( $wpdb->prepare(
-			"SELECT COUNT(1)
+			"SELECT COUNT(*)
 			FROM {$wpdb->posts} p
 			LEFT JOIN {$order_table} o ON p.ID = o.order_id
-			WHERE p.post_type IN ('%s')
+			WHERE p.post_type IN (" . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
 			AND o.order_id IS NULL
-			ORDER BY p.post_date DESC",
-			implode( ',', wc_get_order_types( 'reports' ) )
+			ORDER BY p.post_date DESC',
+			$order_types
 		) );
 
 		WP_CLI::log( sprintf( __( '%d orders to be migrated.', 'wc-custom-order-table' ), $order_count ) );
