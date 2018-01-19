@@ -30,12 +30,14 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 			FROM {$wpdb->posts} p
 			LEFT JOIN {$order_table} o ON p.ID = o.order_id
 			WHERE p.post_type IN (" . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
-			AND o.order_id IS NULL
-			ORDER BY p.post_date DESC',
+			AND o.order_id IS NULL',
 			$order_types
 		) );
 
-		WP_CLI::log( sprintf( __( '%d orders to be migrated.', 'wc-custom-order-table' ), $order_count ) );
+		WP_CLI::log( sprintf(
+			_n( 'There is %d order to be migrated.', 'There are %d orders to be migrated.', $order_count, 'wc-custom-order-table' ),
+			$order_count
+		) );
 
 		return $order_count;
 	}
