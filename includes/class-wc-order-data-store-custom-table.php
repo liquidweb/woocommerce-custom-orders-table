@@ -33,7 +33,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		add_filter( 'woocommerce_reports_get_order_report_query', __CLASS__ . '::filter_order_report_query' );
 
 		// Fill-in after re-indexing of billing/shipping addresses.
-		do_action( "woocommerce_rest_system_status_tool_executed", __CLASS__ . '::rest_populate_address_indexes' );
+		add_action( "woocommerce_rest_system_status_tool_executed", __CLASS__ . '::rest_populate_address_indexes' );
 	}
 
 	/**

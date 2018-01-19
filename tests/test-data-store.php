@@ -251,16 +251,7 @@ class DataStoreTest extends TestCase {
 	}
 
 	public function test_rest_populate_address_indexes() {
-		global $wpdb;
-
-		$order = WC_Helper_Order::create_order();
-
-		$wpdb->update( wc_custom_order_table()->get_table_name(), array(
-			'billing_index'  => null,
-			'shipping_index' => null,
-		), array(
-			'order_id' => $order->get_id(),
-		) );
+		$order = $this->generate_order_and_empty_indexes();
 
 		WC_Order_Data_Store_Custom_Table::rest_populate_address_indexes( array(
 			'id' => 'add_order_indexes',
@@ -273,16 +264,7 @@ class DataStoreTest extends TestCase {
 	}
 
 	public function test_rest_populate_address_indexes_only_runs_for_add_order_indexes() {
-		global $wpdb;
-
-		$order = WC_Helper_Order::create_order();
-
-		$wpdb->update( wc_custom_order_table()->get_table_name(), array(
-			'billing_index'  => null,
-			'shipping_index' => null,
-		), array(
-			'order_id' => $order->get_id(),
-		) );
+		$order = $this->generate_order_and_empty_indexes();
 
 		WC_Order_Data_Store_Custom_Table::rest_populate_address_indexes( array(
 			'id' => 'some_other_id',
@@ -292,6 +274,23 @@ class DataStoreTest extends TestCase {
 
 		$this->assertEmpty( $order_row['billing_index'] );
 		$this->assertEmpty( $order_row['shipping_index'] );
+	}
+
+	public function test_rest_populate_address_indexes_runs_on_woocommerce_rest_system_status_tool_executed() {
+		$order = $this->generate_order_and_empty_indexes();
+
+		/*
+		 * Instead of calling the method directly, fire the action hook that runs after the default
+		 * operation completes.
+		 */
+		do_action( 'woocommerce_rest_system_status_tool_executed', array(
+			'id' => 'add_order_indexes',
+		) );
+
+		$order_row = $this->get_order_row( $order->get_id() );
+
+		$this->assertNotEmpty( $order_row['billing_index'] );
+		$this->assertNotEmpty( $order_row['shipping_index'] );
 	}
 
 	/**
@@ -337,5 +336,27 @@ class DataStoreTest extends TestCase {
 		}
 
 		return $query;
+	}
+
+	/**
+	 * Helper method that generates an order, then empties the billing and shipping indexes.
+	 *
+	 * @global $wpdb
+	 *
+	 * @return WC_Order The generated order object.
+	 */
+	protected function generate_order_and_empty_indexes() {
+		global $wpdb;
+
+		$order = WC_Helper_Order::create_order();
+
+		$wpdb->update( wc_custom_order_table()->get_table_name(), array(
+			'billing_index'  => null,
+			'shipping_index' => null,
+		), array(
+			'order_id' => $order->get_id(),
+		) );
+
+		return $order;
 	}
 }
