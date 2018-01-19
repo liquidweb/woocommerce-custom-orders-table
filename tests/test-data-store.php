@@ -53,6 +53,23 @@ class DataStoreTest extends TestCase {
 		$this->assertNull( $this->get_order_row( $order_id ), 'When force deleting, the table row should be removed.' );
 	}
 
+	public function test_get_order_data_from_table() {
+		$order = WC_Helper_Order::create_order();
+		$data  = $order->get_data_store()->get_order_data_from_table( $order );
+
+		$this->assertEquals( $order->get_id(), $data['order_id'] );
+		$this->assertEquals( $order->get_billing_email(), $data['billing_email'] );
+		$this->assertEquals( $order->get_prices_include_tax(), $data['prices_include_tax'] );
+	}
+
+	public function test_get_order_data_from_table_when_order_is_still_in_post_meta() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		$this->assertEmpty( $order->get_data_store()->get_order_data_from_table( $order ) );
+	}
+
 	public function test_update_post_meta_for_new_order() {
 		$order = new WC_Order( wp_insert_post( array(
 			'post_type' => 'product',

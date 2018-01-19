@@ -389,20 +389,13 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 * Populate custom table with data from postmeta, for migrations.
 	 *
 	 * @param WC_Order $order  The order object, passed by reference.
-	 * @param bool     $save   Optional. Whether or not the post meta should be updated. Default
-	 *                         is true.
 	 * @param bool     $delete Optional. Whether or not the post meta should be deleted. Default
 	 *                         is false.
 	 *
 	 * @return WC_Order the order object.
 	 */
-	public function populate_from_meta( &$order, $save = true, $delete = false ) {
+	public function populate_from_meta( &$order, $delete = false ) {
 		$table_data = $this->get_order_data_from_table( $order );
-		$original_creating = $this->creating;
-
-		if ( is_null( $table_data ) ) {
-			$this->creating = true;
-		}
 
 		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
 			$meta = get_post_meta( $order->get_id(), $meta_key, true );
@@ -419,21 +412,18 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 					default:
 						$order->{"set_{$column}"}( $meta );
+						break;
 				}
 			}
 		}
 
-		if ( true === $save ) {
-			$this->update_post_meta( $order );
-		}
+		$this->update_post_meta( $order );
 
 		if ( true === $delete ) {
 			foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
 				delete_post_meta( $order->get_id(), $meta_key );
 			}
 		}
-
-		$this->creating = $original_creating;
 
 		return $order;
 	}
