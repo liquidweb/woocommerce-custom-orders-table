@@ -150,7 +150,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 *
 	 * @param WC_Order $order The order object.
 	 *
-	 * @return object The order row, as an object.
+	 * @return object The order row, as an associative array.
 	 */
 	public function get_order_data_from_table( $order ) {
 		global $wpdb;
@@ -160,6 +160,13 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'SELECT * FROM ' . esc_sql( $table ) . ' WHERE order_id = %d LIMIT 1',
 			$order->get_id()
 		), ARRAY_A ); // WPCS: DB call OK.
+
+		// If no matches were found, this record needs to be created.
+		if ( null === $data ) {
+			$this->creating = true;
+
+			return array();
+		}
 
 		// Expand anything that might need assistance.
 		$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
@@ -391,10 +398,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 */
 	public function populate_from_meta( &$order, $save = true, $delete = false ) {
 		$table_data = $this->get_order_data_from_table( $order );
+		$original_creating = $this->creating;
 
 		if ( is_null( $table_data ) ) {
-			$original_creating = $this->creating;
-			$this->creating    = true;
+			$this->creating = true;
 		}
 
 		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
@@ -402,6 +409,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 			if ( empty( $table_data->$column ) && ! empty( $meta ) ) {
 				switch ( $column ) {
+					case 'billing_index':
+					case 'shipping_index';
+						break;
+
 					case 'prices_include_tax':
 						$order->set_prices_include_tax( 'yes' === $meta );
 						break;
