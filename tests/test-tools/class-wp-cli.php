@@ -18,5 +18,19 @@ if ( ! class_exists( 'WP_CLI' ) ) {
 				'message' => $message,
 			);
 		}
+
+		public static function success( $message ) {
+			self::$__logger[] = array(
+				'level'   => 'success',
+				'message' => $message,
+			);
+		}
+
+		public static function warning( $message ) {
+			self::$__logger[] = array(
+				'level'   => 'warning',
+				'message' => $message,
+			);
+		}
 	}
 }

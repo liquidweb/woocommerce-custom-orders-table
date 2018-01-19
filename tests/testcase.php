@@ -39,6 +39,23 @@ class TestCase extends WC_Unit_Test_Case {
 	}
 
 	/**
+	 * Generate a $number of orders and return the order IDs in an array.
+	 *
+	 * @param int $number The number of orders to generate.
+	 *
+	 * @return array An array of the generated order IDs.
+	 */
+	protected function generate_orders( $number = 5 ) {
+		$orders = array();
+
+		for ( $i = 0; $i < $number; $i++ ) {
+			$orders[] = WC_Helper_Order::create_order()->get_id();
+		}
+
+		return $orders;
+	}
+
+	/**
 	 * Given an array of IDs, see how many of those IDs exist in the table.
 	 *
 	 * @global $wpdb

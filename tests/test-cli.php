@@ -31,8 +31,6 @@ class CLITest extends TestCase {
 	}
 
 	public function test_migrate() {
-		$this->markTestIncomplete();
-
 		$this->toggle_use_custom_table( false );
 		$order_ids = $this->generate_orders( 5 );
 		$this->toggle_use_custom_table( true );
@@ -43,7 +41,7 @@ class CLITest extends TestCase {
 			'Before migration, these orders should not exist in the orders table.'
 		);
 
-		// @todo The migration
+		$this->cli->migrate();
 
 		$this->assertEquals(
 			5,
@@ -54,22 +52,5 @@ class CLITest extends TestCase {
 
 	public function test_backfill() {
 		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Generate a $number of orders and return the order IDs in an array.
-	 *
-	 * @param int $number The number of orders to generate.
-	 *
-	 * @return array An array of the generated order IDs.
-	 */
-	protected function generate_orders( $number = 5 ) {
-		$orders = array();
-
-		for ( $i = 0; $i < $number; $i++ ) {
-			$orders[] = WC_Helper_Order::create_order()->get_id();
-		}
-
-		return $orders;
 	}
 }
