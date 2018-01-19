@@ -178,8 +178,49 @@ class DataStoreTest extends TestCase {
 		);
 	}
 
+	public function test_populate_from_meta() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		$this->assertNull( $this->get_order_row( $order->get_id() ), 'The order row should not exist yet.' );
+
+		// Refresh the order.
+		$order   = wc_get_order( $order->get_id() );
+		$mapping = WC_Order_Data_Store_Custom_Table::get_postmeta_mapping();
+
+		$order->get_data_store()->populate_from_meta( $order );
+
+		$row = $this->get_order_row( $order->get_id() );
+
+		foreach ( $mapping as $column => $meta_key ) {
+			$this->assertEquals(
+				get_post_meta( $order->get_id(), $meta_key, true ),
+				$row[ $column ],
+				"Value of the $column column key did not meet expectations."
+			);
+		}
+	}
+
+	public function test_populate_from_meta_can_delete_postmeta_keys() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		$order   = wc_get_order( $order->get_id() );
+		$mapping = WC_Order_Data_Store_Custom_Table::get_postmeta_mapping();
+
+		$order->get_data_store()->populate_from_meta( $order, true );
+
+		foreach ( $mapping as $column => $meta_key ) {
+			$this->assertEmpty(
+				get_post_meta( $order->get_id(), $meta_key, true ),
+				"Post meta key $meta_key should have been deleted."
+			);
+		}
+	}
+
 	public function test_backfill_postmeta() {
-		$instance = new WC_Order_Data_Store_Custom_Table();
 		$order    = WC_Helper_Order::create_order();
 		$row      = $this->get_order_row( $order->get_id() );
 		$mapping  = WC_Order_Data_Store_Custom_Table::get_postmeta_mapping();
@@ -188,7 +229,7 @@ class DataStoreTest extends TestCase {
 			$this->assertEmpty( get_post_meta( $order->get_id(), $meta_key, true ) );
 		}
 
-		$instance->backfill_postmeta( $order );
+		$order->get_data_store()->backfill_postmeta( $order );
 
 		foreach ( $mapping as $column => $meta_key ) {
 			$this->assertEquals(
@@ -197,6 +238,22 @@ class DataStoreTest extends TestCase {
 				"Value of the $meta_key meta key did not meet expectations."
 			);
 		}
+	}
+
+	public function test_backfill_postmeta_returns_early_if_table_row_is_empty() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		$last_changed = wp_cache_get( 'last_changed', 'posts' );
+
+		$order->get_data_store()->backfill_postmeta( $order );
+
+		$this->assertEquals(
+			$last_changed,
+			wp_cache_get( 'last_changed', 'posts' ),
+			'No calls to update_post_meta() should have been made.'
+		);
 	}
 
 	/**
