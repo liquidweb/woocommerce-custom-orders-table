@@ -58,7 +58,7 @@ class CLITest extends TestCase {
 		$this->toggle_use_custom_table( true );
 
 		$this->cli->migrate( array(), array(
-			'batch' => 2,
+			'batch-size' => 2,
 		) );
 
 		$this->assertContains( 'LIMIT 2', $wpdb->last_query, 'The batch size should be used to limit query results.' );
@@ -77,7 +77,9 @@ class CLITest extends TestCase {
 			$this->assertEmpty( get_post_meta( $order_id, '_billing_email', true ) );
 		}
 
-		$this->cli->backfill(array(), array( 'batch' => 2));
+		$this->cli->backfill( array(), array(
+			'batch-size' => 2,
+		) );
 
 		foreach ( $order_ids as $order_id ) {
 			$index++;

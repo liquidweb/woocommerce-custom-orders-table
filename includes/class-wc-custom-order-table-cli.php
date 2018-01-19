@@ -12,7 +12,7 @@
 class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 
 	/**
-	 * Count how many orders have yet to be migrated.
+	 * Count how many orders have yet to be migrated into the custom order table.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -48,15 +48,15 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--batch=<batch>]
-	 * : The number of orders to process.
+	 * [--batch-size=<batch-size>]
+	 * : The number of orders to process in each batch.
 	 * ---
 	 * default: 1000
 	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wc-order-table migrate --batch=100
+	 *     wp wc-order-table migrate --batch-size=100
 	 *
 	 * @global $wpdb
 	 *
@@ -73,7 +73,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		}
 
 		$assoc_args  = wp_parse_args( $assoc_args, array(
-			'batch' => 1000,
+			'batch-size' => 1000,
 		) );
 		$order_table = wc_custom_order_table()->get_table_name();
 		$order_types = wc_get_order_types( 'reports' );
@@ -85,7 +85,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 			AND o.order_id IS NULL
 			ORDER BY p.post_date DESC
 			LIMIT %d',
-			array_merge( $order_types, array( $assoc_args['batch'] ) )
+			array_merge( $order_types, array( $assoc_args['batch-size'] ) )
 		);
 		$order_data  = $wpdb->get_col( $order_query ); // WPCS: Unprepared SQL ok, DB call ok.
 
@@ -117,25 +117,28 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Backfill order meta data into postmeta.
+	 * Copy order data into the postmeta table.
+	 *
+	 * Note that this could dramatically increase the size of your postmeta table, but is recommended
+	 * if you wish to stop using the custom order table plugin.
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--batch=<batch>]
-	 * : The number of orders to process.
+	 * [--batch-size=<batch-size>]
+	 * : The number of orders to process in each batch.
 	 * ---
 	 * default: 1000
 	 * ---
 	 *
-	 * [--page=<page>]
-	 * : The page to start from.
+	 * [--batch=<batch>]
+	 * : The batch number to start from when migrating data.
 	 * ---
 	 * default: 1
 	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wc-order-table backfill --batch=100 --page=1
+	 *     wp wc-order-table backfill --batch-size=100 --batch=3
 	 *
 	 * @global $wpdb
 	 *
@@ -153,14 +156,14 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		}
 
 		$assoc_args  = wp_parse_args( $assoc_args, array(
-			'batch' => 1000,
-			'page'  => 1,
+			'batch-size' => 1000,
+			'batch'      => 1,
 		) );
 		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
 		$processed   = 0;
-		$starting    = ( $assoc_args['page'] - 1 ) * $assoc_args['batch'];
+		$starting    = ( $assoc_args['batch'] - 1 ) * $assoc_args['batch-size'];
 		$order_query = 'SELECT order_id FROM ' . esc_sql( $order_table ) . ' LIMIT %d, %d';
-		$order_data  = $wpdb->get_col( $wpdb->prepare( $order_query, $starting, $assoc_args['batch'] ) ); // WPCS: Unprepared SQL ok, DB call ok.
+		$order_data  = $wpdb->get_col( $wpdb->prepare( $order_query, $starting, $assoc_args['batch-size'] ) ); // WPCS: Unprepared SQL ok, DB call ok.
 
 		while ( ! empty( $order_data ) ) {
 			foreach ( $order_data as $order_id ) {
@@ -172,7 +175,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 			}
 
 			// Load up the next batch.
-			$order_data = $wpdb->get_col( $wpdb->prepare( $order_query, $starting + $processed, $assoc_args['batch'] ) ); // WPCS: Unprepared SQL ok, DB call ok.
+			$order_data = $wpdb->get_col( $wpdb->prepare( $order_query, $starting + $processed, $assoc_args['batch-size'] ) ); // WPCS: Unprepared SQL ok, DB call ok.
 		}
 
 		$progress->finish();
