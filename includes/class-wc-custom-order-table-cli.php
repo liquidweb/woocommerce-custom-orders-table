@@ -35,7 +35,8 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		) ); // WPCS: Unprepared SQL ok, DB call ok.
 
 		WP_CLI::log( sprintf(
-			_n( 'There is %d order to be migrated.', 'There are %d orders to be migrated.', $order_count, 'wc-custom-order-table' ),
+			/* Translators: %1$d is the number of orders to be migrated. */
+			_n( 'There is %1$d order to be migrated.', 'There are %1$d orders to be migrated.', $order_count, 'wc-custom-order-table' ),
 			$order_count
 		) );
 
@@ -109,7 +110,8 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		}
 
 		WP_CLI::success( sprintf(
-			_n( '%d order was migrated.', '%d orders were migrated.', $processed, 'wc-custom-order-table' ),
+			/* Translators: %1$d is the number of migrated orders. */
+			_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'wc-custom-order-table' ),
 			$processed
 		) );
 	}
@@ -181,7 +183,8 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		}
 
 		WP_CLI::success( sprintf(
-			_n( '%d order was migrated.', '%d orders were migrated.', $processed, 'wc-custom-order-table' ),
+			/* Translators: %1$d is the number of migrated orders. */
+			_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'wc-custom-order-table' ),
 			$processed
 		) );
 	}
