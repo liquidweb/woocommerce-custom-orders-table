@@ -32,7 +32,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 			WHERE p.post_type IN (" . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
 			AND o.order_id IS NULL',
 			$order_types
-		) );
+		) ); // WPCS: Unprepared SQL ok, DB call ok.
 
 		WP_CLI::log( sprintf(
 			_n( 'There is %d order to be migrated.', 'There are %d orders to be migrated.', $order_count, 'wc-custom-order-table' ),
@@ -79,14 +79,14 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
 		$processed   = 0;
 		$order_query = $wpdb->prepare(
-			"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN {$order_table} o ON p.ID = o.order_id
-			WHERE p.post_type IN (" . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
+			"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN " . esc_sql( $order_table ) . ' o ON p.ID = o.order_id
+			WHERE p.post_type IN (' . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
 			AND o.order_id IS NULL
 			ORDER BY p.post_date DESC
 			LIMIT %d',
 			array_merge( $order_types, array( $assoc_args['batch'] ) )
 		);
-		$order_data  = $wpdb->get_col( $order_query );
+		$order_data  = $wpdb->get_col( $order_query ); // WPCS: Unprepared SQL ok, DB call ok.
 
 		while ( ! empty( $order_data ) ) {
 			foreach ( $order_data as $order_id ) {
@@ -98,7 +98,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 			}
 
 			// Load up the next batch.
-			$order_data = array_filter( $wpdb->get_col( $order_query ) );
+			$order_data = array_filter( $wpdb->get_col( $order_query ) ); // WPCS: Unprepared SQL ok, DB call ok.
 		}
 
 		$progress->finish();
@@ -144,7 +144,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		global $wpdb;
 
 		$order_table = wc_custom_order_table()->get_table_name();
-		$order_count = $wpdb->get_var( 'SELECT COUNT(order_id) FROM ' . esc_sql( $order_table ) );
+		$order_count = $wpdb->get_var( 'SELECT COUNT(order_id) FROM ' . esc_sql( $order_table ) ); // WPCS: DB call ok.
 
 		if ( ! $order_count ) {
 			return WP_CLI::warning( __( 'There are no orders to migrate, aborting.', 'wc-custom-order-table' ) );
@@ -158,7 +158,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		$processed   = 0;
 		$starting    = ( $assoc_args['page'] - 1 ) * $assoc_args['batch'];
 		$order_query = 'SELECT order_id FROM ' . esc_sql( $order_table ) . ' LIMIT %d, %d';
-		$order_data  = $wpdb->get_col( $wpdb->prepare( $order_query, $starting, $assoc_args['batch'] ) );
+		$order_data  = $wpdb->get_col( $wpdb->prepare( $order_query, $starting, $assoc_args['batch'] ) ); // WPCS: Unprepared SQL ok, DB call ok.
 
 		while ( ! empty( $order_data ) ) {
 			foreach ( $order_data as $order_id ) {
@@ -170,7 +170,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 			}
 
 			// Load up the next batch.
-			$order_data = $wpdb->get_col( $wpdb->prepare( $order_query, $starting + $processed, $assoc_args['batch'] ) );
+			$order_data = $wpdb->get_col( $wpdb->prepare( $order_query, $starting + $processed, $assoc_args['batch'] ) ); // WPCS: Unprepared SQL ok, DB call ok.
 		}
 
 		$progress->finish();
