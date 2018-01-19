@@ -70,6 +70,22 @@ class CLITest extends TestCase {
 	}
 
 	public function test_backfill() {
-		$this->markTestIncomplete();
+		$order_ids = $this->generate_orders( 5 );
+		$index     = 0;
+
+		foreach ( $order_ids as $order_id ) {
+			$this->assertEmpty( get_post_meta( $order_id, '_billing_email', true ) );
+		}
+
+		$this->cli->backfill(array(), array( 'batch' => 2));
+
+		foreach ( $order_ids as $order_id ) {
+			$index++;
+
+			$this->assertNotEmpty(
+				get_post_meta( $order_id, '_billing_email', true ),
+				"The billing email for order #{$index} was not saved to post meta."
+			);
+		}
 	}
 }

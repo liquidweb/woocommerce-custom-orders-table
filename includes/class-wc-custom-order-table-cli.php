@@ -76,7 +76,6 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		) );
 		$order_table = wc_custom_order_table()->get_table_name();
 		$order_types = wc_get_order_types( 'reports' );
-		$data_store  = new WC_Order_Data_Store_Custom_Table();
 		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
 		$processed   = 0;
 		$order_query = $wpdb->prepare(
@@ -92,7 +91,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		while ( ! empty( $order_data ) ) {
 			foreach ( $order_data as $order_id ) {
 				$order = wc_get_order( $order_id );
-				$data_store->populate_from_meta( $order );
+				$order->get_data_store()->populate_from_meta( $order );
 
 				$processed++;
 				$progress->tick();
@@ -141,45 +140,49 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 	 * @param array $args       Positional arguments passed to the command.
 	 * @param array $assoc_args Associative arguments (options) passed to the command.
 	 */
-	public function backfill( $args, $assoc_args ) {
+	public function backfill( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
 
-		$orders_batch      = isset( $assoc_args['batch'] ) ? absint( $assoc_args['batch'] ) : 1000;
-		$orders_page       = isset( $assoc_args['page'] ) ? absint( $assoc_args['page'] ) : 1;
-		$order_table       = wc_custom_order_table()->get_table_name();
-		$order_count       = $wpdb->get_var( "SELECT COUNT(1) FROM {$order_table} o" );
-		$total_pages       = ceil( $order_count / $orders_batch );
-		$progress          = \WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
-		$batches_processed = 0;
+		$order_table = wc_custom_order_table()->get_table_name();
+		$order_count = $wpdb->get_var( 'SELECT COUNT(order_id) FROM ' . esc_sql( $order_table ) );
 
-		WP_CLI::log( sprintf( __( '%d orders to be backfilled.', 'wc-custom-order-table' ), $order_count ) );
+		if ( ! $order_count ) {
+			return WP_CLI::warning( __( 'There are no orders to migrate, aborting.', 'wc-custom-order-table' ) );
+		}
 
-		for ( $page = $orders_page; $page <= $total_pages; $page++ ) {
-			$offset = ( $page * $orders_batch ) - $orders_batch;
-			$orders = $wpdb->get_col( $wpdb->prepare(
-				"SELECT order_id FROM {$order_table} o LIMIT %d OFFSET %d",
-				$orders_batch,
-				max( $offset, 0 )
-			) );
+		$assoc_args  = wp_parse_args( $assoc_args, array(
+			'batch' => 1000,
+			'page'  => 1,
+		) );
+		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
+		$processed   = 0;
+		$starting    = ( $assoc_args['page'] - 1 ) * $assoc_args['batch'];
+		$order_query = 'SELECT order_id FROM ' . esc_sql( $order_table ) . ' LIMIT %d, %d';
+		$order_data  = $wpdb->get_col( $wpdb->prepare( $order_query, $starting, $assoc_args['batch'] ) );
 
-			foreach ( $orders as $order ) {
-				// Accessing the order via wc_get_order will automatically migrate the order to the custom table.
-				$order = wc_get_order( $order );
+		while ( ! empty( $order_data ) ) {
+			foreach ( $order_data as $order_id ) {
+				$order = wc_get_order( $order_id );
 				$order->get_data_store()->backfill_postmeta( $order );
 
+				$processed++;
 				$progress->tick();
 			}
 
-			$batches_processed++;
+			// Load up the next batch.
+			$order_data = $wpdb->get_col( $wpdb->prepare( $order_query, $starting + $processed, $assoc_args['batch'] ) );
 		}
 
 		$progress->finish();
 
-		WP_CLI::log( sprintf(
-			/* Translators: %1$d is the number of total orders, %2$d is the number of batches. */
-			__( '%1$d orders processed in %2$d batches.', 'wc-custom-order-table' ),
-			$order_count,
-			$batches_processed
+		// Issue a warning if no orders were migrated.
+		if ( ! $processed ) {
+			return WP_CLI::warning( __( 'No orders were migrated.', 'wc-custom-order-table' ) );
+		}
+
+		WP_CLI::success( sprintf(
+			_n( '%d order was migrated.', '%d orders were migrated.', $processed, 'wc-custom-order-table' ),
+			$processed
 		) );
 	}
 }
