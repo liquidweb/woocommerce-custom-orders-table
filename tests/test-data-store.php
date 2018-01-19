@@ -161,6 +161,27 @@ class DataStoreTest extends TestCase {
 		);
 	}
 
+	public function test_backfill_postmeta() {
+		$instance = new WC_Order_Data_Store_Custom_Table();
+		$order    = WC_Helper_Order::create_order();
+		$row      = $this->get_order_row( $order->get_id() );
+		$mapping  = WC_Order_Data_Store_Custom_Table::get_postmeta_mapping();
+
+		foreach ( $mapping as $column => $meta_key ) {
+			$this->assertEmpty( get_post_meta( $order->get_id(), $meta_key, true ) );
+		}
+
+		$instance->backfill_postmeta( $order );
+
+		foreach ( $mapping as $column => $meta_key ) {
+			$this->assertEquals(
+				$row[ $column ],
+				get_post_meta( $order->get_id(), $meta_key, true ),
+				"Value of the $meta_key meta key did not meet expectations."
+			);
+		}
+	}
+
 	/**
 	 * Shortcut for setting up reflection methods + properties for update_post_meta().
 	 *

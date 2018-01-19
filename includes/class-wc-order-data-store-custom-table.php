@@ -450,9 +450,13 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			return;
 		}
 
+		if ( isset( $data['prices_include_tax'] ) ) {
+			$data['prices_include_tax'] = wc_bool_to_string( $data['prices_include_tax'] );
+		}
+
 		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
-			if ( isset( $data->$column ) ) {
-				update_post_meta( $order->get_id(), $meta_key, $data->$column );
+			if ( isset( $data[ $column ] ) ) {
+				update_post_meta( $order->get_id(), $meta_key, $data[ $column ] );
 			}
 		}
 	}
