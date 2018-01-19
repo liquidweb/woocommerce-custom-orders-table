@@ -403,7 +403,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			if ( empty( $table_data->$column ) && ! empty( $meta ) ) {
 				switch ( $column ) {
 					case 'billing_index':
-					case 'shipping_index';
+					case 'shipping_index':
 						break;
 
 					case 'prices_include_tax':
