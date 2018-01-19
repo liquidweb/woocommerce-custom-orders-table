@@ -27,14 +27,12 @@ class TestCase extends WC_Unit_Test_Case {
 	 * @param bool $enabled Optional. Whether or not the custom table should be used. Default is true.
 	 */
 	protected function toggle_use_custom_table( $enabled = true ) {
-		$instance = wc_custom_order_table();
-
 		if ( $enabled ) {
-			add_filter( 'woocommerce_customer_data_store', array( $instance, 'customer_data_store' ) );
-			add_filter( 'woocommerce_order_data_store', array( $instance, 'order_data_store' ) );
+			add_filter( 'woocommerce_customer_data_store', 'WC_Custom_Order_Table::customer_data_store' );
+			add_filter( 'woocommerce_order_data_store', 'WC_Custom_Order_Table::order_data_store' );
 		} else {
-			remove_filter( 'woocommerce_customer_data_store', array( $instance, 'customer_data_store' ) );
-			remove_filter( 'woocommerce_order_data_store', array( $instance, 'order_data_store' ) );
+			remove_filter( 'woocommerce_customer_data_store', 'WC_Custom_Order_Table::customer_data_store' );
+			remove_filter( 'woocommerce_order_data_store', 'WC_Custom_Order_Table::order_data_store' );
 		}
 	}
 
