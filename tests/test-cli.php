@@ -50,6 +50,25 @@ class CLITest extends TestCase {
 		);
 	}
 
+	public function test_migrate_works_in_batches() {
+		global $wpdb;
+
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 5 );
+		$this->toggle_use_custom_table( true );
+
+		$this->cli->migrate( array(), array(
+			'batch' => 2,
+		) );
+
+		$this->assertContains( 'LIMIT 2', $wpdb->last_query, 'The batch size should be used to limit query results.' );
+		$this->assertEquals(
+			5,
+			$this->count_orders_in_table_with_ids( $order_ids ),
+			'Expected to see 5 total orders in the custom table.'
+		);
+	}
+
 	public function test_backfill() {
 		$this->markTestIncomplete();
 	}

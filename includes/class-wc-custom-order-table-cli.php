@@ -99,7 +99,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 			}
 
 			// Load up the next batch.
-			$order_data = array_filter( $wpdb->get_col( $order_query, $processed ) );
+			$order_data = array_filter( $wpdb->get_col( $order_query ) );
 		}
 
 		$progress->finish();
