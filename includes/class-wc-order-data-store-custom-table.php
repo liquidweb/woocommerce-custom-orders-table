@@ -28,6 +28,9 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// When creating a WooCommerce order data store request, filter the MySQL query.
 		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', __CLASS__ . '::filter_database_queries', 10, 2 );
+
+		// When associating previous orders with a customer based on email, update the record.
+		add_action( 'woocommerce_update_new_customer_past_order', __CLASS__ . '::update_past_customer_order', 10, 2 );
 	}
 
 	/**
@@ -569,5 +572,17 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		remove_filter( 'posts_where', __CLASS__ . '::meta_query_where', 100, 2 );
 
 		return $where;
+	}
+
+	/**
+	 * Associate previous orders from an email address that matches that of a new customer.
+	 *
+	 * @param int     $order_id The order ID.
+	 * @param WP_User $customer The customer object.
+	 */
+	public static function update_past_customer_order( $order_id, $customer ) {
+		$order = wc_get_order( $order_id );
+		$order->set_customer_id( $customer->ID );
+		$order->save();
 	}
 }
