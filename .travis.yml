@@ -19,7 +19,7 @@ matrix:
     - php: 7.1
       env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest
     - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.2.0
+      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.2.6
     - php: 7.0
       env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest
 
