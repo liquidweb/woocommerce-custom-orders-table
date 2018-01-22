@@ -34,6 +34,7 @@ matrix:
 
 before_script:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - phpenv config-rm xdebug.ini
   - bash tests/bin/install-wp-tests.sh woocommerce_test root '' localhost $WP_VERSION
   - bash tests/bin/set-woocommerce-version.sh $WC_VERSION
   - composer install --prefer-source
