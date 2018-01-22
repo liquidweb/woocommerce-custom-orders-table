@@ -178,7 +178,10 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		while ( ! empty( $order_data ) ) {
 			foreach ( $order_data as $order_id ) {
 				$order = wc_get_order( $order_id );
-				$order->get_data_store()->backfill_postmeta( $order );
+
+				if ( $order ) {
+					$order->get_data_store()->backfill_postmeta( $order );
+				}
 
 				$processed++;
 				$progress->tick();

@@ -112,4 +112,17 @@ class CLITest extends TestCase {
 			);
 		}
 	}
+
+	public function test_backfill_when_an_order_has_been_deleted() {
+		$order1 = WC_Helper_Order::create_order();
+		$order2 = WC_Helper_Order::create_order();
+
+		// The order has been force deleted.
+		wp_delete_post( $order1->get_id(), true );
+
+		$this->cli->backfill();
+
+		$this->assertEmpty( get_post_meta( $order1->get_id(), '_billing_email', true ) );
+		$this->assertNotEmpty( get_post_meta( $order2->get_id(), '_billing_email', true ) );
+	}
 }
