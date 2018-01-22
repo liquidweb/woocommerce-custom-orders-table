@@ -245,6 +245,16 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		if ( $this->creating ) {
 			$wpdb->insert( $table, $order_data ); // WPCS: DB call OK.
 
+			/*
+			 * WooCommerce prior to 3.3 lacks some necessary filters to entirely move order details
+			 * into a custom database table. If the site is running WooCommerce < 3.3.0, store the
+			 * billing email and customer ID in the post meta table as well, for backwards-compatibility.
+			 */
+			if ( version_compare( WC()->version, '3.3.0', '<' ) ) {
+				update_post_meta( $order->get_id(), '_billing_email', $order->get_billing_email() );
+				update_post_meta( $order->get_id(), '_customer_user', $order->get_customer_id() );
+			}
+
 			$this->creating = false;
 
 		} else {
