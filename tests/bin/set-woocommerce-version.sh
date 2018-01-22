@@ -15,3 +15,7 @@ else
 	echo "Using WooCommerce at master."
 	composer require --dev --no-update woocommerce/woocommerce:dev-master
 fi
+
+if [[ ! $TRAVIS ]]; then
+	echo -e "\033[0;33mIt's recommended you run \`composer update\` now to apply your changes.\033[0;m"
+fi
