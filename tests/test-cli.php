@@ -69,6 +69,28 @@ class CLITest extends TestCase {
 		);
 	}
 
+	/**
+	 * Trigger a database error in the same way as the test_populate_from_meta_handles_errors test.
+	 *
+	 * @see DataStoreTest::test_populate_from_meta_handles_errors()
+	 */
+	public function test_migrate_stops_on_database_error() {
+		$this->toggle_use_custom_table( false );
+		$order1 = WC_Helper_Order::create_order();
+		$order1->set_order_key( '' );
+		$order1->save();
+		$order2 = WC_Helper_Order::create_order();
+		$order2->set_order_key( '' );
+		$order2->save();
+		$this->toggle_use_custom_table( true );
+
+		$this->cli->migrate();
+
+		$error = array_pop( WP_CLI::$__logger );
+		$this->assertEquals( 'error', $error['level'], 'Expected to see a call to WP_CLI::error().' );
+
+	}
+
 	public function test_backfill() {
 		$order_ids = $this->generate_orders( 5 );
 		$index     = 0;

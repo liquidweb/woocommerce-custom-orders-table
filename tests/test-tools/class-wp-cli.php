@@ -32,5 +32,12 @@ if ( ! class_exists( 'WP_CLI' ) ) {
 				'message' => $message,
 			);
 		}
+
+		public static function error( $message ) {
+			self::$__logger[] = array(
+				'level'   => 'error',
+				'message' => $message,
+			);
+		}
 	}
 }

@@ -66,6 +66,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 	public function migrate( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
 
+		$wpdb->suppress_errors();
 		$order_count = $this->count();
 
 		if ( ! $order_count ) {
@@ -91,8 +92,17 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 
 		while ( ! empty( $order_data ) ) {
 			foreach ( $order_data as $order_id ) {
-				$order = wc_get_order( $order_id );
-				$order->get_data_store()->populate_from_meta( $order );
+				$order  = wc_get_order( $order_id );
+				$result = $order->get_data_store()->populate_from_meta( $order );
+
+				if ( is_wp_error( $result ) ) {
+					return WP_CLI::error( sprintf(
+						/* Translators: %1$d is the order ID, %2$s is the error message. */
+						'A database error occurred while migrating order %1$d: %2$s.',
+						$order_id,
+						$result->get_error_message()
+					) );
+				}
 
 				$processed++;
 				$progress->tick();

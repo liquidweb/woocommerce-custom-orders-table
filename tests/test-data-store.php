@@ -220,6 +220,35 @@ class DataStoreTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Since populate_from_meta() is typically called within a while() loop, it's important to
+	 * catch database errors and terminate so the script doesn't run forever.
+	 *
+	 * In this case, we're attempting to migrate two orders with the same order key but different
+	 * order IDs.
+	 */
+	public function test_populate_from_meta_handles_errors() {
+		global $wpdb;
+
+		$wpdb->hide_errors();
+		$wpdb->suppress_errors( true );
+
+		$this->toggle_use_custom_table( false );
+		$order1 = WC_Helper_Order::create_order();
+		$order1->set_order_key( '' );
+		$order1->save();
+		$order2 = WC_Helper_Order::create_order();
+		$order2->set_order_key( '' );
+		$order2->save();
+		$this->toggle_use_custom_table( true );
+
+		// Refresh $order1 so we have access to the table-based data store.
+		$order1 = wc_get_order( $order1->get_id() );
+		$order1->get_data_store()->populate_from_meta( $order1 );
+
+		$this->assertInstanceOf( 'WP_Error', $order1->get_data_store()->populate_from_meta( $order2 ) );
+	}
+
 	public function test_backfill_postmeta() {
 		$order    = WC_Helper_Order::create_order();
 		$row      = $this->get_order_row( $order->get_id() );
