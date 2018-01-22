@@ -20,7 +20,9 @@
 define( 'WC_CUSTOM_ORDER_TABLE_URL', plugin_dir_url( __FILE__ ) );
 define( 'WC_CUSTOM_ORDER_TABLE_PATH', plugin_dir_path( __FILE__ ) );
 
+// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 set_include_path( get_include_path() . PATH_SEPARATOR . WC_CUSTOM_ORDER_TABLE_PATH . '/includes/' );
+// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
 
 /**
  * Autoloader for plugin files.
