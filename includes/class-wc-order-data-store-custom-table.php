@@ -428,7 +428,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			return new WP_Error( 'woocommerce-custom-order-table-migration', $wpdb->last_error );
 		}
 
-
 		if ( true === $delete ) {
 			foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
 				delete_post_meta( $order->get_id(), $meta_key );
