@@ -13,13 +13,15 @@ matrix:
   fast_finish: true
   include:
     - php: 7.2
-      env: WP_VERSION=trunk WP_MULTISITE=0 RUN_PHPCS=1
+      env: WP_VERSION=trunk WP_MULTISITE=0 WC_VERSION=latest RUN_PHPCS=1
     - php: 7.2
-      env: WP_VERSION=trunk WP_MULTISITE=1
+      env: WP_VERSION=trunk WP_MULTISITE=1 WC_VERSION=latest
     - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=0
+      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest
+    - php: 7.1
+      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.2.0
     - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=0
+      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest
 
   # The following WooCommerce core test currently fails in multisite, with or without this
   # plugin being active:
@@ -27,12 +29,13 @@ matrix:
   # WC_Tests_Setup_Functions::test_wizard_in_cart_payment_gateways()
   allow_failures:
     - php: 7.2
-      env: WP_VERSION=trunk WP_MULTISITE=1
+      env: WP_VERSION=trunk WP_MULTISITE=1 WC_VERSION=latest
 
 
 before_script:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
   - bash tests/bin/install-wp-tests.sh woocommerce_test root '' localhost $WP_VERSION
+  - bash tests/bin/set-woocommerce-version.sh $WC_VERSION
   - composer install --prefer-source
 
 script:
