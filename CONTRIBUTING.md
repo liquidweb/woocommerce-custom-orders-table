@@ -1,6 +1,6 @@
 # Contributing to WooCommerce Custom Orders Table
 
-Thank you for your interest in WooCommerce Custom Orders Table!
+Thank you for your interest in contributing to the WooCommerce Custom Orders Table plugin!
 
 
 ## Reporting bugs and/or suggesting new features
@@ -24,7 +24,13 @@ If you're interested in contributing to the plugin by way of code and/or documen
 
 ### Coding conventions
 
-This project adheres to the [WordPress coding standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/), and [an `.editorconfig` file](http://editorconfig.org/) is included in the repository to help most <abbr title="Integrated Development Environment">IDE</abbr>s adjust accordingly.
+This project adheres to the [WordPress coding standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/), and [an `.editorconfig` file](http://editorconfig.org/) is included in the repository to help most <abbr title="Integrated Development Environment">IDE</abbr>s adjust accordingly. The repository also ships with [the WooCommerce git hooks](https://github.com/woocommerce/woocommerce-git-hooks) to aid in development.
+
+As a general rule, we strive to maintain 100% compatibility with [the latest stable release of WooCommerce](https://github.com/woocommerce/woocommerce/releases/latest):
+
+[![GitHub release](https://img.shields.io/github/release/woocommerce/woocommerce.svg)](https://github.com/woocommerce/woocommerce/releases/latest)
+
+As part of this commitment to compatibility, WooCommerce Custom Orders Table also targets PHP 5.2 as a minimum PHP version for the core plugin files (with the exception of the `WooCommerce_Custom_Orders_Table_CLI` class, which uses the WP-CLI minimum of PHP 5.3). The `tests/` directory, however, is accepting of modern (7.x) PHP.
 
 
 ### Branching strategy
@@ -44,7 +50,7 @@ Once master has been updated, the release should be tagged, then `master` should
 
 ### Unit testing
 
-WooCommerce Custom Orders Table uses [the WordPress core testing suite](https://make.wordpress.org/core/handbook/testing/automated-testing/writing-phpunit-tests/) to provide automated tests for its functionality.
+WooCommerce Custom Orders Table extends WooCommerce's own test suite (which uses [the WordPress core testing suite](https://make.wordpress.org/core/handbook/testing/automated-testing/writing-phpunit-tests/)) to provide automated tests for its functionality.
 
 When submitting pull requests, please include relevant tests for your new features and bug-fixes. This helps prevent regressions in future iterations of the plugin, and helps instill confidence in store owners using this to enhance their WooCommerce stores.
 
