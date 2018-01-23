@@ -254,6 +254,9 @@ class DataStoreTest extends TestCase {
 		$row      = $this->get_order_row( $order->get_id() );
 		$mapping  = WC_Order_Data_Store_Custom_Table::get_postmeta_mapping();
 
+		// For versions < WooCommerce 3.3, a few fields may be set.
+		unset( $mapping['billing_email'], $mapping['customer_id'] );
+
 		foreach ( $mapping as $column => $meta_key ) {
 			$this->assertEmpty( get_post_meta( $order->get_id(), $meta_key, true ) );
 		}

@@ -28,11 +28,17 @@ require_once $_tests_dir . '/includes/functions.php';
 function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/wc-custom-order-table.php';
 
+	echo esc_html( sprintf(
+		/* Translators: %1$s is the WooCommerce release being loaded. */
+		__( 'Using WooCommerce %1$s.', 'wc-custom-order-table' ),
+		WC_VERSION
+	) ) . PHP_EOL;
+
 	WC_Custom_Order_Table_Install::activate();
 
 	add_filter( 'woocommerce_email_actions', '__return_empty_array' );
 }
-tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
+tests_add_filter( 'muplugins_loaded', '_manually_load_plugin', 11 );
 
 // Finally, Start up the WP testing environment.
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';

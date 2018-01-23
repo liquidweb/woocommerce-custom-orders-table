@@ -336,12 +336,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/liquidweb/woocommerce.git",
-                "reference": "345e34598288a7fc7dc2adce05165d2d72f4caef"
+                "reference": "1074ff6c9dd3bffcfcaa495a654bba4e9db8af27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liquidweb/woocommerce/zipball/345e34598288a7fc7dc2adce05165d2d72f4caef",
-                "reference": "345e34598288a7fc7dc2adce05165d2d72f4caef",
+                "url": "https://api.github.com/repos/liquidweb/woocommerce/zipball/1074ff6c9dd3bffcfcaa495a654bba4e9db8af27",
+                "reference": "1074ff6c9dd3bffcfcaa495a654bba4e9db8af27",
                 "shasum": ""
             },
             "require": {
@@ -396,7 +396,7 @@
             "support": {
                 "source": "https://github.com/liquidweb/woocommerce/tree/feature/more-order-tests"
             },
-            "time": "2018-01-17T22:44:04+00:00"
+            "time": "2018-01-18T17:01:18+00:00"
         },
         {
             "name": "woocommerce/woocommerce-sniffs",
