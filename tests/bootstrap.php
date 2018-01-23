@@ -41,5 +41,6 @@ function _manually_load_plugin() {
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin', 11 );
 
 // Finally, Start up the WP testing environment.
+require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 require_once $_bootstrap;
 require_once __DIR__ . '/testcase.php';
