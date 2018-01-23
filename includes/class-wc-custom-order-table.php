@@ -34,7 +34,7 @@ class WC_Custom_Order_Table {
 
 		// If we're in a WP-CLI context, load the WP-CLI command.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			WP_CLI::add_command( 'wc-order-table', 'WC_Custom_Order_Table_CLI' );
+			WP_CLI::add_command( 'wc-order-table', 'WooCommerce_Custom_Orders_Table_CLI' );
 		}
 	}
 

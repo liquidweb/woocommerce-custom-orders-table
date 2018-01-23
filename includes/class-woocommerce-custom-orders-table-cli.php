@@ -9,7 +9,7 @@
 /**
  * Manages the contents of the WooCommerce orders table.
  */
-class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
+class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 	/**
 	 * Count how many orders have yet to be migrated into the custom orders table.
