@@ -2,14 +2,14 @@
 /**
  * Core plugin functionality.
  *
- * @package WooCommerce_Custom_Order_Tables
+ * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web
  */
 
 /**
- * Core functionality for WooCommerce Custom Order Tables.
+ * Core functionality for WooCommerce Custom Orders Table.
  */
-class WC_Custom_Order_Table {
+class WooCommerce_Custom_Orders_Table {
 
 	/**
 	 * The database table name.
@@ -34,18 +34,18 @@ class WC_Custom_Order_Table {
 
 		// If we're in a WP-CLI context, load the WP-CLI command.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			WP_CLI::add_command( 'wc-order-table', 'WC_Custom_Order_Table_CLI' );
+			WP_CLI::add_command( 'wc-order-table', 'WooCommerce_Custom_Orders_Table_CLI' );
 		}
 	}
 
 	/**
-	 * Retrieve the WooCommerce order table name.
+	 * Retrieve the WooCommerce orders table name.
 	 *
 	 * @return string The database table name.
 	 */
 	public function get_table_name() {
 		/**
-		 * Filter the WooCommerce order table name.
+		 * Filter the WooCommerce orders table name.
 		 *
 		 * @param string $table The WooCommerce orders table name.
 		 */

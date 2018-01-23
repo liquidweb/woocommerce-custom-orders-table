@@ -2,7 +2,7 @@
 /**
  * Tests for the WP-CLI commands.
  *
- * @package Woocommerce_Order_Tables
+ * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web
  */
 
@@ -11,7 +11,7 @@ class CLITest extends TestCase {
 	/**
 	 * Holds a fresh instance of the WP-CLI command class.
 	 *
-	 * @var WC_Custom_Order_Table_CLI
+	 * @var WooCommerce_Custom_Orders_Table_CLI
 	 */
 	protected $cli;
 
@@ -19,7 +19,7 @@ class CLITest extends TestCase {
 	 * @before
 	 */
 	public function init() {
-		$this->cli = new WC_Custom_Order_Table_CLI();
+		$this->cli = new WooCommerce_Custom_Orders_Table_CLI();
 	}
 
 	public function test_count() {

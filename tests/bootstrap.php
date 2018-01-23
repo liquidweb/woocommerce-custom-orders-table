@@ -2,10 +2,11 @@
 /**
  * Bootstrap the PHPUnit test suite(s).
  *
- * Since WooCommerce Custom Order Tables is meant to integrate seamlessly with WooCommerce itself,
+ * Since WooCommerce Custom Orders Table is meant to integrate seamlessly with WooCommerce itself,
  * the bootstrap relies heavily on the WooCommerce core test suite.
  *
- * @package Woocommerce_Order_Tables
+ * @package WooCommerce_Custom_Orders_Table
+ * @author  Liquid Web
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' ) ? getenv( 'WP_TESTS_DIR' ) : rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
@@ -26,15 +27,15 @@ require_once $_tests_dir . '/includes/functions.php';
 
 // Manually load the plugin on muplugins_loaded.
 function _manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/wc-custom-order-table.php';
+	require dirname( dirname( __FILE__ ) ) . '/woocommerce-custom-orders-table.php';
 
 	echo esc_html( sprintf(
 		/* Translators: %1$s is the WooCommerce release being loaded. */
-		__( 'Using WooCommerce %1$s.', 'wc-custom-order-table' ),
+		__( 'Using WooCommerce %1$s.', 'woocommerce-custom-orders-table' ),
 		WC_VERSION
 	) ) . PHP_EOL;
 
-	WC_Custom_Order_Table_Install::activate();
+	WooCommerce_Custom_Orders_Table_Install::activate();
 
 	add_filter( 'woocommerce_email_actions', '__return_empty_array' );
 }

@@ -1,17 +1,14 @@
 {
-  "name": "liquidweb/wc-custom-order-table",
-  "description": "Store WooCommerce order data in a custom table.",
+  "name": "liquidweb/woocommerce-custom-orders-table",
+  "description": "Store WooCommerce order data in a custom table for improved performance",
   "type": "wordpress-plugin",
-  "license": "GPL-2.0",
+  "license": "GPL-2.0-only",
   "repositories": [
     {
       "type": "vcs",
       "url": "https://github.com/liquidweb/woocommerce"
     }
   ],
-  "require": {
-    "php": ">=5.2"
-  },
   "require-dev": {
     "php": "^7.0",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
@@ -19,11 +16,6 @@
     "woocommerce/woocommerce": "dev-feature/more-order-tests",
     "woocommerce/woocommerce-sniffs": "^0.0.1",
     "wp-coding-standards/wpcs": "^0.14"
-  },
-  "autoload": {
-    "classmap": [
-      "includes"
-    ]
   },
   "autoload-dev": {
     "classmap": [

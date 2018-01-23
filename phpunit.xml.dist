@@ -33,7 +33,7 @@
 	<filter>
 		<whitelist>
 			<directory suffix=".php">includes</directory>
-			<file>wc-custom-order-table.php</file>
+			<file>woocommerce-custom-orders-table.php</file>
 		</whitelist>
 	</filter>
 </phpunit>

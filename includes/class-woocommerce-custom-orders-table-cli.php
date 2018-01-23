@@ -2,17 +2,17 @@
 /**
  * CLI Tool for migrating order data to/from custom table.
  *
- * @package WooCommerce_Custom_Order_Tables
+ * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web
  */
 
 /**
- * Manages the contents of the WooCommerce order table.
+ * Manages the contents of the WooCommerce orders table.
  */
-class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
+class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 	/**
-	 * Count how many orders have yet to be migrated into the custom order table.
+	 * Count how many orders have yet to be migrated into the custom orders table.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -36,7 +36,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 
 		WP_CLI::log( sprintf(
 			/* Translators: %1$d is the number of orders to be migrated. */
-			_n( 'There is %1$d order to be migrated.', 'There are %1$d orders to be migrated.', $order_count, 'wc-custom-order-table' ),
+			_n( 'There is %1$d order to be migrated.', 'There are %1$d orders to be migrated.', $order_count, 'woocommerce-custom-orders-table' ),
 			$order_count
 		) );
 
@@ -44,7 +44,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Migrate order data to the custom order table.
+	 * Migrate order data to the custom orders table.
 	 *
 	 * ## OPTIONS
 	 *
@@ -70,7 +70,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		$order_count = $this->count();
 
 		if ( ! $order_count ) {
-			return WP_CLI::warning( __( 'There are no orders to migrate, aborting.', 'wc-custom-order-table' ) );
+			return WP_CLI::warning( __( 'There are no orders to migrate, aborting.', 'woocommerce-custom-orders-table' ) );
 		}
 
 		$assoc_args  = wp_parse_args( $assoc_args, array(
@@ -116,12 +116,12 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 
 		// Issue a warning if no orders were migrated.
 		if ( ! $processed ) {
-			return WP_CLI::warning( __( 'No orders were migrated.', 'wc-custom-order-table' ) );
+			return WP_CLI::warning( __( 'No orders were migrated.', 'woocommerce-custom-orders-table' ) );
 		}
 
 		WP_CLI::success( sprintf(
 			/* Translators: %1$d is the number of migrated orders. */
-			_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'wc-custom-order-table' ),
+			_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'woocommerce-custom-orders-table' ),
 			$processed
 		) );
 	}
@@ -130,7 +130,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 	 * Copy order data into the postmeta table.
 	 *
 	 * Note that this could dramatically increase the size of your postmeta table, but is recommended
-	 * if you wish to stop using the custom order table plugin.
+	 * if you wish to stop using the custom orders table plugin.
 	 *
 	 * ## OPTIONS
 	 *
@@ -162,7 +162,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 		$order_count = $wpdb->get_var( 'SELECT COUNT(order_id) FROM ' . esc_sql( $order_table ) ); // WPCS: DB call ok.
 
 		if ( ! $order_count ) {
-			return WP_CLI::warning( __( 'There are no orders to migrate, aborting.', 'wc-custom-order-table' ) );
+			return WP_CLI::warning( __( 'There are no orders to migrate, aborting.', 'woocommerce-custom-orders-table' ) );
 		}
 
 		$assoc_args  = wp_parse_args( $assoc_args, array(
@@ -195,12 +195,12 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 
 		// Issue a warning if no orders were migrated.
 		if ( ! $processed ) {
-			return WP_CLI::warning( __( 'No orders were migrated.', 'wc-custom-order-table' ) );
+			return WP_CLI::warning( __( 'No orders were migrated.', 'woocommerce-custom-orders-table' ) );
 		}
 
 		WP_CLI::success( sprintf(
 			/* Translators: %1$d is the number of migrated orders. */
-			_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'wc-custom-order-table' ),
+			_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'woocommerce-custom-orders-table' ),
 			$processed
 		) );
 	}

@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:          WooCommerce - Custom Order Tables
- * Plugin URI:           https://github.com/liquidweb/WooCommerce-Order-Tables
- * Description:          Store WooCommerce order data in a custom table.
+ * Plugin Name:          WooCommerce - Custom Orders Table
+ * Plugin URI:           https://github.com/liquidweb/woocommerce-custom-orders-tables
+ * Description:          Store WooCommerce order data in a custom table for improved performance.
  * Version:              1.0.0
  * Author:               Liquid Web
  * Author URI:           https://www.liquidweb.com
@@ -12,7 +12,7 @@
  * WC requires at least: 3.2.6
  * WC tested up to:      3.3.0
  *
- * @package WooCommerce_Custom_Order_Tables
+ * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web
  */
 
@@ -42,22 +42,22 @@ spl_autoload_register( 'wc_custom_order_table_autoload' );
 /**
  * Install the database tables upon plugin activation.
  */
-register_activation_hook( __FILE__, array( 'WC_Custom_Order_Table_Install', 'activate' ) );
+register_activation_hook( __FILE__, array( 'WooCommerce_Custom_Orders_Table_Install', 'activate' ) );
 
 /**
- * Retrieve an instance of the WC_Custom_Order_Table class.
+ * Retrieve an instance of the WooCommerce_Custom_Orders_Table class.
  *
  * If one has not yet been instantiated, it will be created.
  *
  * @global $wc_custom_order_table
  *
- * @return WC_Custom_Order_Table The global WC_Custom_Order_Table instance.
+ * @return WooCommerce_Custom_Orders_Table The global WooCommerce_Custom_Orders_Table instance.
  */
 function wc_custom_order_table() {
 	global $wc_custom_order_table;
 
-	if ( ! $wc_custom_order_table instanceof WC_Custom_Order_Table ) {
-		$wc_custom_order_table = new WC_Custom_Order_Table();
+	if ( ! $wc_custom_order_table instanceof WooCommerce_Custom_Orders_Table ) {
+		$wc_custom_order_table = new WooCommerce_Custom_Orders_Table();
 		$wc_custom_order_table->setup();
 	}
 
