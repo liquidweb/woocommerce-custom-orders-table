@@ -1,6 +1,9 @@
 <?php
 /**
  * Dummy test class for WP_CLI.
+ *
+ * @package WooCommerce_Custom_Orders_Table
+ * @author  Liquid Web
  */
 
 if ( ! class_exists( 'WP_CLI' ) ) {

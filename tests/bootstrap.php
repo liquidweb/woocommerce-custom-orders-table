@@ -6,6 +6,7 @@
  * the bootstrap relies heavily on the WooCommerce core test suite.
  *
  * @package WooCommerce_Custom_Orders_Table
+ * @author  Liquid Web
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' ) ? getenv( 'WP_TESTS_DIR' ) : rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
