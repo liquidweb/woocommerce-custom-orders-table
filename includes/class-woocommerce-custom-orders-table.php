@@ -9,7 +9,7 @@
 /**
  * Core functionality for WooCommerce Custom Orders Table.
  */
-class WC_Custom_Order_Table {
+class WooCommerce_Custom_Orders_Table {
 
 	/**
 	 * The database table name.

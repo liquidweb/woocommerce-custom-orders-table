@@ -45,19 +45,19 @@ spl_autoload_register( 'wc_custom_order_table_autoload' );
 register_activation_hook( __FILE__, array( 'WooCommerce_Custom_Orders_Table_Install', 'activate' ) );
 
 /**
- * Retrieve an instance of the WC_Custom_Order_Table class.
+ * Retrieve an instance of the WooCommerce_Custom_Orders_Table class.
  *
  * If one has not yet been instantiated, it will be created.
  *
  * @global $wc_custom_order_table
  *
- * @return WC_Custom_Order_Table The global WC_Custom_Order_Table instance.
+ * @return WooCommerce_Custom_Orders_Table The global WooCommerce_Custom_Orders_Table instance.
  */
 function wc_custom_order_table() {
 	global $wc_custom_order_table;
 
-	if ( ! $wc_custom_order_table instanceof WC_Custom_Order_Table ) {
-		$wc_custom_order_table = new WC_Custom_Order_Table();
+	if ( ! $wc_custom_order_table instanceof WooCommerce_Custom_Orders_Table ) {
+		$wc_custom_order_table = new WooCommerce_Custom_Orders_Table();
 		$wc_custom_order_table->setup();
 	}
 
