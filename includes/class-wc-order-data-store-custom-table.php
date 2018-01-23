@@ -256,7 +256,11 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// Insert or update the database record.
 		if ( $this->creating ) {
-			$wpdb->insert( $table, $order_data ); // WPCS: DB call OK.
+			$inserted = $wpdb->insert( $table, $order_data ); // WPCS: DB call OK.
+
+			if ( 1 !== $inserted ) {
+				return;
+			}
 
 			/*
 			 * WooCommerce prior to 3.3 lacks some necessary filters to entirely move order details
