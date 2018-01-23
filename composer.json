@@ -2,7 +2,7 @@
   "name": "liquidweb/woocommerce-custom-orders-table",
   "description": "Store WooCommerce order data in a custom table for improved performance",
   "type": "wordpress-plugin",
-  "license": "GPL-2.0",
+  "license": "GPL-2.0-only",
   "repositories": [
     {
       "type": "vcs",
