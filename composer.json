@@ -17,11 +17,6 @@
     "woocommerce/woocommerce-sniffs": "^0.0.1",
     "wp-coding-standards/wpcs": "^0.14"
   },
-  "autoload": {
-    "classmap": [
-      "includes"
-    ]
-  },
   "autoload-dev": {
     "classmap": [
       "tests/test-tools",
