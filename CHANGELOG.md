@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Revert database columns to use `VARCHAR` types for compatibility with WordPress post meta tables.
 * Add table indexes on the `order_key`, `customer_id`, and `order_total` columns in the orders table ([#15]).
 * Refactor the WP-CLI command, including some changes to accepted arguments ([#35])
+* Normalize the plugin name around "WooCommerce Custom Orders Table" ([#38])
 * Added changelog and contributing documents ([#12]).
 * Massive improvements to test coverage and general WooCommerce compatibility.
 
@@ -43,3 +44,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [#28]: https://github.com/liquidweb/woocommerce-order-tables/pull/28
 [#35]: https://github.com/liquidweb/woocommerce-order-tables/pull/35
 [#36]: https://github.com/liquidweb/woocommerce-order-tables/pull/36
+[#38]: https://github.com/liquidweb/woocommerce-order-tables/pull/38
