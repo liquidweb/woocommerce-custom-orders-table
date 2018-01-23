@@ -16,7 +16,7 @@
 
 	<rule ref="PHPCompatibility">
 		<exclude name="PHPCompatibility.PHP.NewKeywords.t_namespaceFound" />
-		<exclude-pattern>includes/class-wc-custom-order-table-cli.php</exclude-pattern>
+		<exclude-pattern>includes/class-woocommerce-custom-orders-table-cli.php</exclude-pattern>
 	</rule>
 
 	<!-- Check all PHP files in directory tree by default. -->
