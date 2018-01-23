@@ -20,10 +20,24 @@
 define( 'WC_CUSTOM_ORDER_TABLE_URL', plugin_dir_url( __FILE__ ) );
 define( 'WC_CUSTOM_ORDER_TABLE_PATH', plugin_dir_path( __FILE__ ) );
 
-/* Load includes via a PHP 5.2-compatible autoloader. */
-if ( file_exists( WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php' ) ) {
-	require WC_CUSTOM_ORDER_TABLE_PATH . 'vendor/autoload_52.php';
+// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
+set_include_path( get_include_path() . PATH_SEPARATOR . WC_CUSTOM_ORDER_TABLE_PATH . '/includes/' );
+// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
+
+/**
+ * Autoloader for plugin files.
+ *
+ * This autoloader operates under the assumption that class filenames use the WordPress filename
+ * conventions, where a class of 'Foo_Bar' would be named 'class-foo-bar.php'.
+ *
+ * @param string $class The class name to autoload.
+ */
+function wc_custom_order_table_autoload( $class ) {
+	$class = 'class-' . str_replace( '_', '-', $class );
+
+	return spl_autoload( $class );
 }
+spl_autoload_register( 'wc_custom_order_table_autoload' );
 
 /**
  * Install the database tables upon plugin activation.
