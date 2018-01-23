@@ -2,7 +2,7 @@
 /**
  * Tests for the plugin bootstrapping.
  *
- * @package Woocommerce_Order_Tables
+ * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web
  */
 
@@ -17,7 +17,7 @@ class BootstrapTest extends TestCase {
 		do_action( 'woocommerce_init' );
 
 		$this->assertInstanceOf(
-			'WC_Custom_Order_Table',
+			'WooCommerce_Custom_Orders_Table',
 			$wc_custom_order_table,
 			'The plugin should not be bootstrapped until woocommerce_init.'
 		);

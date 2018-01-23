@@ -2,14 +2,14 @@
 /**
  * Core plugin functionality.
  *
- * @package WooCommerce_Custom_Order_Tables
+ * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web
  */
 
 /**
- * Core functionality for WooCommerce Custom Order Tables.
+ * Core functionality for WooCommerce Custom Orders Table.
  */
-class WC_Custom_Order_Table {
+class WooCommerce_Custom_Orders_Table {
 
 	/**
 	 * The database table name.
@@ -29,23 +29,23 @@ class WC_Custom_Order_Table {
 		$this->table_name = $wpdb->prefix . 'woocommerce_orders';
 
 		// Use the plugin's custom data stores for customers and orders.
-		add_filter( 'woocommerce_customer_data_store', array( $this, 'customer_data_store' ) );
-		add_filter( 'woocommerce_order_data_store', array( $this, 'order_data_store' ) );
+		add_filter( 'woocommerce_customer_data_store', __CLASS__ . '::customer_data_store' );
+		add_filter( 'woocommerce_order_data_store', __CLASS__ . '::order_data_store' );
 
 		// If we're in a WP-CLI context, load the WP-CLI command.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			WP_CLI::add_command( 'wc-order-table', 'WC_Custom_Order_Table_CLI' );
+			WP_CLI::add_command( 'wc-order-table', 'WooCommerce_Custom_Orders_Table_CLI' );
 		}
 	}
 
 	/**
-	 * Retrieve the WooCommerce order table name.
+	 * Retrieve the WooCommerce orders table name.
 	 *
 	 * @return string The database table name.
 	 */
 	public function get_table_name() {
 		/**
-		 * Filter the WooCommerce order table name.
+		 * Filter the WooCommerce orders table name.
 		 *
 		 * @param string $table The WooCommerce orders table name.
 		 */
@@ -57,7 +57,7 @@ class WC_Custom_Order_Table {
 	 *
 	 * @return string The data store class name.
 	 */
-	public function customer_data_store() {
+	public static function customer_data_store() {
 		return 'WC_Customer_Data_Store_Custom_Table';
 	}
 
@@ -66,7 +66,7 @@ class WC_Custom_Order_Table {
 	 *
 	 * @return string The data store class name.
 	 */
-	public function order_data_store() {
+	public static function order_data_store() {
 		return 'WC_Order_Data_Store_Custom_Table';
 	}
 }
