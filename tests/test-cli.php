@@ -96,7 +96,7 @@ class CLITest extends TestCase {
 		$index     = 0;
 
 		foreach ( $order_ids as $order_id ) {
-			$this->assertEmpty( get_post_meta( $order_id, '_billing_email', true ) );
+			$this->assertEmpty( get_post_meta( $order_id, '_billing_first_name', true ) );
 		}
 
 		$this->cli->backfill( array(), array(

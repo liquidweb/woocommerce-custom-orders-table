@@ -33,7 +33,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		add_filter( 'woocommerce_reports_get_order_report_query', __CLASS__ . '::filter_order_report_query' );
 
 		// Fill-in after re-indexing of billing/shipping addresses.
-		add_action( "woocommerce_rest_system_status_tool_executed", __CLASS__ . '::rest_populate_address_indexes' );
+		add_action( 'woocommerce_rest_system_status_tool_executed', __CLASS__ . '::rest_populate_address_indexes' );
+
+		// When associating previous orders with a customer based on email, update the record.
+		add_action( 'woocommerce_update_new_customer_past_order', __CLASS__ . '::update_past_customer_order', 10, 2 );
 	}
 
 	/**
@@ -253,7 +256,21 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// Insert or update the database record.
 		if ( $this->creating ) {
-			$wpdb->insert( $table, $order_data ); // WPCS: DB call OK.
+			$inserted = $wpdb->insert( $table, $order_data ); // WPCS: DB call OK.
+
+			if ( 1 !== $inserted ) {
+				return;
+			}
+
+			/*
+			 * WooCommerce prior to 3.3 lacks some necessary filters to entirely move order details
+			 * into a custom database table. If the site is running WooCommerce < 3.3.0, store the
+			 * billing email and customer ID in the post meta table as well, for backwards-compatibility.
+			 */
+			if ( version_compare( WC()->version, '3.3.0', '<' ) ) {
+				update_post_meta( $order->get_id(), '_billing_email', $order->get_billing_email() );
+				update_post_meta( $order->get_id(), '_customer_user', $order->get_customer_id() );
+			}
 
 			$this->creating = false;
 
@@ -648,8 +665,8 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 				$table_alias          = 'order_parent_meta';
 				$joins['post_parent'] = true;
 			} else {
-				$table_alias          = 'order_meta';
-				$joins['post_id']     = true;
+				$table_alias      = 'order_meta';
+				$joins['post_id'] = true;
 			}
 
 			$replacements[ $table_plus_meta_value ] = $table_alias . '.' . $order_table_column;
@@ -694,9 +711,21 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		$wpdb->query( 'UPDATE ' . esc_sql( $table ) . "
 			SET billing_index = CONCAT_WS( ' ', billing_first_name, billing_last_name, billing_company, billing_company, billing_address_1, billing_address_2, billing_city, billing_state, billing_postcode, billing_country, billing_email, billing_phone )
-			WHERE billing_index IS NULL OR billing_index = ''" );
+			WHERE billing_index IS NULL OR billing_index = ''" ); // WPCS: DB call ok.
 		$wpdb->query( 'UPDATE ' . esc_sql( $table ) . "
 			SET shipping_index = CONCAT_WS( ' ', shipping_first_name, shipping_last_name, shipping_company, shipping_company, shipping_address_1, shipping_address_2, shipping_city, shipping_state, shipping_postcode, shipping_country )
-			WHERE shipping_index IS NULL OR shipping_index = ''" );
+			WHERE shipping_index IS NULL OR shipping_index = ''" ); // WPCS: DB call ok.
+	}
+
+	/**
+	 * Associate previous orders from an email address that matches that of a new customer.
+	 *
+	 * @param int     $order_id The order ID.
+	 * @param WP_User $customer The customer object.
+	 */
+	public static function update_past_customer_order( $order_id, $customer ) {
+		$order = wc_get_order( $order_id );
+		$order->set_customer_id( $customer->ID );
+		$order->save();
 	}
 }
