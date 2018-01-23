@@ -150,7 +150,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 *
 	 * @param WC_Order $order The order object.
 	 *
-	 * @return object The order row, as an object.
+	 * @return object The order row, as an associative array.
 	 */
 	public function get_order_data_from_table( $order ) {
 		global $wpdb;
@@ -160,6 +160,13 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'SELECT * FROM ' . esc_sql( $table ) . ' WHERE order_id = %d LIMIT 1',
 			$order->get_id()
 		), ARRAY_A ); // WPCS: DB call OK.
+
+		// If no matches were found, this record needs to be created.
+		if ( null === $data ) {
+			$this->creating = true;
+
+			return array();
+		}
 
 		// Expand anything that might need assistance.
 		$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
@@ -381,39 +388,44 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	/**
 	 * Populate custom table with data from postmeta, for migrations.
 	 *
+	 * @global $wpdb
+	 *
 	 * @param WC_Order $order  The order object, passed by reference.
-	 * @param bool     $save   Optional. Whether or not the post meta should be updated. Default
-	 *                         is true.
 	 * @param bool     $delete Optional. Whether or not the post meta should be deleted. Default
 	 *                         is false.
 	 *
-	 * @return WC_Order the order object.
+	 * @return WP_Error|null A WP_Error object if there was a problem populating the order, or null
+	 *                       if there were no issues.
 	 */
-	public function populate_from_meta( &$order, $save = true, $delete = false ) {
-		$table_data = $this->get_order_data_from_table( $order );
+	public function populate_from_meta( &$order, $delete = false ) {
+		global $wpdb;
 
-		if ( is_null( $table_data ) ) {
-			$original_creating = $this->creating;
-			$this->creating    = true;
-		}
+		$table_data = $this->get_order_data_from_table( $order );
 
 		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
 			$meta = get_post_meta( $order->get_id(), $meta_key, true );
 
 			if ( empty( $table_data->$column ) && ! empty( $meta ) ) {
 				switch ( $column ) {
+					case 'billing_index':
+					case 'shipping_index':
+						break;
+
 					case 'prices_include_tax':
 						$order->set_prices_include_tax( 'yes' === $meta );
 						break;
 
 					default:
 						$order->{"set_{$column}"}( $meta );
+						break;
 				}
 			}
 		}
 
-		if ( true === $save ) {
-			$this->update_post_meta( $order );
+		$this->update_post_meta( $order );
+
+		if ( $wpdb->last_error ) {
+			return new WP_Error( 'woocommerce-custom-order-table-migration', $wpdb->last_error );
 		}
 
 		if ( true === $delete ) {
@@ -421,10 +433,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 				delete_post_meta( $order->get_id(), $meta_key );
 			}
 		}
-
-		$this->creating = $original_creating;
-
-		return $order;
 	}
 
 	/**
@@ -439,9 +447,13 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			return;
 		}
 
+		if ( isset( $data['prices_include_tax'] ) ) {
+			$data['prices_include_tax'] = wc_bool_to_string( $data['prices_include_tax'] );
+		}
+
 		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
-			if ( isset( $data->$column ) ) {
-				update_post_meta( $order->get_id(), $meta_key, $data->$column );
+			if ( isset( $data[ $column ] ) ) {
+				update_post_meta( $order->get_id(), $meta_key, $data[ $column ] );
 			}
 		}
 	}

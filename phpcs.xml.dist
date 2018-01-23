@@ -7,6 +7,17 @@
 		<exclude name="Core.Commenting.CommentTags.AuthorTag" />
 	</rule>
 
+	<rule ref="WordPress.WP.I18n">
+		<!-- Set the expected text domain. -->
+		<properties>
+			<property name="text_domain" type="array" value="wc-custom-order-table" />
+		</properties>
+	</rule>
+
+	<rule ref="PHPCompatibility">
+		<exclude name="PHPCompatibility.PHP.NewKeywords.t_namespaceFound" />
+		<exclude-pattern>includes/class-wc-custom-order-table-cli.php</exclude-pattern>
+	</rule>
 
 	<!-- Check all PHP files in directory tree by default. -->
 	<arg name="extensions" value="php"/>
