@@ -566,7 +566,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			$join = preg_replace( $regex, '', $join );
 		}
 
-		$table = wc_custom_order_table()->get_table_name();
+		$table = esc_sql( wc_custom_order_table()->get_table_name() );
 		$join .= " LEFT JOIN {$table} ON ( {$wpdb->posts}.ID = {$table}.order_id ) ";
 
 		// Don't necessarily apply this to subsequent posts_join filter callbacks.
@@ -590,7 +590,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		global $wpdb;
 
 		$meta_query = $wp_query->get( 'wc_order_meta_query' );
-		$table      = wc_custom_order_table()->get_table_name();
+		$table      = esc_sql( wc_custom_order_table()->get_table_name() );
 
 		if ( empty( $meta_query ) ) {
 			return $where;
@@ -650,7 +650,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'post_id'     => false,
 			'post_parent' => false,
 		);
-		$table        = wc_custom_order_table()->get_table_name();
+		$table        = esc_sql( wc_custom_order_table()->get_table_name() );
 		$replacements = array();
 
 		foreach ( $matches[0] as $key => $value ) {
