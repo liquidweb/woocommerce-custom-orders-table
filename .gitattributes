@@ -1,0 +1,5 @@
+/.* export-ignore
+composer.* export-ignore
+phpcs.* export-ignore
+phpunit.* export-ignore
+tests export-ignore
