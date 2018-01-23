@@ -2,7 +2,7 @@
 /**
  * Base test case for WooCommerce Custom Order Tables.
  *
- * @package Woocommerce_Order_Tables
+ * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web
  */
 

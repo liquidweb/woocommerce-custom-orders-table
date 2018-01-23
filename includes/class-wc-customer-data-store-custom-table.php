@@ -2,7 +2,7 @@
 /**
  * WooCommerce customer data store.
  *
- * @package WooCommerce_Custom_Order_Tables
+ * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web
  */
 

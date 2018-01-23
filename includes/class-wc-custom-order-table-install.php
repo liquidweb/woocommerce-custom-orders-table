@@ -2,12 +2,12 @@
 /**
  * Table installation procedure.
  *
- * @package WooCommerce_Custom_Order_Tables
+ * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web
  */
 
 /**
- * Installer for WooCommerce Custom Order Tables.
+ * Installer for WooCommerce Custom Orders Table.
  *
  * Usage:
  *

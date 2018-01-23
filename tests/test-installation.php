@@ -2,7 +2,7 @@
 /**
  * Tests for the plugin installation.
  *
- * @package Woocommerce_Order_Tables
+ * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web
  */
 
