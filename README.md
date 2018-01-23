@@ -70,3 +70,7 @@ This command does the opposite of `migrate`, looping through the orders table an
 	<dt>batch</dt>
 	<dd>The batch number to start from when migrating data. Default is 1.</dd>
 </dl>
+
+## Contributing
+
+If you're interested in contributing to the development of the plugin or need to report an issue, please [see the contributing guidelines for the project](https://github.com/liquidweb/woocommerce-custom-orders-table/blob/develop/CONTRIBUTING.md).
