@@ -26,7 +26,7 @@ require_once $_tests_dir . '/includes/functions.php';
 
 // Manually load the plugin on muplugins_loaded.
 function _manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/wc-custom-order-table.php';
+	require dirname( dirname( __FILE__ ) ) . '/woocommerce-custom-orders-table.php';
 
 	echo esc_html( sprintf(
 		/* Translators: %1$s is the WooCommerce release being loaded. */
