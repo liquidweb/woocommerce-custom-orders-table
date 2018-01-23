@@ -9,9 +9,6 @@
       "url": "https://github.com/liquidweb/woocommerce"
     }
   ],
-  "require": {
-    "php": ">=5.2"
-  },
   "require-dev": {
     "php": "^7.0",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
