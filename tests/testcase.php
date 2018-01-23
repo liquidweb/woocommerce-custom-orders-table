@@ -1,6 +1,6 @@
 <?php
 /**
- * Base test case for WooCommerce Custom Order Tables.
+ * Base test case for WooCommerce Custom Orders Table.
  *
  * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web

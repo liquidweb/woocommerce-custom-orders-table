@@ -694,7 +694,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 	/**
 	 * When the add_order_indexes system status tool is run, populate missing address indexes in
-	 * the order table.
+	 * the orders table.
 	 *
 	 * @global $wpdb
 	 *

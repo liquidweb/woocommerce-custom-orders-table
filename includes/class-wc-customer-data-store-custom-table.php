@@ -8,7 +8,7 @@
 
 /**
  * Extend the WC_Order_Data_Store_CPT class in order to overload methods that directly query the
- * postmeta tables.
+ * postmeta table.
  */
 class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 

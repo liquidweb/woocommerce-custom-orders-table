@@ -7,12 +7,12 @@
  */
 
 /**
- * Manages the contents of the WooCommerce order table.
+ * Manages the contents of the WooCommerce orders table.
  */
 class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 
 	/**
-	 * Count how many orders have yet to be migrated into the custom order table.
+	 * Count how many orders have yet to be migrated into the custom orders table.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -44,7 +44,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Migrate order data to the custom order table.
+	 * Migrate order data to the custom orders table.
 	 *
 	 * ## OPTIONS
 	 *
@@ -130,7 +130,7 @@ class WC_Custom_Order_Table_CLI extends WP_CLI_Command {
 	 * Copy order data into the postmeta table.
 	 *
 	 * Note that this could dramatically increase the size of your postmeta table, but is recommended
-	 * if you wish to stop using the custom order table plugin.
+	 * if you wish to stop using the custom orders table plugin.
 	 *
 	 * ## OPTIONS
 	 *

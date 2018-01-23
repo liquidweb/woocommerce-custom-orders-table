@@ -1,6 +1,6 @@
-# Contributing to WooCommerce Custom Order Tables
+# Contributing to WooCommerce Custom Orders Table
 
-Thank you for your interest in WooCommerce Custom Order Tables!
+Thank you for your interest in WooCommerce Custom Orders Table!
 
 
 ## Reporting bugs and/or suggesting new features
@@ -44,9 +44,9 @@ Once master has been updated, the release should be tagged, then `master` should
 
 ### Unit testing
 
-WooCommerce Custom Order Tables uses [the WordPress core testing suite](https://make.wordpress.org/core/handbook/testing/automated-testing/writing-phpunit-tests/) to provide automated tests for its functionality.
+WooCommerce Custom Orders Table uses [the WordPress core testing suite](https://make.wordpress.org/core/handbook/testing/automated-testing/writing-phpunit-tests/) to provide automated tests for its functionality.
 
-When submitting pull requests, please include relevant tests for your new features and bugfixes. This helps prevent regressions in future iterations of the plugin, and helps instill confidence in store owners using this to enhance their WooCommerce stores.
+When submitting pull requests, please include relevant tests for your new features and bug-fixes. This helps prevent regressions in future iterations of the plugin, and helps instill confidence in store owners using this to enhance their WooCommerce stores.
 
 #### Test coverage
 
