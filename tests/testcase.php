@@ -18,7 +18,7 @@ class TestCase extends WC_Unit_Test_Case {
 	protected function truncate_table() {
 		global $wpdb;
 
-		$wpdb->query( "DELETE FROM {$wpdb->prefix}woocommerce_orders" );
+		$wpdb->query( 'DELETE FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) );
 	}
 
 	/**
@@ -69,9 +69,9 @@ class TestCase extends WC_Unit_Test_Case {
 			return 0;
 		}
 
-		return (int) $wpdb->get_var( $wpdb->prepare( "
-			SELECT COUNT(order_id) FROM {$wpdb->prefix}woocommerce_orders
-			WHERE order_id IN (" . implode( ', ', array_fill( 0, count( $order_ids ), '%d' ) ) . ')',
+		return (int) $wpdb->get_var( $wpdb->prepare(
+			'SELECT COUNT(order_id) FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . '
+			WHERE order_id IN (' . implode( ', ', array_fill( 0, count( $order_ids ), '%d' ) ) . ')',
 		$order_ids ) );
 	}
 
@@ -88,7 +88,7 @@ class TestCase extends WC_Unit_Test_Case {
 		global $wpdb;
 
 		return $wpdb->get_row( $wpdb->prepare(
-			"SELECT * FROM {$wpdb->prefix}woocommerce_orders WHERE order_id = %d",
+			'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE order_id = %d',
 			$order_id
 		), ARRAY_A );
 	}
@@ -103,7 +103,7 @@ class TestCase extends WC_Unit_Test_Case {
 
 		return (bool) $wpdb->get_var( $wpdb->prepare(
 			'SELECT COUNT(*) FROM information_schema.tables WHERE table_name = %s LIMIT 1',
-			$wpdb->prefix . 'woocommerce_orders'
+			wc_custom_order_table()->get_table_name()
 		) );
 	}
 
@@ -115,7 +115,7 @@ class TestCase extends WC_Unit_Test_Case {
 	protected static function drop_orders_table() {
 		global $wpdb;
 
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}woocommerce_orders" );
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . esc_sql( wc_custom_order_table()->get_table_name() ) );
 
 		delete_option( WC_Custom_Order_Table_Install::SCHEMA_VERSION_KEY );
 	}

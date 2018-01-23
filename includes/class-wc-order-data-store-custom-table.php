@@ -123,10 +123,9 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// Delete the database row if force_delete is true.
 		if ( isset( $args['force_delete'] ) && $args['force_delete'] ) {
-			$wpdb->delete(
-				"{$wpdb->prefix}woocommerce_orders",
-				array( 'order_id' => $order_id )
-			); // WPCS: DB call OK.
+			$wpdb->delete( wc_custom_order_table()->get_table_name(), array(
+				'order_id' => $order_id,
+			) ); // WPCS: DB call OK.
 		}
 	}
 
@@ -318,8 +317,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function get_order_id_by_order_key( $order_key ) {
 		global $wpdb;
 
+		$table = wc_custom_order_table()->get_table_name();
+
 		return $wpdb->get_var( $wpdb->prepare(
-			"SELECT order_id FROM {$wpdb->prefix}woocommerce_orders WHERE order_key = %s",
+			'SELECT order_id FROM ' . esc_sql( $table ) . ' WHERE order_key = %s',
 			$order_key
 		) ); // WPCS: DB call OK.
 	}
