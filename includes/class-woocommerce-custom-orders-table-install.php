@@ -11,9 +11,9 @@
  *
  * Usage:
  *
- *     WC_Custom_Order_Table_Install::activate();
+ *     WooCommerce_Custom_Orders_Table_Install::activate();
  */
-class WC_Custom_Order_Table_Install {
+class WooCommerce_Custom_Orders_Table_Install {
 
 	/**
 	 * The option key that contains the current schema version.

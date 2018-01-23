@@ -49,42 +49,42 @@ class InstallationTest extends TestCase {
 			'The wp_woocommerce_orders table should not exist at the beginning of this test.'
 		);
 
-		WC_Custom_Order_Table_Install::activate();
+		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		$this->assertTrue(
 			self::orders_table_exists(),
 			'Upon activation, the table should be created.'
 		);
 		$this->assertNotEmpty(
-			get_option( WC_Custom_Order_Table_Install::SCHEMA_VERSION_KEY ),
+			get_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY ),
 			'The schema version should be stored in the options table.'
 		);
 	}
 
 	public function test_returns_early_if_already_on_latest_schema_version() {
-		WC_Custom_Order_Table_Install::activate();
+		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		$this->assertFalse(
-			WC_Custom_Order_Table_Install::activate(),
+			WooCommerce_Custom_Orders_Table_Install::activate(),
 			'The activate() method should return false if the schema versions match.'
 		);
 	}
 
 	public function test_can_upgrade_table() {
-		WC_Custom_Order_Table_Install::activate();
+		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		// Get the current schema version, then increment it.
-		$property = new ReflectionProperty( 'WC_Custom_Order_Table_Install', 'table_version' );
+		$property = new ReflectionProperty( 'WooCommerce_Custom_Orders_Table_Install', 'table_version' );
 		$property->setAccessible( true );
 		$version = $property->getValue();
 		$property->setValue( $version + 1 );
 
 		// Run the activation script again.
-		WC_Custom_Order_Table_Install::activate();
+		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		$this->assertEquals(
 			$version + 1,
-			get_option( WC_Custom_Order_Table_Install::SCHEMA_VERSION_KEY ),
+			get_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY ),
 			'The schema version should have been incremented.'
 		);
 	}
@@ -92,13 +92,13 @@ class InstallationTest extends TestCase {
 	public function test_current_schema_version_is_not_autoloaded() {
 		global $wpdb;
 
-		WC_Custom_Order_Table_Install::activate();
+		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		$this->assertEquals(
 			'no',
 			$wpdb->get_var( $wpdb->prepare(
 				"SELECT autoload FROM $wpdb->options WHERE option_name = %s LIMIT 1",
-				WC_Custom_Order_Table_Install::SCHEMA_VERSION_KEY
+				WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY
 			) ),
 			'The schema version should not be autoloaded.'
 		);
@@ -112,7 +112,7 @@ class InstallationTest extends TestCase {
 	public function test_database_indexes( $non_unique, $key_name, $column_name ) {
 		global $wpdb;
 
-		WC_Custom_Order_Table_Install::activate();
+		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		$table   = wc_custom_order_table()->get_table_name();
 		$indexes = $wpdb->get_results( "SHOW INDEX FROM $table", ARRAY_A );

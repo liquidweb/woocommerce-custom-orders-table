@@ -42,7 +42,7 @@ spl_autoload_register( 'wc_custom_order_table_autoload' );
 /**
  * Install the database tables upon plugin activation.
  */
-register_activation_hook( __FILE__, array( 'WC_Custom_Order_Table_Install', 'activate' ) );
+register_activation_hook( __FILE__, array( 'WooCommerce_Custom_Orders_Table_Install', 'activate' ) );
 
 /**
  * Retrieve an instance of the WC_Custom_Order_Table class.

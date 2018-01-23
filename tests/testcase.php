@@ -117,7 +117,7 @@ class TestCase extends WC_Unit_Test_Case {
 
 		$wpdb->query( 'DROP TABLE IF EXISTS ' . esc_sql( wc_custom_order_table()->get_table_name() ) );
 
-		delete_option( WC_Custom_Order_Table_Install::SCHEMA_VERSION_KEY );
+		delete_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY );
 	}
 
 	/**

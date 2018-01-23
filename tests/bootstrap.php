@@ -35,7 +35,7 @@ function _manually_load_plugin() {
 		WC_VERSION
 	) ) . PHP_EOL;
 
-	WC_Custom_Order_Table_Install::activate();
+	WooCommerce_Custom_Orders_Table_Install::activate();
 
 	add_filter( 'woocommerce_email_actions', '__return_empty_array' );
 }
