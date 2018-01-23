@@ -53,6 +53,23 @@ class DataStoreTest extends TestCase {
 		$this->assertNull( $this->get_order_row( $order_id ), 'When force deleting, the table row should be removed.' );
 	}
 
+	public function test_get_order_data_from_table() {
+		$order = WC_Helper_Order::create_order();
+		$data  = $order->get_data_store()->get_order_data_from_table( $order );
+
+		$this->assertEquals( $order->get_id(), $data['order_id'] );
+		$this->assertEquals( $order->get_billing_email(), $data['billing_email'] );
+		$this->assertEquals( $order->get_prices_include_tax(), $data['prices_include_tax'] );
+	}
+
+	public function test_get_order_data_from_table_when_order_is_still_in_post_meta() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		$this->assertEmpty( $order->get_data_store()->get_order_data_from_table( $order ) );
+	}
+
 	public function test_update_post_meta_for_new_order() {
 		$order = new WC_Order( wp_insert_post( array(
 			'post_type' => 'product',
@@ -158,6 +175,113 @@ class DataStoreTest extends TestCase {
 			array( $order->get_id() ),
 			$instance->search_orders( 'bar' ),
 			'Product items should be searched using a LIKE comparison and wildcards.'
+		);
+	}
+
+	public function test_populate_from_meta() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		$this->assertNull( $this->get_order_row( $order->get_id() ), 'The order row should not exist yet.' );
+
+		// Refresh the order.
+		$order   = wc_get_order( $order->get_id() );
+		$mapping = WC_Order_Data_Store_Custom_Table::get_postmeta_mapping();
+
+		$order->get_data_store()->populate_from_meta( $order );
+
+		$row = $this->get_order_row( $order->get_id() );
+
+		foreach ( $mapping as $column => $meta_key ) {
+			$this->assertEquals(
+				get_post_meta( $order->get_id(), $meta_key, true ),
+				$row[ $column ],
+				"Value of the $column column key did not meet expectations."
+			);
+		}
+	}
+
+	public function test_populate_from_meta_can_delete_postmeta_keys() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		$order   = wc_get_order( $order->get_id() );
+		$mapping = WC_Order_Data_Store_Custom_Table::get_postmeta_mapping();
+
+		$order->get_data_store()->populate_from_meta( $order, true );
+
+		foreach ( $mapping as $column => $meta_key ) {
+			$this->assertEmpty(
+				get_post_meta( $order->get_id(), $meta_key, true ),
+				"Post meta key $meta_key should have been deleted."
+			);
+		}
+	}
+
+	/**
+	 * Since populate_from_meta() is typically called within a while() loop, it's important to
+	 * catch database errors and terminate so the script doesn't run forever.
+	 *
+	 * In this case, we're attempting to migrate two orders with the same order key but different
+	 * order IDs.
+	 */
+	public function test_populate_from_meta_handles_errors() {
+		global $wpdb;
+
+		$wpdb->hide_errors();
+		$wpdb->suppress_errors( true );
+
+		$this->toggle_use_custom_table( false );
+		$order1 = WC_Helper_Order::create_order();
+		$order1->set_order_key( '' );
+		$order1->save();
+		$order2 = WC_Helper_Order::create_order();
+		$order2->set_order_key( '' );
+		$order2->save();
+		$this->toggle_use_custom_table( true );
+
+		// Refresh $order1 so we have access to the table-based data store.
+		$order1 = wc_get_order( $order1->get_id() );
+		$order1->get_data_store()->populate_from_meta( $order1 );
+
+		$this->assertInstanceOf( 'WP_Error', $order1->get_data_store()->populate_from_meta( $order2 ) );
+	}
+
+	public function test_backfill_postmeta() {
+		$order    = WC_Helper_Order::create_order();
+		$row      = $this->get_order_row( $order->get_id() );
+		$mapping  = WC_Order_Data_Store_Custom_Table::get_postmeta_mapping();
+
+		foreach ( $mapping as $column => $meta_key ) {
+			$this->assertEmpty( get_post_meta( $order->get_id(), $meta_key, true ) );
+		}
+
+		$order->get_data_store()->backfill_postmeta( $order );
+
+		foreach ( $mapping as $column => $meta_key ) {
+			$this->assertEquals(
+				$row[ $column ],
+				get_post_meta( $order->get_id(), $meta_key, true ),
+				"Value of the $meta_key meta key did not meet expectations."
+			);
+		}
+	}
+
+	public function test_backfill_postmeta_returns_early_if_table_row_is_empty() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		$last_changed = wp_cache_get( 'last_changed', 'posts' );
+
+		$order->get_data_store()->backfill_postmeta( $order );
+
+		$this->assertEquals(
+			$last_changed,
+			wp_cache_get( 'last_changed', 'posts' ),
+			'No calls to update_post_meta() should have been made.'
 		);
 	}
 

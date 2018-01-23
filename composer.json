@@ -21,7 +21,11 @@
   },
   "autoload-dev": {
     "classmap": [
+      "tests/test-tools",
       "vendor/woocommerce/woocommerce/tests/framework"
+    ],
+    "files": [
+      "tests/test-tools/utils.php"
     ]
   },
   "scripts": {
