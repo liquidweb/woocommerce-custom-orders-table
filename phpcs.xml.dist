@@ -10,7 +10,7 @@
 	<rule ref="WordPress.WP.I18n">
 		<!-- Set the expected text domain. -->
 		<properties>
-			<property name="text_domain" type="array" value="wc-custom-order-table" />
+			<property name="text_domain" type="array" value="woocommerce-custom-orders-table" />
 		</properties>
 	</rule>
 
