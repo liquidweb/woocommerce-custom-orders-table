@@ -1,21 +1,24 @@
 # WooCommerce Custom Orders Table
 
-[![Build Status](https://travis-ci.org/liquidweb/woocommerce-order-tables.svg?branch=fix%2Ftravis-config)](https://travis-ci.org/liquidweb/woocommerce-order-tables)
+[![Build Status](https://travis-ci.org/liquidweb/woocommerce-custom-orders-table.svg?branch=develop)](https://travis-ci.org/liquidweb/woocommerce-custom-orders-table)
 
-Managed WooCommerce plugin for Liquid Web.
+This plugin improves WooCommerce performance by introducing a custom table to hold all of the most common order information in a single, properly-indexed location.
 
-## Background & Purpose
-WooCommerce even with CRUD classes in core, still uses a custom post type for orders. By moving orders to use a custom table in the site database, will improve store orders performance.
+## Background
 
-### Here's how
-WooCommerce saves more than 40 custom fields per order— including those from plugins— inside the wp_postmeta table. If your store gets ~40 per day, that's 1600 rows (40 * 40) added to the postmeta table in a day.
+[WooCommerce 3.0 introduced the notion of CRUD (Create, Read, Update, and Delete) interfaces](https://woocommerce.wordpress.com/2016/10/27/the-new-crud-classes-in-woocommerce-2-7/) in a move to unify the way WooCommerce data is stored and retrieved. However, orders are still stored as custom post types within WordPress, with each piece of order information (billing address, shipping address, taxes, totals, and more) being stored in post meta.
 
-In one month that number can be 48,000 new rows (1600 * 30) added to your postmeta table. The more rows in a table the longer it will take for a query to execute. WooCommerce Custom Orders Table creates a new table for WooCommerce orders which would cut that number tremendously by making each custom field into a column so that 1 order = 1 row.
+In fact, WooCommerce will typically create over **40 separate post meta entries** for every single order. If your store receives even 10 orders a day, that means 400 new rows in the table every single day!
 
-## Installation
-This plugin uses a Composer autoloader. If you are working with code from the `master` branch in a development environment, the autoloader needs to be generated in order for the plugin to work. After cloning this repository, run `composer install` in the root directory of the plugin.
+The larger the post meta table grows, the longer queries will take to execute, potentially slowing down queries (and thus page load times) for you and your visitors.
 
-The packaged version of this plugin, which is available in [releases](https://github.com/liquidweb/WooCommerce-Order-Tables/releases), contains the autoloader. This means that end users should not need to worry about running the `composer install` command to get things working. Just grab the latest release and go, but be sure to backup your database first!
+WooCommerce Custom Orders Table uses the WooCommerce CRUD design to save order data into a single, flat table that's optimized for WooCommerce queries; one order means only one new row, with minimal performance impact.
+
+## Requirements
+
+WooCommerce Custom Orders Table requires [WooCommerce 3.2.6 or newer](https://wordpress.org/plugins/woocommerce/).
+
+If you're looking to migrate existing order data, [you'll need to have the ability to run WP-CLI commands in your WooCommerce environment](http://wp-cli.org/).
 
 ## Migrating order data
 
@@ -67,3 +70,7 @@ This command does the opposite of `migrate`, looping through the orders table an
 	<dt>batch</dt>
 	<dd>The batch number to start from when migrating data. Default is 1.</dd>
 </dl>
+
+## Contributing
+
+If you're interested in contributing to the development of the plugin or need to report an issue, please [see the contributing guidelines for the project](https://github.com/liquidweb/woocommerce-custom-orders-table/blob/develop/CONTRIBUTING.md).
