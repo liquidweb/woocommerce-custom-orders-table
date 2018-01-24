@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Version 1.0.0 (Beta 3)] - 2018-01-23
 
 * Plugin test suite now extends the WooCommerce core test suite, ensuring WooCommerce behaves as expected when the plugin is active ([#26]).
 * The custom data store now extends the `WC_Order_Data_Store_CPT` class, eliminating a lot of code duplication in the process ([#28]).
@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 [Unreleased]: https://github.com/liquidweb/woocommerce-order-tables/compare/master...develop
+[Version 1.0.0 (Beta 3)]: https://github.com/liquidweb/woocommerce-order-tables/releases/tag/v1.0.0-beta.3
 [Version 1.0.0 (Beta 2)]: https://github.com/liquidweb/woocommerce-order-tables/releases/tag/v1.0.0-beta.2
 [Version 1.0.0 (Beta 1)]: https://github.com/liquidweb/woocommerce-order-tables/releases/tag/v1.0.0-beta.1
 [#2]: https://github.com/liquidweb/woocommerce-order-tables/pull/2
