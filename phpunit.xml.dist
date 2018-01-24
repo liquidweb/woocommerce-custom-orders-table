@@ -8,9 +8,32 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
+		<!-- Plugin-specific tests. -->
+		<testsuite name="plugin">
 			<directory prefix="test-" suffix=".php">./tests/</directory>
 			<exclude>tests/test-sample.php</exclude>
 		</testsuite>
+
+		<!-- WooCommerce core test suite. -->
+		<testsuite name="core">
+			<directory suffix=".php">./vendor/woocommerce/woocommerce/tests/unit-tests</directory>
+
+			<!--
+				Exclude tests from the core test suite that won't pass without crazy work-arounds.
+
+				In this case, WC_Tests_REST_System_Status::test_execute_system_tool_add_order_indexes()
+				will fail, because the test is specific to order indexes being explicitly stored in
+				postmeta (there are no CRUD operations for billing/shipping_index within WooCommerce).
+
+				@link https://github.com/woocommerce/woocommerce/pull/18493
+			-->
+			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/api/system-status.php</exclude>
+		</testsuite>
 	</testsuites>
+	<filter>
+		<whitelist>
+			<directory suffix=".php">includes</directory>
+			<file>woocommerce-custom-orders-table.php</file>
+		</whitelist>
+	</filter>
 </phpunit>
