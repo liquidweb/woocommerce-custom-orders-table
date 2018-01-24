@@ -17,7 +17,7 @@ matrix:
     - php: 7.2
       env: WP_VERSION=trunk WP_MULTISITE=1 WC_VERSION=latest
     - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest
+      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest RUN_CODE_COVERAGE=1
     - php: 7.1
       env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.2.6
     - php: 7.0
@@ -40,7 +40,14 @@ matrix:
 
 before_script:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - phpenv config-rm xdebug.ini
+  - |
+    if [[ ${RUN_CODE_COVERAGE} ]]; then
+      wget https://github.com/php-coveralls/php-coveralls/releases/download/v1.0.0/coveralls.phar
+      chmod +x coveralls.phar
+      mkdir -p build/logs
+    else
+      phpenv config-rm xdebug.ini
+    fi
   - |
     if [[ ${GITHUB_AUTH_TOKEN} != '' ]]; then
       composer config -g github-oauth.github.com $GITHUB_AUTH_TOKEN
@@ -50,8 +57,19 @@ before_script:
   - composer install --prefer-source
 
 script:
-  - phpunit
+  - |
+    if [[ ${RUN_CODE_COVERAGE} ]]; then
+      phpunit --coverage-clover build/logs/clover.xml
+    else
+      phpunit
+    fi
   - |
     if [[ ${RUN_PHPCS} == 1 ]]; then
       ./vendor/bin/phpcs
+    fi
+
+after_success:
+  - |
+    if [[ ${RUN_CODE_COVERAGE} ]]; then
+      travis_retry php coveralls.phar
     fi
