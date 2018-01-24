@@ -17,6 +17,8 @@ matrix:
     - php: 7.2
       env: WP_VERSION=trunk WP_MULTISITE=1 WC_VERSION=latest
     - php: 7.1
+      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest
+    - php: 7.1
       env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest RUN_CODE_COVERAGE=1
     - php: 7.1
       env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.2.6
@@ -36,6 +38,8 @@ matrix:
       env: WP_VERSION=trunk WP_MULTISITE=1 WC_VERSION=latest
     - php: 7.1
       env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.2.6
+    - php: 7.1
+      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest RUN_CODE_COVERAGE=1
 
 
 before_script:
