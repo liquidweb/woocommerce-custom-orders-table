@@ -93,15 +93,29 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		while ( ! empty( $order_data ) ) {
 			foreach ( $order_data as $order_id ) {
 				$order  = wc_get_order( $order_id );
-				$result = $order->get_data_store()->populate_from_meta( $order );
-
-				if ( is_wp_error( $result ) ) {
-					return WP_CLI::error( sprintf(
-						/* Translators: %1$d is the order ID, %2$s is the error message. */
-						'A database error occurred while migrating order %1$d: %2$s.',
-						$order_id,
-						$result->get_error_message()
+				
+				if ( ! $order ) {
+					// NOTE We can't get the error message unfortunately due to the underlying code in
+					//      WC_Order_Factory::get_order(). It catches the exception and just returns false.
+					//      Issue has been raised on WC - https://github.com/woocommerce/woocommerce/issues/15616
+					
+					WP_CLI::warning( sprintf(
+						/* Translators: %1$d is the order ID. */
+						'There was an error getting %1$d.',
+						$order_id
 					) );
+				} else {
+					
+					$result = $order->get_data_store()->populate_from_meta( $order );
+
+					if ( is_wp_error( $result ) ) {
+						return WP_CLI::error( sprintf(
+							/* Translators: %1$d is the order ID, %2$s is the error message. */
+							'A database error occurred while migrating order %1$d: %2$s.',
+							$order_id,
+							$result->get_error_message()
+						) );
+					}
 				}
 
 				$processed++;
