@@ -72,36 +72,44 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		if ( ! $order_count ) {
 			return WP_CLI::warning( __( 'There are no orders to migrate, aborting.', 'woocommerce-custom-orders-table' ) );
 		}
+		
+		$exclude_orders_ids = array(); // Orders to be excluded from migration (e.g. when an error occured during migration of the order)
 
 		$assoc_args  = wp_parse_args( $assoc_args, array(
 			'batch-size' => 1000,
 		) );
-		$order_table = wc_custom_order_table()->get_table_name();
-		$order_types = wc_get_order_types( 'reports' );
 		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
 		$processed   = 0;
-		$order_query = $wpdb->prepare(
-			"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN " . esc_sql( $order_table ) . ' o ON p.ID = o.order_id
-			WHERE p.post_type IN (' . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
-			AND o.order_id IS NULL
-			ORDER BY p.post_date DESC
-			LIMIT %d',
-			array_merge( $order_types, array( $assoc_args['batch-size'] ) )
-		);
-		$order_data  = $wpdb->get_col( $order_query ); // WPCS: Unprepared SQL ok, DB call ok.
+		$order_data  = $this->migrate_get_batch( $assoc_args['batch-size'] );
 
 		while ( ! empty( $order_data ) ) {
 			foreach ( $order_data as $order_id ) {
 				$order  = wc_get_order( $order_id );
-				$result = $order->get_data_store()->populate_from_meta( $order );
-
-				if ( is_wp_error( $result ) ) {
-					return WP_CLI::error( sprintf(
-						/* Translators: %1$d is the order ID, %2$s is the error message. */
-						'A database error occurred while migrating order %1$d: %2$s.',
-						$order_id,
-						$result->get_error_message()
+				
+				if ( ! $order ) {
+					// NOTE We can't get the error message unfortunately due to the underlying code in
+					//      WC_Order_Factory::get_order(). It catches the exception and just returns false.
+					//      Issue has been raised on WC - https://github.com/woocommerce/woocommerce/issues/15616
+					
+					$exclude_orders_ids[] = $order_id;
+					
+					WP_CLI::warning( sprintf(
+						/* Translators: %1$d is the order ID. */
+						'There was an error getting %1$d.',
+						$order_id
 					) );
+				} else {
+					
+					$result = $order->get_data_store()->populate_from_meta( $order );
+
+					if ( is_wp_error( $result ) ) {
+						return WP_CLI::error( sprintf(
+							/* Translators: %1$d is the order ID, %2$s is the error message. */
+							'A database error occurred while migrating order %1$d: %2$s.',
+							$order_id,
+							$result->get_error_message()
+						) );
+					}
 				}
 
 				$processed++;
@@ -109,7 +117,9 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			}
 
 			// Load up the next batch.
-			$order_data = array_filter( $wpdb->get_col( $order_query ) ); // WPCS: Unprepared SQL ok, DB call ok.
+			$order_data = array_filter( 
+				$this->migrate_get_batch( $assoc_args['batch-size'], $exclude_orders_ids )
+			);
 		}
 
 		$progress->finish();
@@ -124,6 +134,41 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'woocommerce-custom-orders-table' ),
 			$processed
 		) );
+	}
+
+	/** 
+	 * Pull the next batch of orders for migration.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param int $limit The batch size / max number of orders to pull (default 1000).
+	 * @param array $exclude_orders_ids Array of the order IDs to be excluded (default array())
+	 */
+	private function migrate_get_batch( $limit = 1000, $exclude_orders_ids = array() ) {
+		
+		global $wpdb;
+		
+		if ( ! $exclude_orders_ids ) {
+			$exclude_orders_ids = array( 0 );
+		}
+		
+		$order_table = wc_custom_order_table()->get_table_name();
+		$order_types = wc_get_order_types( 'reports' );
+		
+		$order_query = $wpdb->prepare(
+			"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN " . esc_sql( $order_table ) . ' o ON p.ID = o.order_id
+			WHERE p.post_type IN (' . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ') AND
+			p.ID NOT IN (' . implode( ', ', array_fill( 0, count( $exclude_orders_ids ), '%s' ) ) . ')
+			AND o.order_id IS NULL
+			ORDER BY p.post_date DESC
+			LIMIT %d',
+			array_merge( $order_types, $exclude_orders_ids, array( $limit ) )
+		);
+		
+		$order_data  = $wpdb->get_col( $order_query ); // WPCS: Unprepared SQL ok, DB call ok.
+		
+		return $order_data;
+		
 	}
 
 	/**
