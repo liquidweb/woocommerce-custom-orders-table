@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f3c419402a15213ebde4f211fdae66e5",
+    "content-hash": "bc13f2558ee28ac7f069cf7e4ef375a7",
     "packages": [],
     "packages-dev": [
         {
@@ -304,19 +304,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/liquidweb/woocommerce.git",
-                "reference": "1074ff6c9dd3bffcfcaa495a654bba4e9db8af27"
+                "reference": "8415cec71cd5fff169dd6af87336247f7f57531b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liquidweb/woocommerce/zipball/1074ff6c9dd3bffcfcaa495a654bba4e9db8af27",
-                "reference": "1074ff6c9dd3bffcfcaa495a654bba4e9db8af27",
+                "url": "https://api.github.com/repos/liquidweb/woocommerce/zipball/8415cec71cd5fff169dd6af87336247f7f57531b",
+                "reference": "8415cec71cd5fff169dd6af87336247f7f57531b",
                 "shasum": ""
             },
             "require": {
                 "composer/installers": "~1.2"
             },
             "require-dev": {
+                "apigen/apigen": "^4",
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
+                "nette/utils": "~2.3.0",
                 "php": ">= 7.0",
                 "phpunit/phpunit": "6.2.3",
                 "squizlabs/php_codesniffer": "*",
@@ -357,14 +359,14 @@
                 ]
             },
             "license": [
-                "GPL-2.0+"
+                "GPL-3.0-or-later"
             ],
             "description": "An eCommerce toolkit that helps you sell anything. Beautifully.",
             "homepage": "https://woocommerce.com/",
             "support": {
                 "source": "https://github.com/liquidweb/woocommerce/tree/feature/more-order-tests"
             },
-            "time": "2018-01-18T17:01:18+00:00"
+            "time": "2018-02-15T23:09:30+00:00"
         },
         {
             "name": "woocommerce/woocommerce-git-hooks",
@@ -488,9 +490,7 @@
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": {
-        "php": ">=5.2"
-    },
+    "platform": [],
     "platform-dev": {
         "php": "^7.0"
     }
