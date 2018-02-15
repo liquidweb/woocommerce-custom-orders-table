@@ -88,7 +88,28 @@ class CLITest extends TestCase {
 
 		$error = array_pop( WP_CLI::$__logger );
 		$this->assertEquals( 'error', $error['level'], 'Expected to see a call to WP_CLI::error().' );
+	}
 
+	/**
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/43
+	 */
+	public function test_migrate_handles_errors_with_wc_get_order() {
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 3 );
+		$this->toggle_use_custom_table( true );
+
+		// For the first item, cause wc_get_order() to break due to a non-existent class.
+		add_filter( 'woocommerce_order_class', function ( $classname, $order_type, $order_id ) use ( $order_ids ) {
+			return (int) $order_id === $order_ids[0] ? 'SomeNonExistentClassName' : $classname;
+		}, 10, 3 );
+
+		$this->cli->migrate();
+
+		$this->assertEquals(
+			2,
+			$this->count_orders_in_table_with_ids( $order_ids ),
+			'Expected to only see two orders in the custom table.'
+		);
 	}
 
 	public function test_backfill() {
