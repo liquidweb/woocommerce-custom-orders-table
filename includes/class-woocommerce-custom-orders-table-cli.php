@@ -19,6 +19,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 *     wp wc-order-table count
 	 *
 	 * @global $wpdb
+	 *
+	 * @return int The number of orders to be migrated.
 	 */
 	public function count() {
 		global $wpdb;
@@ -40,7 +42,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			$order_count
 		) );
 
-		return $order_count;
+		return (int) $order_count;
 	}
 
 	/**

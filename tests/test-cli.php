@@ -27,7 +27,10 @@ class CLITest extends TestCase {
 		$this->generate_orders( 3 );
 		$this->toggle_use_custom_table( true );
 
-		$this->assertEquals( 3, $this->cli->count() );
+		$count = $this->cli->count();
+
+		$this->assertEquals( 3, $count, 'Expected to see 3 orders to migrate.' );
+		$this->assertInternalType( 'integer', $count, 'Expected the count to return as an integer.' );
 	}
 
 	public function test_migrate() {
