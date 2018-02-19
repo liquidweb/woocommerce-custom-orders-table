@@ -51,6 +51,7 @@ class CLITest extends TestCase {
 			$this->count_orders_in_table_with_ids( $order_ids ),
 			'Expected to see 5 orders in the custom table.'
 		);
+		$this->greaterThanOrEqual( 5, WP_CLI::$__counts['debug'], 'Expected to see at least five calls to WP_CLI::debug().' );
 	}
 
 	public function test_migrate_works_in_batches() {
