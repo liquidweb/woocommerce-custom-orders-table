@@ -33,6 +33,22 @@ class CLITest extends TestCase {
 		$this->assertInternalType( 'integer', $count, 'Expected the count to return as an integer.' );
 	}
 
+	/**
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
+	 */
+	public function test_count_handles_refunded_orders() {
+		$this->markTestSkipped( 'Order refunds have not yet been implemented.' );
+
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 2 );
+		$refund = wc_create_refund( array(
+			'order_id' => $order_ids[0]
+		) );
+		$this->toggle_use_custom_table( true );
+
+		$this->assertEquals( 3, $this->cli->count(), 'Expected to see 3 orders to migrate.' );
+	}
+
 	public function test_migrate() {
 		$this->toggle_use_custom_table( false );
 		$order_ids = $this->generate_orders( 5 );
@@ -135,6 +151,29 @@ class CLITest extends TestCase {
 			2,
 			$this->count_orders_in_table_with_ids( $order_ids ),
 			'Expected to only see two orders in the custom table.'
+		);
+	}
+
+	/**
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
+	 */
+	public function test_migrate_handles_refunded_orders() {
+		$this->markTestSkipped( 'Order refunds have not yet been implemented.' );
+
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 2 );
+		$refund      = wc_create_refund( array(
+			'order_id' => $order_ids[0]
+		) );
+		$order_ids[] = $refund->get_id();
+		$this->toggle_use_custom_table( true );
+
+		$this->cli->migrate();
+
+		$this->assertEquals(
+			3,
+			$this->count_orders_in_table_with_ids( $order_ids ),
+			'Expected to see both orders and the refund in the table.'
 		);
 	}
 
