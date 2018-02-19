@@ -122,7 +122,13 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			}
 
 			// Load up the next batch.
-			$order_data = array_filter( $wpdb->get_col( $order_query ) ); // WPCS: Unprepared SQL ok, DB call ok.
+			$next_batch = array_filter( $wpdb->get_col( $order_query ) ); // WPCS: Unprepared SQL ok, DB call ok.
+
+			if ( $next_batch === $order_data ) {
+				return WP_CLI::error( __( 'Infinite loop detected, aborting.', 'woocommerce-custom-orders-table' ) );
+			} else {
+				$order_data = $next_batch;
+			}
 		}
 
 		$progress->finish();

@@ -90,6 +90,28 @@ class CLITest extends TestCase {
 		$this->assertEquals( 'error', $error['level'], 'Expected to see a call to WP_CLI::error().' );
 	}
 
+	public function test_migrate_catches_infinite_loops() {
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 2 );
+		$this->toggle_use_custom_table( true );
+
+		// After an order is inserted, delete it to force an infinite loop.
+		add_action( 'woocommerce_order_object_updated_props', function ( $order ) {
+			global $wpdb;
+
+			$wpdb->delete( wc_custom_order_table()->get_table_name(), array(
+				'order_id' => $order->get_id(),
+			) );
+		} );
+
+		$this->cli->migrate( array(), array(
+			'batch-size' => 1,
+		) );
+
+		$error = array_pop( WP_CLI::$__logger );
+		$this->assertEquals( 'error', $error['level'], 'Expected to see a call to WP_CLI::error().' );
+	}
+
 	/**
 	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/43
 	 */
