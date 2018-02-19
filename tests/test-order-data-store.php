@@ -6,7 +6,7 @@
  * @author  Liquid Web
  */
 
-class DataStoreTest extends TestCase {
+class OrderDataStoreTest extends TestCase {
 
 	/**
 	 * @requires PHP 5.4 In order to support inline closures for hook callbacks.
