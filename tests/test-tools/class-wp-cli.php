@@ -22,32 +22,33 @@ if ( ! class_exists( 'WP_CLI' ) ) {
 			self::$__commands[] = func_get_args();
 		}
 
+		public static function debug( $message ) {
+			return self::logMessage( 'debug', $message );
+		}
+
 		public static function log( $message ) {
-			self::$__logger[] = array(
-				'level'   => 'info',
-				'message' => $message,
-			);
+			return self::logMessage( 'info', $message );
 		}
 
 		public static function success( $message ) {
-			self::$__logger[] = array(
-				'level'   => 'success',
-				'message' => $message,
-			);
+			return self::logMessage( 'success', $message );
 		}
 
 		public static function warning( $message ) {
-			self::$__logger[] = array(
-				'level'   => 'warning',
-				'message' => $message,
-			);
+			return self::logMessage( 'warning', $message );
 		}
 
 		public static function error( $message ) {
+			return self::logMessage( 'error', $message );
+		}
+
+		protected static function logMessage( $level, $message ) {
 			self::$__logger[] = array(
-				'level'   => 'error',
+				'level'   => $level,
 				'message' => $message,
 			);
+
+			self::$__counts[ $level ]++;
 		}
 	}
 }

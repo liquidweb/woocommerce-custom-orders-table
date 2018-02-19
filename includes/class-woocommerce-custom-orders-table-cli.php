@@ -110,11 +110,17 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 					if ( is_wp_error( $result ) ) {
 						return WP_CLI::error( sprintf(
 							/* Translators: %1$d is the order ID, %2$s is the error message. */
-							'A database error occurred while migrating order %1$d: %2$s.',
+							__( 'A database error occurred while migrating order %1$d: %2$s.', 'woocommerce-custom-orders-table' ),
 							$order_id,
 							$result->get_error_message()
 						) );
 					}
+
+					WP_CLI::debug( sprintf(
+						/* Translators: %1$d is the migrated order ID. */
+						__( 'Order ID %1$d has been migrated.', 'woocommerce-custom-orders-table' ),
+						$order_id
+					) );
 				}
 
 				$processed++;
