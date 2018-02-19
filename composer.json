@@ -45,6 +45,11 @@
       "phpunit --testsuite=plugin --coverage-html=tests/coverage"
     ]
   },
+  "config": {
+      "platform": {
+          "php": "7.0"
+      }
+  },
   "extra": {
     "installer-paths": {
       "vendor/{$vendor}/{$name}": [
