@@ -55,7 +55,7 @@ before_script:
     fi
   - bash tests/bin/install-wp-tests.sh woocommerce_test root '' localhost $WP_VERSION
   - bash tests/bin/set-woocommerce-version.sh $WC_VERSION
-  - composer update --prefer-source --prefer-lowest
+  - composer install --prefer-source
 
 script:
   - |
