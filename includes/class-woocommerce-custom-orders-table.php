@@ -32,6 +32,15 @@ class WooCommerce_Custom_Orders_Table {
 		add_filter( 'woocommerce_customer_data_store', __CLASS__ . '::customer_data_store' );
 		add_filter( 'woocommerce_order_data_store', __CLASS__ . '::order_data_store' );
 
+		// Filter order report queries.
+		add_filter( 'woocommerce_reports_get_order_report_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_order_report_query' );
+
+		// Fill-in after re-indexing of billing/shipping addresses.
+		add_action( 'woocommerce_rest_system_status_tool_executed', 'WooCommerce_Custom_Orders_Table_Filters::rest_populate_address_indexes' );
+
+		// When associating previous orders with a customer based on email, update the record.
+		add_action( 'woocommerce_update_new_customer_past_order', 'WooCommerce_Custom_Orders_Table_Filters::update_past_customer_order', 10, 2 );
+
 		// If we're in a WP-CLI context, load the WP-CLI command.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			WP_CLI::add_command( 'wc-order-table', 'WooCommerce_Custom_Orders_Table_CLI' );

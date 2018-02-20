@@ -28,15 +28,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// When creating a WooCommerce order data store request, filter the MySQL query.
 		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_database_queries', 10, 2 );
-
-		// Filter order report queries.
-		add_filter( 'woocommerce_reports_get_order_report_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_order_report_query' );
-
-		// Fill-in after re-indexing of billing/shipping addresses.
-		add_action( 'woocommerce_rest_system_status_tool_executed', 'WooCommerce_Custom_Orders_Table_Filters::rest_populate_address_indexes' );
-
-		// When associating previous orders with a customer based on email, update the record.
-		add_action( 'woocommerce_update_new_customer_past_order', 'WooCommerce_Custom_Orders_Table_Filters::update_past_customer_order', 10, 2 );
 	}
 
 	/**
