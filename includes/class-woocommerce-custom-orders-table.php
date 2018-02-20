@@ -31,6 +31,7 @@ class WooCommerce_Custom_Orders_Table {
 		// Use the plugin's custom data stores for customers and orders.
 		add_filter( 'woocommerce_customer_data_store', __CLASS__ . '::customer_data_store' );
 		add_filter( 'woocommerce_order_data_store', __CLASS__ . '::order_data_store' );
+		add_filter( 'woocommerce_order-refund_data_store', __CLASS__ . '::order_refund_data_store' );
 
 		// Filter order report queries.
 		add_filter( 'woocommerce_reports_get_order_report_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_order_report_query' );
@@ -133,5 +134,14 @@ class WooCommerce_Custom_Orders_Table {
 	 */
 	public static function order_data_store() {
 		return 'WC_Order_Data_Store_Custom_Table';
+	}
+
+	/**
+	 * Retrieve the class name of the WooCommerce order refund data store.
+	 *
+	 * @return string The data store class name.
+	 */
+	public static function order_refund_data_store() {
+		return 'WC_Order_Refund_Data_Store_Custom_Table';
 	}
 }

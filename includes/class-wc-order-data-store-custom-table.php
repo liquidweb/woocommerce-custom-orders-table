@@ -243,6 +243,28 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	}
 
 	/**
+	 * Get amount already refunded.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param WC_Order $order Order object.
+	 *
+	 * @return float The amount already refunded.
+	 */
+	public function get_total_refunded( $order ) {
+		global $wpdb;
+
+		$total = $wpdb->get_var( $wpdb->prepare(
+			'SELECT SUM(o.amount) FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . " AS o
+			INNER JOIN $wpdb->posts AS p ON ( p.post_type = 'shop_order_refund' AND p.post_parent = %d )
+			WHERE o.order_id = p.ID",
+			$order->get_id()
+		) );
+
+		return floatval( $total );
+	}
+
+	/**
 	 * Finds an order ID based on its order key.
 	 *
 	 * @param string $order_key The order key.
