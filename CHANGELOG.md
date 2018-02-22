@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+* Resolved issue in CLI importer where a `false` value from `wc_get_order()` could cause a fatal error ([#43] & [#46], props @zacscott).
+* Prevent Travis CI from using PHPUnit 7.0 [until the WordPress core test suite can support it, too](https://core.trac.wordpress.org/ticket/43218).
+
 ## [Version 1.0.0 (Beta 3)] - 2018-01-23
 
 * Plugin test suite now extends the WooCommerce core test suite, ensuring WooCommerce behaves as expected when the plugin is active ([#26]).
@@ -46,3 +51,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [#35]: https://github.com/liquidweb/woocommerce-order-tables/pull/35
 [#36]: https://github.com/liquidweb/woocommerce-order-tables/pull/36
 [#38]: https://github.com/liquidweb/woocommerce-order-tables/pull/38
+[#43]: https://github.com/liquidweb/woocommerce-order-tables/issues/43
+[#46]: https://github.com/liquidweb/woocommerce-order-tables/pull/46

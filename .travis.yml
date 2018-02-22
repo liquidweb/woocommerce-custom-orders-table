@@ -60,9 +60,9 @@ before_script:
 script:
   - |
     if [[ ${RUN_CODE_COVERAGE} ]]; then
-      phpunit --coverage-clover build/logs/clover.xml
+      ./vendor/bin/phpunit --coverage-clover build/logs/clover.xml
     else
-      phpunit
+      ./vendor/bin/phpunit
     fi
   - |
     if [[ ${RUN_PHPCS} == 1 ]]; then

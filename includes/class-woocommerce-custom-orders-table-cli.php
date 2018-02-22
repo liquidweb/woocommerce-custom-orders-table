@@ -89,19 +89,32 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			array_merge( $order_types, array( $assoc_args['batch-size'] ) )
 		);
 		$order_data  = $wpdb->get_col( $order_query ); // WPCS: Unprepared SQL ok, DB call ok.
+		$skipped     = array();
 
-		while ( ! empty( $order_data ) ) {
+		while ( ! empty( array_diff( $order_data, $skipped ) ) ) {
 			foreach ( $order_data as $order_id ) {
-				$order  = wc_get_order( $order_id );
-				$result = $order->get_data_store()->populate_from_meta( $order );
+				$order = wc_get_order( $order_id );
 
-				if ( is_wp_error( $result ) ) {
-					return WP_CLI::error( sprintf(
-						/* Translators: %1$d is the order ID, %2$s is the error message. */
-						'A database error occurred while migrating order %1$d: %2$s.',
-						$order_id,
-						$result->get_error_message()
+				if ( false === $order ) {
+					$skipped[] = $order_id;
+
+					WP_CLI::warning( sprintf(
+						/* Translators: %1$d is the order ID. */
+						__( 'Unable to retrieve order with ID %1$d', 'woocommerce-custom-orders-table' ),
+						$order_id
 					) );
+
+				} else {
+					$result = $order->get_data_store()->populate_from_meta( $order );
+
+					if ( is_wp_error( $result ) ) {
+						return WP_CLI::error( sprintf(
+							/* Translators: %1$d is the order ID, %2$s is the error message. */
+							'A database error occurred while migrating order %1$d: %2$s.',
+							$order_id,
+							$result->get_error_message()
+						) );
+					}
 				}
 
 				$processed++;
