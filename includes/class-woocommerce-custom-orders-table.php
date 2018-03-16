@@ -32,6 +32,9 @@ class WooCommerce_Custom_Orders_Table {
 		add_filter( 'woocommerce_customer_data_store', __CLASS__ . '::customer_data_store' );
 		add_filter( 'woocommerce_order_data_store', __CLASS__ . '::order_data_store' );
 
+		// Register the table within WooCommerce.
+		add_filter( 'woocommerce_install_get_tables', array( $this, 'register_table_name' ) );
+
 		// If we're in a WP-CLI context, load the WP-CLI command.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			WP_CLI::add_command( 'wc-order-table', 'WooCommerce_Custom_Orders_Table_CLI' );
@@ -50,6 +53,19 @@ class WooCommerce_Custom_Orders_Table {
 		 * @param string $table The WooCommerce orders table name.
 		 */
 		return apply_filters( 'wc_customer_order_table_name', $this->table_name );
+	}
+
+	/**
+	 * Register the table name within WooCommerce.
+	 *
+	 * @param array $tables An array of known WooCommerce tables.
+	 *
+	 * @return array The filtered $tables array.
+	 */
+	public function register_table_name( $tables ) {
+		$tables[] = $this->get_table_name();
+
+		return $tables;
 	}
 
 	/**
