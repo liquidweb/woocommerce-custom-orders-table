@@ -139,4 +139,35 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 
 		do_action( 'woocommerce_order_refund_object_updated_props', $refund, $refund_data );
 	}
+
+	/**
+	 * Populate the custom table row with post meta.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param WC_Order $order  The refund object, passed by reference.
+	 * @param bool     $delete Optional. Whether or not the post meta should be deleted. Default
+	 *                         is false.
+	 *
+	 * @return WP_Error|null A WP_Error object if there was a problem populating the refund, or null
+	 *                       if there were no issues.
+	 */
+	public function populate_from_meta( &$order, $delete = false ) {
+		global $wpdb;
+
+		$table_data = $this->get_order_data_from_table( $order );
+		$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
+
+		$this->update_post_meta( $order );
+
+		if ( $wpdb->last_error ) {
+			return new WP_Error( 'woocommerce-custom-order-table-migration', $wpdb->last_error );
+		}
+
+		if ( true === $delete ) {
+			foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
+				delete_post_meta( $order->get_id(), $meta_key );
+			}
+		}
+	}
 }

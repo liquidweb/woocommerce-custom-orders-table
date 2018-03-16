@@ -119,6 +119,37 @@ class WooCommerce_Custom_Orders_Table {
 	}
 
 	/**
+	 * Given a WC_Order object, fill its properties from post meta.
+	 *
+	 * @param WC_Order $order The WC_Order object to populate.
+	 *
+	 * @return WC_Order The populated WC_Order object.
+	 */
+	public static function populate_order_from_post_meta( $order ) {
+		foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
+			$meta = get_post_meta( $order->get_id(), $meta_key, true );
+
+			if ( empty( $table_data->$column ) && ! empty( $meta ) ) {
+				switch ( $column ) {
+					case 'billing_index':
+					case 'shipping_index':
+						break;
+
+					case 'prices_include_tax':
+						$order->set_prices_include_tax( 'yes' === $meta );
+						break;
+
+					default:
+						$order->{"set_{$column}"}( $meta );
+						break;
+				}
+			}
+		}
+
+		return $order;
+	}
+
+	/**
 	 * Retrieve the class name of the WooCommerce customer data store.
 	 *
 	 * @return string The data store class name.

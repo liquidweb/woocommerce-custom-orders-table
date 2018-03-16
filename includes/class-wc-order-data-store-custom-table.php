@@ -382,26 +382,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		global $wpdb;
 
 		$table_data = $this->get_order_data_from_table( $order );
-
-		foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
-			$meta = get_post_meta( $order->get_id(), $meta_key, true );
-
-			if ( empty( $table_data->$column ) && ! empty( $meta ) ) {
-				switch ( $column ) {
-					case 'billing_index':
-					case 'shipping_index':
-						break;
-
-					case 'prices_include_tax':
-						$order->set_prices_include_tax( 'yes' === $meta );
-						break;
-
-					default:
-						$order->{"set_{$column}"}( $meta );
-						break;
-				}
-			}
-		}
+		$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
 
 		$this->update_post_meta( $order );
 
