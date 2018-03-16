@@ -37,11 +37,9 @@ class CLITest extends TestCase {
 	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
 	 */
 	public function test_count_handles_refunded_orders() {
-		$this->markTestSkipped( 'Order refunds have not yet been implemented.' );
-
 		$this->toggle_use_custom_table( false );
 		$order_ids = $this->generate_orders( 2 );
-		$refund = wc_create_refund( array(
+		$refund    = wc_create_refund( array(
 			'order_id' => $order_ids[0]
 		) );
 		$this->toggle_use_custom_table( true );
@@ -158,10 +156,8 @@ class CLITest extends TestCase {
 	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
 	 */
 	public function test_migrate_handles_refunded_orders() {
-		$this->markTestSkipped( 'Order refunds have not yet been implemented.' );
-
 		$this->toggle_use_custom_table( false );
-		$order_ids = $this->generate_orders( 2 );
+		$order_ids   = $this->generate_orders( 2 );
 		$refund      = wc_create_refund( array(
 			'order_id' => $order_ids[0]
 		) );
