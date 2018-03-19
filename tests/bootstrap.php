@@ -45,3 +45,29 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin', 11 );
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 require_once $_bootstrap;
 require_once __DIR__ . '/testcase.php';
+
+/**
+ * Work-around for WC_Tests_Install::test_get_tables(), which does not run woocommerce_init,
+ * and thus does not load our filter.
+ *
+ * @param array $tables Known WooCommerce database tables. This value will not be touched.
+ *
+ * @return array The untouched $tables array.
+ */
+function maybe_register_custom_orders_table( $tables ) {
+	global $wpdb;
+
+	$exists = (bool) $wpdb->get_var( $wpdb->prepare(
+		'SELECT COUNT(*) FROM information_schema.tables WHERE table_name = %s LIMIT 1',
+		wc_custom_order_table()->get_table_name()
+	) );
+
+	if ( $exists ) {
+		add_filter( 'woocommerce_install_get_tables', array( wc_custom_order_table(), 'register_table_name' ) );
+	} else {
+		remove_filter( 'woocommerce_install_get_tables', array( wc_custom_order_table(), 'register_table_name' ) );
+	}
+
+	return $tables;
+}
+add_filter( 'woocommerce_install_get_tables', 'maybe_register_custom_orders_table', 1 );
