@@ -42,6 +42,9 @@ class WooCommerce_Custom_Orders_Table {
 		// When associating previous orders with a customer based on email, update the record.
 		add_action( 'woocommerce_update_new_customer_past_order', 'WooCommerce_Custom_Orders_Table_Filters::update_past_customer_order', 10, 2 );
 
+		// Register the table within WooCommerce.
+		add_filter( 'woocommerce_install_get_tables', array( $this, 'register_table_name' ) );
+
 		// If we're in a WP-CLI context, load the WP-CLI command.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			WP_CLI::add_command( 'wc-order-table', 'WooCommerce_Custom_Orders_Table_CLI' );
@@ -147,6 +150,19 @@ class WooCommerce_Custom_Orders_Table {
 		}
 
 		return $order;
+	}
+
+	/**
+	 * Register the table name within WooCommerce.
+	 *
+	 * @param array $tables An array of known WooCommerce tables.
+	 *
+	 * @return array The filtered $tables array.
+	 */
+	public function register_table_name( $tables ) {
+		$tables[] = $this->get_table_name();
+
+		return $tables;
 	}
 
 	/**
