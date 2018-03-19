@@ -79,7 +79,7 @@ class FiltersTest extends TestCase {
 				),
 				array(
 					'select'   => 'SELECT posts.id as refund_id,
-									meta__refund_amount.meta_value as total_refund,
+									order_meta.amount as total_refund,
 									posts.post_date as post_date,
 									order_items.order_item_type as item_type,
 									order_meta.total as total_sales,
@@ -87,8 +87,50 @@ class FiltersTest extends TestCase {
 									order_meta.cart_tax as total_tax,
 									order_meta.shipping_tax as total_shipping_tax,
 									SUM( order_item_meta__qty.meta_value) as order_item_count',
+					'join'     => 'LEFT JOIN wptests_woocommerce_order_items AS order_items ON (posts.ID = order_items.order_id)
+									LEFT JOIN wptests_woocommerce_order_itemmeta AS order_item_meta__qty ON (order_items.order_item_id = order_item_meta__qty.order_item_id)  AND (order_item_meta__qty.meta_key = \'_qty\')
+									LEFT JOIN wptests_posts AS parent ON posts.post_parent = parent.ID'
+									. " LEFT JOIN {$table} AS order_meta ON ( posts.ID = order_meta.order_id )",
+				),
+			),
+			'Refunded order details'        => array(
+				array(
+					'select'   => 'SELECT posts.id as refund_id,
+									meta__refund_amount.meta_value as total_refund,
+									posts.post_date as post_date,
+									order_items.order_item_type as item_type,
+									meta__order_total.meta_value as total_sales,
+									meta__order_shipping.meta_value as total_shipping,
+									meta__order_tax.meta_value as total_tax,
+									meta__order_shipping_tax.meta_value as total_shipping_tax,
+									SUM( order_item_meta__qty.meta_value) as order_item_count',
+					'from'     => 'FROM wptests_posts AS posts',
 					'join'     => 'INNER JOIN wptests_postmeta AS meta__refund_amount ON ( posts.ID = meta__refund_amount.post_id AND meta__refund_amount.meta_key = \'_refund_amount\' )
 									LEFT JOIN wptests_woocommerce_order_items AS order_items ON (posts.ID = order_items.order_id)
+									INNER JOIN wptests_postmeta AS meta__order_total ON ( posts.ID = meta__order_total.post_id AND meta__order_total.meta_key = \'_order_total\' )
+									LEFT JOIN wptests_postmeta AS meta__order_shipping ON ( posts.ID = meta__order_shipping.post_id AND meta__order_shipping.meta_key = \'_order_shipping\' )
+									LEFT JOIN wptests_postmeta AS meta__order_tax ON ( posts.ID = meta__order_tax.post_id AND meta__order_tax.meta_key = \'_order_tax\' )
+									LEFT JOIN wptests_postmeta AS meta__order_shipping_tax ON ( posts.ID = meta__order_shipping_tax.post_id AND meta__order_shipping_tax.meta_key = \'_order_shipping_tax\' )
+									LEFT JOIN wptests_woocommerce_order_itemmeta AS order_item_meta__qty ON (order_items.order_item_id = order_item_meta__qty.order_item_id)  AND (order_item_meta__qty.meta_key = \'_qty\')
+									LEFT JOIN wptests_posts AS parent ON posts.post_parent = parent.ID',
+					'where'    => 'WHERE posts.post_type IN ( \'shop_order\',\'shop_order_refund\' )
+									AND parent.post_status IN ( \'wc-completed\',\'wc-processing\',\'wc-on-hold\')
+									AND posts.post_date >= \'2018-03-01 00:00:00\'
+									AND posts.post_date < \'2018-03-20 20:44:11\'',
+					'group_by' => 'GROUP BY refund_id',
+					'order_by' => 'ORDER BY post_date ASC',
+				),
+				array(
+					'select'   => 'SELECT posts.id as refund_id,
+									order_meta.amount as total_refund,
+									posts.post_date as post_date,
+									order_items.order_item_type as item_type,
+									order_meta.total as total_sales,
+									order_meta.shipping_total as total_shipping,
+									order_meta.cart_tax as total_tax,
+									order_meta.shipping_tax as total_shipping_tax,
+									SUM( order_item_meta__qty.meta_value) as order_item_count',
+					'join'     => 'LEFT JOIN wptests_woocommerce_order_items AS order_items ON (posts.ID = order_items.order_id)
 									LEFT JOIN wptests_woocommerce_order_itemmeta AS order_item_meta__qty ON (order_items.order_item_id = order_item_meta__qty.order_item_id)  AND (order_item_meta__qty.meta_key = \'_qty\')
 									LEFT JOIN wptests_posts AS parent ON posts.post_parent = parent.ID'
 									. " LEFT JOIN {$table} AS order_meta ON ( posts.ID = order_meta.order_id )",

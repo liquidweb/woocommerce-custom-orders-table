@@ -118,6 +118,10 @@ class WooCommerce_Custom_Orders_Table {
 			'version'              => '_order_version',
 			'currency'             => '_order_currency',
 			'prices_include_tax'   => '_prices_include_tax',
+
+			'amount'               => '_refund_amount',
+			'reason'               => '_refund_reason',
+			'refunded_by'          => '_refunded_by',
 		);
 	}
 
