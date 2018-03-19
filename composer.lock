@@ -1761,12 +1761,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/liquidweb/woocommerce.git",
-                "reference": "17bade5dd2f39101ca52a4bd926bdfd8a23fac65"
+                "reference": "9f159aa0dc8e44b7208d859b82846bac4eabea38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liquidweb/woocommerce/zipball/17bade5dd2f39101ca52a4bd926bdfd8a23fac65",
-                "reference": "17bade5dd2f39101ca52a4bd926bdfd8a23fac65",
+                "url": "https://api.github.com/repos/liquidweb/woocommerce/zipball/9f159aa0dc8e44b7208d859b82846bac4eabea38",
+                "reference": "9f159aa0dc8e44b7208d859b82846bac4eabea38",
                 "shasum": ""
             },
             "require": {
@@ -1823,7 +1823,7 @@
             "support": {
                 "source": "https://github.com/liquidweb/woocommerce/tree/feature/more-order-tests"
             },
-            "time": "2018-03-16T18:59:58+00:00"
+            "time": "2018-03-19T14:07:15+00:00"
         },
         {
             "name": "woocommerce/woocommerce-git-hooks",
