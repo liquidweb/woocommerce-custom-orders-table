@@ -9,6 +9,15 @@
 class TestCase extends WC_Unit_Test_Case {
 
 	/**
+	 * Ensure each testcase starts off with a clean table installations.
+	 *
+	 * @beforeClass
+	 */
+	public static function remove_table_version_from_options() {
+		delete_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY );
+	}
+
+	/**
 	 * Delete all data from the orders table after each test.
 	 *
 	 * @after
@@ -17,6 +26,8 @@ class TestCase extends WC_Unit_Test_Case {
 	 */
 	protected function truncate_table() {
 		global $wpdb;
+
+		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		$wpdb->query( 'DELETE FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) );
 	}

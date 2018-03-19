@@ -12,6 +12,13 @@
 class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 	/**
+	 * Ensure the custom table has been installed.
+	 */
+	public function __construct() {
+		WooCommerce_Custom_Orders_Table_Install::activate();
+	}
+
+	/**
 	 * Count how many orders have yet to be migrated into the custom orders table.
 	 *
 	 * ## EXAMPLES
