@@ -160,7 +160,12 @@ class WooCommerce_Custom_Orders_Table {
 	 * @return array The filtered $tables array.
 	 */
 	public function register_table_name( $tables ) {
-		$tables[] = $this->get_table_name();
+		$table = $this->get_table_name();
+
+		if ( ! in_array( $table, $tables, true ) ) {
+			$tables[] = $table;
+			sort( $tables );
+		}
 
 		return $tables;
 	}
