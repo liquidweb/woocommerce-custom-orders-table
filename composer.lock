@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "298248e6fe3e22300bbedb5e4229e3bd",
+    "content-hash": "17d7b547cf0e4dc5b030877ca4a1850d",
     "packages": [],
     "packages-dev": [
         {
@@ -1757,16 +1757,16 @@
         },
         {
             "name": "woocommerce/woocommerce",
-            "version": "dev-feature/more-order-tests",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/liquidweb/woocommerce.git",
-                "reference": "ab2b70a677efcda1bfd3cffe769242199a005587"
+                "url": "https://github.com/woocommerce/woocommerce.git",
+                "reference": "5ff236fd545f8551a7c2b9bcee5e914adee91139"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liquidweb/woocommerce/zipball/ab2b70a677efcda1bfd3cffe769242199a005587",
-                "reference": "ab2b70a677efcda1bfd3cffe769242199a005587",
+                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/5ff236fd545f8551a7c2b9bcee5e914adee91139",
+                "reference": "5ff236fd545f8551a7c2b9bcee5e914adee91139",
                 "shasum": ""
             },
             "require": {
@@ -1776,7 +1776,6 @@
                 "apigen/apigen": "^4",
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
                 "nette/utils": "~2.3.0",
-                "php": ">= 7.0",
                 "phpunit/phpunit": "6.*",
                 "squizlabs/php_codesniffer": "*",
                 "wimg/php-compatibility": "^8.0",
@@ -1792,38 +1791,13 @@
                     "phpcbf": "Fix coding standards warnings/errors automatically with PHP Code Beautifier"
                 }
             },
-            "scripts": {
-                "pre-update-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::preHooks"
-                ],
-                "pre-install-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::preHooks"
-                ],
-                "post-install-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::postHooks"
-                ],
-                "post-update-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::postHooks"
-                ],
-                "test": [
-                    "phpunit"
-                ],
-                "phpcs": [
-                    "phpcs -s -p"
-                ],
-                "phpcbf": [
-                    "phpcbf -p"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-3.0-or-later"
             ],
             "description": "An eCommerce toolkit that helps you sell anything. Beautifully.",
             "homepage": "https://woocommerce.com/",
-            "support": {
-                "source": "https://github.com/liquidweb/woocommerce/tree/feature/more-order-tests"
-            },
-            "time": "2018-03-19T23:48:30+00:00"
+            "time": "2018-03-30T15:13:52+00:00"
         },
         {
             "name": "woocommerce/woocommerce-git-hooks",

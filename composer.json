@@ -3,18 +3,12 @@
   "description": "Store WooCommerce order data in a custom table for improved performance",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-only",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/liquidweb/woocommerce"
-    }
-  ],
   "require-dev": {
     "php": "^7.0",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
     "phpunit/phpunit": "6.2.3",
     "wimg/php-compatibility": "^8.1",
-    "woocommerce/woocommerce": "dev-feature/more-order-tests",
+    "woocommerce/woocommerce": "dev-master",
     "woocommerce/woocommerce-git-hooks": "*",
     "woocommerce/woocommerce-sniffs": "^0.0.1",
     "wp-coding-standards/wpcs": "^0.14"
