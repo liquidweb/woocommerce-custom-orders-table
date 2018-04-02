@@ -66,7 +66,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	public function get_order_data_from_table( $refund ) {
 		global $wpdb;
 
-		$data  = $wpdb->get_row( $wpdb->prepare(
+		$data = $wpdb->get_row( $wpdb->prepare(
 			'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE order_id = %d LIMIT 1',
 			$refund->get_id()
 		), ARRAY_A ); // WPCS: DB call OK.
