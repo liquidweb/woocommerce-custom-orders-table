@@ -20,6 +20,16 @@ class CLITest extends TestCase {
 	 */
 	public function init() {
 		$this->cli = new WooCommerce_Custom_Orders_Table_CLI();
+
+		// Reset the WP_CLI counts.
+		WP_CLI::$__logger = array();
+		WP_CLI::$__counts = array(
+			'debug'   => 0,
+			'info'    => 0,
+			'success' => 0,
+			'warning' => 0,
+			'error'   => 0,
+		);
 	}
 
 	public function test_count() {
