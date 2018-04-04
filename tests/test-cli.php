@@ -80,6 +80,14 @@ class CLITest extends TestCase {
 		);
 	}
 
+	public function test_migrate_warns_if_no_orders_need_migrating() {
+		$this->assertEquals( 0, $this->cli->count(), 'Expected no orders to need migration.' );
+
+		$this->cli->migrate();
+
+		$this->assertEquals( 1, WP_CLI::$__counts['warning'], 'Expected to see a warning if no orders require migration.' );
+	}
+
 	/**
 	 * Trigger a database error in the same way as the test_populate_from_meta_handles_errors test.
 	 *
@@ -123,6 +131,22 @@ class CLITest extends TestCase {
 		);
 	}
 
+	public function test_migrate_warns_if_no_orders_were_successfully_migrated() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		// For the first item, cause wc_get_order() to break due to a non-existent class.
+		add_filter( 'woocommerce_order_class', function ( $classname ) {
+			return 'SomeNonExistentClassName';
+		} );
+
+		$this->cli->migrate();
+
+		$this->assertNull( $this->get_order_row( $order->get_id() ) );
+		$this->assertEquals( 1, WP_CLI::$__counts['warning'], 'Expected to see a warning if no orders were migrated.' );
+	}
+
 	public function test_backfill() {
 		$order_ids = $this->generate_orders( 5 );
 		$index     = 0;
@@ -145,6 +169,14 @@ class CLITest extends TestCase {
 		}
 	}
 
+	public function test_backfill_warns_if_no_orders_need_migrating() {
+		$this->assertEquals( 0, $this->cli->count(), 'Expected no orders to need migration.' );
+
+		$this->cli->backfill();
+
+		$this->assertEquals( 1, WP_CLI::$__counts['warning'], 'Expected to see a warning if no orders require migration.' );
+	}
+
 	public function test_backfill_when_an_order_has_been_deleted() {
 		$order1 = WC_Helper_Order::create_order();
 		$order2 = WC_Helper_Order::create_order();
@@ -156,5 +188,14 @@ class CLITest extends TestCase {
 
 		$this->assertEmpty( get_post_meta( $order1->get_id(), '_billing_email', true ) );
 		$this->assertNotEmpty( get_post_meta( $order2->get_id(), '_billing_email', true ) );
+	}
+
+	public function test_backfill_if_no_orders_were_backfilled() {
+		$this->toggle_use_custom_table( false );
+		WC_Helper_Order::create_order();
+
+		$this->cli->backfill();
+
+		$this->assertEquals( 1, WP_CLI::$__counts['warning'], 'Expected to see a warning if no orders were backfilled.' );
 	}
 }
