@@ -112,6 +112,22 @@ class CLITest extends TestCase {
 		);
 	}
 
+	public function test_migrate_with_duplicate_ids() {
+		$this->toggle_use_custom_table( false );
+		$order_id = WC_Helper_Order::create_order()->get_id();
+		$this->toggle_use_custom_table( true );
+
+		// Implicitly migrate the data.
+		$order = wc_get_order( $order_id );
+		$order->get_total();
+
+		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( $order_id ));
+
+		$this->cli->migrate();
+
+		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( $order_id ));
+	}
+
 	public function test_backfill() {
 		$order_ids = $this->generate_orders( 5 );
 		$index     = 0;
