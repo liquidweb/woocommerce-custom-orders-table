@@ -31,6 +31,35 @@ class OrderDataStoreTest extends TestCase {
 		$this->assertEquals( 1, did_action( 'wp_insert_post' ), 'Expected the "wp_insert_post" action to have been fired.' );
 	}
 
+	public function test_loading_a_product_can_automatically_populate_from_meta() {
+		$this->toggle_use_custom_table( false );
+		$order_id = WC_Helper_Order::create_order()->get_id();
+		$this->toggle_use_custom_table( true );
+
+		$this->assertEquals( 0, $this->count_orders_in_table_with_ids( $order_id ) );
+
+		$order = wc_get_order( $order_id );
+
+		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( $order->get_id() ) );
+	}
+
+	/**
+	 * Same as test_loading_a_product_can_automatically_populate_from_meta(), but with the
+	 * auto-migration disabled via the 'wc_custom_order_table_automatic_migration' filter.
+	 */
+	public function test_wc_custom_order_table_automatic_migration_filter() {
+		$this->toggle_use_custom_table( false );
+		$order_id = WC_Helper_Order::create_order()->get_id();
+		$this->toggle_use_custom_table( true );
+
+		add_filter( 'wc_custom_order_table_automatic_migration', '__return_false' );
+
+		$order = wc_get_order( $order_id );
+
+		$this->assertEmpty( $order->get_total() );
+		$this->assertEquals( 0, $this->count_orders_in_table_with_ids( $order_id ) );
+	}
+
 	public function test_delete() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
 		$order    = WC_Helper_Order::create_order();
