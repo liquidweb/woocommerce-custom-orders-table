@@ -54,10 +54,10 @@ class WooCommerce_Custom_Orders_Table_Filters {
 							'key'      => $column,
 							'_old_key' => $meta_query['key'],
 						) );
+					} else {
+						// Let this meta query pass through unaltered.
+						$query_args['_wc_has_meta_columns'] = true;
 					}
-				} else {
-					// Let this meta query pass through unaltered.
-					$query_args['_wc_has_meta_columns'] = true;
 				}
 			}
 		}

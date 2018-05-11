@@ -8,6 +8,53 @@
 
 class FiltersTest extends TestCase {
 
+	public function test_filter_database_queries() {
+		$args = [
+			'meta_query' => [
+				'relation' => 'OR',
+				'customer_emails' => [
+					'key'     => '_billing_email',
+					'value'   => [ 'test@example.com' ],
+					'compare' => 'IN',
+				],
+				'customer_ids' => [
+					'key'     => '_customer_user',
+					'value'   => [ 2 ],
+					'compare' => 'IN',
+				],
+			],
+		];
+
+		$this->assertEquals( [
+			'meta_query' => $args['meta_query'],
+			'_wc_has_meta_columns' => false,
+			'wc_order_meta_query'  => [
+				[
+					'key'      => 'billing_email',
+					'value'    => [ 'test@example.com' ],
+					'compare'  => 'IN',
+					'_old_key' => '_billing_email',
+				],
+				[
+					'key'      => 'customer_id',
+					'value'    => [ 2 ],
+					'compare'  => 'IN',
+					'_old_key' => '_customer_user',
+				],
+			],
+		], WooCommerce_Custom_Orders_Table_Filters::filter_database_queries( $args, [] ) );
+	}
+
+	public function test_filter_database_queries_without_meta_queries() {
+		$this->assertEquals( [
+			'foo'                  => 'bar',
+			'wc_order_meta_query'  => [],
+			'_wc_has_meta_columns' => false,
+		], WooCommerce_Custom_Orders_Table_Filters::filter_database_queries( [
+			'foo' => 'bar',
+		], [] ) );
+	}
+
 	/**
 	 * To ensure the regular expressions are working as expected, grab some actual queries from
 	 * WC_Admin_Report::get_order_report_data() and verify.
