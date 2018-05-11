@@ -90,7 +90,10 @@ class InstallationTest extends TestCase {
 	/**
 	 * Test that the generated database schema contains the expected indexes.
 	 *
-	 * @dataProvider table_index_provider()
+	 * @testWith [0, "PRIMARY", "order_id"]
+	 *           [0, "order_key", "order_key"]
+	 *           [1, "customer_id", "customer_id"]
+	 *           [1, "order_total", "total"]
 	 */
 	public function test_database_indexes( $non_unique, $key_name, $column_name ) {
 		global $wpdb;
@@ -115,7 +118,7 @@ class InstallationTest extends TestCase {
 				$non_unique,
 				$index['Non_unique'],
 				sprintf(
-					'Did not match expected non-uniqueness (Received %d, expected %d',
+					'Did not match expected non-uniqueness (Received %d, expected %d)',
 					$non_unique,
 					$index['Non_unique']
 				)
@@ -132,15 +135,6 @@ class InstallationTest extends TestCase {
 		}
 
 		$this->fail( sprintf( 'Could not find an index with name "%s".', $key_name ) );
-	}
-
-	public function table_index_provider() {
-		return array(
-			'Primary key' => array( 0, 'PRIMARY', 'order_id' ),
-			'Order key'   => array( 0, 'order_key', 'order_key' ),
-			'Customer ID' => array( 1, 'customer_id', 'customer_id' ),
-			'Order total' => array( 1, 'order_total', 'total' ),
-		);
 	}
 
 	/**
