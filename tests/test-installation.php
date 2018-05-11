@@ -8,51 +8,34 @@
 
 class InstallationTest extends TestCase {
 
+	/**
+	 * Clean up existing installations.
+	 *
+	 * @global $wpdb
+	 */
 	public function setUp() {
-		self::drop_orders_table();
+		global $wpdb;
+
+		parent::setUp();
+
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . esc_sql( wc_custom_order_table()->get_table_name() ) );
+		delete_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY );
 	}
 
 	public function test_table_is_created_on_plugin_activation() {
-		$this->assertFalse(
-			self::orders_table_exists(),
-			'The wp_woocommerce_orders table should not exist at the beginning of this test.'
-		);
-
 		self::reactivate_plugin();
 
 		$this->assertTrue(
-			self::orders_table_exists(),
+			$this->orders_table_exists(),
 			'Upon activation, the table should be created.'
-		);
-	}
-
-	public function test_table_is_only_installed_if_it_does_not_already_exist() {
-		self::reactivate_plugin();
-
-		$this->assertTrue(
-			self::orders_table_exists(),
-			'Upon activation, the table should be created.'
-		);
-
-		// Deactivate, then re-activate the plugin.
-		self::reactivate_plugin();
-
-		$this->assertTrue(
-			self::orders_table_exists(),
-			'The table should still exist, just as it was.'
 		);
 	}
 
 	public function test_can_install_table() {
-		$this->assertFalse(
-			self::orders_table_exists(),
-			'The wp_woocommerce_orders table should not exist at the beginning of this test.'
-		);
-
 		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		$this->assertTrue(
-			self::orders_table_exists(),
+			$this->orders_table_exists(),
 			'Upon activation, the table should be created.'
 		);
 		$this->assertNotEmpty(
@@ -158,5 +141,19 @@ class InstallationTest extends TestCase {
 			'Customer ID' => array( 1, 'customer_id', 'customer_id' ),
 			'Order total' => array( 1, 'order_total', 'total' ),
 		);
+	}
+
+	/**
+	 * Determine if the custom orders table exists.
+	 *
+	 * @global $wpdb
+	 */
+	protected function orders_table_exists() {
+		global $wpdb;
+
+		return (bool) $wpdb->get_var( $wpdb->prepare(
+			'SELECT COUNT(*) FROM information_schema.tables WHERE table_name = %s LIMIT 1',
+			wc_custom_order_table()->get_table_name()
+		) );
 	}
 }
