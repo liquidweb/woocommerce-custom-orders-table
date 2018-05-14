@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "298248e6fe3e22300bbedb5e4229e3bd",
+    "content-hash": "17d7b547cf0e4dc5b030877ca4a1850d",
     "packages": [],
     "packages-dev": [
         {
@@ -550,23 +550,23 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.7.5",
+            "version": "1.7.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "dfd6be44111a7c41c2e884a336cc4f461b3b2401"
+                "reference": "33a7e3c4fda54e912ff6338c48823bd5c0f0b712"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/dfd6be44111a7c41c2e884a336cc4f461b3b2401",
-                "reference": "dfd6be44111a7c41c2e884a336cc4f461b3b2401",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/33a7e3c4fda54e912ff6338c48823bd5c0f0b712",
+                "reference": "33a7e3c4fda54e912ff6338c48823bd5c0f0b712",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "^1.0.2",
                 "php": "^5.3|^7.0",
                 "phpdocumentor/reflection-docblock": "^2.0|^3.0.2|^4.0",
-                "sebastian/comparator": "^1.1|^2.0",
+                "sebastian/comparator": "^1.1|^2.0|^3.0",
                 "sebastian/recursion-context": "^1.0|^2.0|^3.0"
             },
             "require-dev": {
@@ -609,20 +609,20 @@
                 "spy",
                 "stub"
             ],
-            "time": "2018-02-19T10:16:54+00:00"
+            "time": "2018-04-18T13:57:24+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "5.3.0",
+            "version": "5.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "661f34d0bd3f1a7225ef491a70a020ad23a057a1"
+                "reference": "c89677919c5dd6d3b3852f230a663118762218ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/661f34d0bd3f1a7225ef491a70a020ad23a057a1",
-                "reference": "661f34d0bd3f1a7225ef491a70a020ad23a057a1",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/c89677919c5dd6d3b3852f230a663118762218ac",
+                "reference": "c89677919c5dd6d3b3852f230a663118762218ac",
                 "shasum": ""
             },
             "require": {
@@ -672,7 +672,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-12-06T09:29:45+00:00"
+            "time": "2018-04-06T15:36:58+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -1564,16 +1564,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.2.2",
+            "version": "3.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "d7c00c3000ac0ce79c96fcbfef86b49a71158cd1"
+                "reference": "4842476c434e375f9d3182ff7b89059583aa8b27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/d7c00c3000ac0ce79c96fcbfef86b49a71158cd1",
-                "reference": "d7c00c3000ac0ce79c96fcbfef86b49a71158cd1",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/4842476c434e375f9d3182ff7b89059583aa8b27",
+                "reference": "4842476c434e375f9d3182ff7b89059583aa8b27",
                 "shasum": ""
             },
             "require": {
@@ -1583,7 +1583,7 @@
                 "php": ">=5.4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0"
+                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
             "bin": [
                 "bin/phpcs",
@@ -1611,7 +1611,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2017-12-19T21:44:46+00:00"
+            "time": "2018-02-20T21:35:23+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -1757,16 +1757,16 @@
         },
         {
             "name": "woocommerce/woocommerce",
-            "version": "dev-feature/more-order-tests",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/liquidweb/woocommerce.git",
-                "reference": "8415cec71cd5fff169dd6af87336247f7f57531b"
+                "url": "https://github.com/woocommerce/woocommerce.git",
+                "reference": "5258e00bad59ca4e1c6b836ae693b945b57a7cef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liquidweb/woocommerce/zipball/8415cec71cd5fff169dd6af87336247f7f57531b",
-                "reference": "8415cec71cd5fff169dd6af87336247f7f57531b",
+                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/5258e00bad59ca4e1c6b836ae693b945b57a7cef",
+                "reference": "5258e00bad59ca4e1c6b836ae693b945b57a7cef",
                 "shasum": ""
             },
             "require": {
@@ -1775,9 +1775,9 @@
             "require-dev": {
                 "apigen/apigen": "^4",
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
+                "johnkary/phpunit-speedtrap": "v2.0.0",
                 "nette/utils": "~2.3.0",
-                "php": ">= 7.0",
-                "phpunit/phpunit": "6.2.3",
+                "phpunit/phpunit": "6.*",
                 "squizlabs/php_codesniffer": "*",
                 "wimg/php-compatibility": "^8.0",
                 "woocommerce/woocommerce-git-hooks": "*",
@@ -1792,38 +1792,13 @@
                     "phpcbf": "Fix coding standards warnings/errors automatically with PHP Code Beautifier"
                 }
             },
-            "scripts": {
-                "pre-update-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::preHooks"
-                ],
-                "pre-install-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::preHooks"
-                ],
-                "post-install-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::postHooks"
-                ],
-                "post-update-cmd": [
-                    "WooCommerce\\GitHooks\\Hooks::postHooks"
-                ],
-                "test": [
-                    "phpunit"
-                ],
-                "phpcs": [
-                    "phpcs -s -p"
-                ],
-                "phpcbf": [
-                    "phpcbf -p"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-3.0-or-later"
             ],
             "description": "An eCommerce toolkit that helps you sell anything. Beautifully.",
             "homepage": "https://woocommerce.com/",
-            "support": {
-                "source": "https://github.com/liquidweb/woocommerce/tree/feature/more-order-tests"
-            },
-            "time": "2018-02-15T23:09:30+00:00"
+            "time": "2018-05-11T15:35:32+00:00"
         },
         {
             "name": "woocommerce/woocommerce-git-hooks",
