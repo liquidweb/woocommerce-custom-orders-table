@@ -73,7 +73,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	public function migrate( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
 
-		add_action( 'woocommerce_caught_exception', array( $this, 'handle_exceptions' ) );
+		add_action( 'woocommerce_caught_exception', 'self::handle_exceptions' );
 
 		$wpdb->suppress_errors();
 		$order_count = $this->count();
@@ -243,7 +243,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 *
 	 * @param Exception $exception The Exception object.
 	 */
-	public function handle_exceptions( $exception ) {
+	public static function handle_exceptions( $exception ) {
 		throw $exception;
 	}
 }
