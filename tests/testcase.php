@@ -84,7 +84,7 @@ class TestCase extends WC_Unit_Test_Case {
 
 		return (int) $wpdb->get_var( $wpdb->prepare(
 			'SELECT COUNT(order_id) FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . '
-			WHERE order_id IN (' . implode( ', ', array_fill( 0, count( $order_ids ), '%d' ) ) . ')',
+			WHERE order_id IN (' . implode( ', ', array_fill( 0, count( (array) $order_ids ), '%d' ) ) . ')',
 		$order_ids ) );
 	}
 
