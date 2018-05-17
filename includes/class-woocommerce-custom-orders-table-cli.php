@@ -12,6 +12,13 @@
 class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 	/**
+	 * Contains IDs of any orders that have been skipped during the migration.
+	 *
+	 * @var array
+	 */
+	protected $skipped_ids = array();
+
+	/**
 	 * Count how many orders have yet to be migrated into the custom orders table.
 	 *
 	 * ## EXAMPLES
@@ -66,6 +73,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	public function migrate( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
 
+		add_action( 'woocommerce_caught_exception', array( $this, 'handle_exceptions' ) );
+
 		$wpdb->suppress_errors();
 		$order_count = $this->count();
 
@@ -89,14 +98,23 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			array_merge( $order_types, array( $assoc_args['batch-size'] ) )
 		);
 		$order_data  = $wpdb->get_col( $order_query ); // WPCS: Unprepared SQL ok, DB call ok.
-		$skipped     = array();
 
-		while ( ! empty( array_diff( $order_data, $skipped ) ) ) {
+		while ( ! empty( array_diff( $order_data, $this->skipped_ids ) ) ) {
 			foreach ( $order_data as $order_id ) {
-				$order = wc_get_order( $order_id );
+				try {
+					$order = wc_get_order( $order_id );
+				} catch ( Exception $e ) {
+					$order = false;
+					WP_CLI::warning( sprintf(
+						/* Translators: %1$d is the order ID, %2$s is the exception message. */
+						__( 'Encountered an error migrating order #%1$d, skipping: %2$s', 'woocommerce-custom-orders-table' ),
+						$order_id,
+						$e->getMessage()
+					) );
+				}
 
 				if ( false === $order ) {
-					$skipped[] = $order_id;
+					$this->skipped_ids[] = $order_id;
 
 					WP_CLI::warning( sprintf(
 						/* Translators: %1$d is the order ID. */
@@ -216,5 +234,16 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'woocommerce-custom-orders-table' ),
 			$processed
 		) );
+	}
+
+	/**
+	 * Callback function for the "woocommerce_caught_exception" action.
+	 *
+	 * @throws Exception Re-throw the previously-caught Exception.
+	 *
+	 * @param Exception $exception The Exception object.
+	 */
+	public function handle_exceptions( $exception ) {
+		throw $exception;
 	}
 }
