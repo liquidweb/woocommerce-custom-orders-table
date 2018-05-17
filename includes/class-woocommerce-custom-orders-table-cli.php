@@ -58,7 +58,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 * [--batch-size=<batch-size>]
 	 * : The number of orders to process in each batch.
 	 * ---
-	 * default: 1000
+	 * default: 100
 	 * ---
 	 *
 	 * ## EXAMPLES
@@ -83,7 +83,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		}
 
 		$assoc_args  = wp_parse_args( $assoc_args, array(
-			'batch-size' => 1000,
+			'batch-size' => 100,
 		) );
 		$order_table = wc_custom_order_table()->get_table_name();
 		$order_types = wc_get_order_types( 'reports' );
@@ -168,7 +168,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 * [--batch-size=<batch-size>]
 	 * : The number of orders to process in each batch.
 	 * ---
-	 * default: 1000
+	 * default: 100
 	 * ---
 	 *
 	 * [--batch=<batch>]
@@ -197,7 +197,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		}
 
 		$assoc_args  = wp_parse_args( $assoc_args, array(
-			'batch-size' => 1000,
+			'batch-size' => 100,
 			'batch'      => 1,
 		) );
 		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
