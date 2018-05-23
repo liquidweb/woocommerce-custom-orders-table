@@ -63,7 +63,7 @@ class OrderRefundDataStoreTest extends TestCase {
 		) );
 		$refund->set_reason( 'Different reason' );
 
-		$this->invoke_update_post_meta( $refund, true );
+		$this->invoke_update_post_meta( $refund );
 
 		$row = $this->get_order_row( $refund->get_id() );
 
@@ -74,16 +74,9 @@ class OrderRefundDataStoreTest extends TestCase {
 	 * Shortcut for setting up reflection methods + properties for update_post_meta().
 	 *
 	 * @param WC_Order_Refund $refund   The order refund object, passed by reference.
-	 * @param bool            $creating Optional. The value 'creating' property in the new
-	 *                                  instance. Default is false.
 	 */
-	protected function invoke_update_post_meta( &$refund, $creating = false ) {
+	protected function invoke_update_post_meta( &$refund ) {
 		$instance = new WC_Order_Refund_Data_Store_Custom_Table();
-
-		$property = new ReflectionProperty( $instance, 'creating' );
-		$property->setAccessible( true );
-		$property->setValue( $instance, (bool) $creating );
-
 		$method   = new ReflectionMethod( $instance, 'update_post_meta' );
 		$method->setAccessible( true );
 		$method->invokeArgs( $instance, array( &$refund ) );
