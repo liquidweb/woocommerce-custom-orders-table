@@ -1761,12 +1761,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/woocommerce.git",
-                "reference": "5258e00bad59ca4e1c6b836ae693b945b57a7cef"
+                "reference": "2aec467de814873817dea405a15b8d23c69f1f50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/5258e00bad59ca4e1c6b836ae693b945b57a7cef",
-                "reference": "5258e00bad59ca4e1c6b836ae693b945b57a7cef",
+                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/2aec467de814873817dea405a15b8d23c69f1f50",
+                "reference": "2aec467de814873817dea405a15b8d23c69f1f50",
                 "shasum": ""
             },
             "require": {
@@ -1775,7 +1775,6 @@
             "require-dev": {
                 "apigen/apigen": "^4",
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
-                "johnkary/phpunit-speedtrap": "v2.0.0",
                 "nette/utils": "~2.3.0",
                 "phpunit/phpunit": "6.*",
                 "squizlabs/php_codesniffer": "*",
@@ -1798,7 +1797,7 @@
             ],
             "description": "An eCommerce toolkit that helps you sell anything. Beautifully.",
             "homepage": "https://woocommerce.com/",
-            "time": "2018-05-11T15:35:32+00:00"
+            "time": "2018-05-23T11:56:35+00:00"
         },
         {
             "name": "woocommerce/woocommerce-git-hooks",
