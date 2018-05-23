@@ -8,29 +8,6 @@
 
 class OrderDataStoreTest extends TestCase {
 
-	/**
-	 * @requires PHP 5.4 In order to support inline closures for hook callbacks.
-	 */
-	public function test_create() {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$property = new ReflectionProperty( $instance, 'creating' );
-		$property->setAccessible( true );
-		$order    = new WC_Order( wp_insert_post( array(
-			'post_type' => 'product',
-		) ) );
-
-		add_action( 'wp_insert_post', function () use ( $property, $instance ) {
-			$this->assertTrue(
-				$property->getValue( $instance ),
-				'As an order is being created, WC_Order_Data_Store_Custom_Table::$creating should be true'
-			);
-		} );
-
-		$instance->create( $order );
-
-		$this->assertEquals( 1, did_action( 'wp_insert_post' ), 'Expected the "wp_insert_post" action to have been fired.' );
-	}
-
 	public function test_loading_a_product_can_automatically_populate_from_meta() {
 		$this->toggle_use_custom_table( false );
 		$order_id = WC_Helper_Order::create_order()->get_id();
@@ -108,7 +85,7 @@ class OrderDataStoreTest extends TestCase {
 		$order->set_customer_ip_address( '127.0.0.1' );
 		$order->set_customer_user_agent( 'PHPUnit' );
 
-		$this->invoke_update_post_meta( $order, true );
+		$this->invoke_update_post_meta( $order );
 
 		$row = $this->get_order_row( $order->get_id() );
 
@@ -124,7 +101,7 @@ class OrderDataStoreTest extends TestCase {
 		$order = WC_Helper_Order::create_order();
 		$order->set_customer_user_agent( 'PHPUnit' );
 
-		$this->invoke_update_post_meta( $order, true );
+		$this->invoke_update_post_meta( $order );
 
 		$row = $this->get_order_row( $order->get_id() );
 
@@ -334,17 +311,10 @@ class OrderDataStoreTest extends TestCase {
 	/**
 	 * Shortcut for setting up reflection methods + properties for update_post_meta().
 	 *
-	 * @param WC_Order $order    The order object, passed by reference.
-	 * @param bool     $creating Optional. The value 'creating' property in the new instance.
-	 *                           Default is false.
+	 * @param WC_Order $order The order object, passed by reference.
 	 */
-	protected function invoke_update_post_meta( &$order, $creating = false ) {
+	protected function invoke_update_post_meta( &$order ) {
 		$instance = new WC_Order_Data_Store_Custom_Table();
-
-		$property = new ReflectionProperty( $instance, 'creating' );
-		$property->setAccessible( true );
-		$property->setValue( $instance, (bool) $creating );
-
 		$method   = new ReflectionMethod( $instance, 'update_post_meta' );
 		$method->setAccessible( true );
 		$method->invokeArgs( $instance, array( &$order ) );
