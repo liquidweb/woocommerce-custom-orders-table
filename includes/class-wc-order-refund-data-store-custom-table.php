@@ -15,24 +15,6 @@
 class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store_CPT {
 
 	/**
-	 * Set to true when creating so we know to insert meta data.
-	 *
-	 * @var boolean
-	 */
-	protected $creating = false;
-
-	/**
-	 * Create a new refund in the database.
-	 *
-	 * @param WC_Order_Refund $refund The refund object, passed by reference.
-	 */
-	public function create( &$refund ) {
-		$this->creating = true;
-
-		parent::create( $refund );
-	}
-
-	/**
 	 * Read refund data.
 	 *
 	 * @param WC_Order_Refund $refund      The refund object, passed by reference.
@@ -66,20 +48,15 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	public function get_order_data_from_table( $refund ) {
 		global $wpdb;
 
-		$data = $wpdb->get_row( $wpdb->prepare(
+		$data = (array) $wpdb->get_row( $wpdb->prepare(
 			'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE order_id = %d LIMIT 1',
 			$refund->get_id()
 		), ARRAY_A ); // WPCS: DB call OK.
 
-		// If no matches were found, this record needs to be created.
-		if ( null === $data ) {
-			$this->creating = true;
-
-			return array();
-		}
-
 		// Expand anything that might need assistance.
-		$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
+		if ( isset( $data['prices_include_tax'] ) ) {
+			$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
+		}
 
 		return $data;
 	}
@@ -113,15 +90,12 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 		);
 
 		// Insert or update the database record.
-		if ( $this->creating ) {
+		if ( ! wc_custom_order_table()->row_exists( $refund_data['order_id'] ) ) {
 			$inserted = $wpdb->insert( $table, $refund_data ); // WPCS: DB call OK.
 
 			if ( 1 !== $inserted ) {
 				return;
 			}
-
-			$this->creating = false;
-
 		} else {
 			$refund_data = array_intersect_key( $refund_data, $refund->get_changes() );
 
