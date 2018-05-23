@@ -173,6 +173,28 @@ class CLITest extends TestCase {
 		);
 	}
 
+	/**
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/56
+	 */
+	public function test_migrate_handles_exceptions() {
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 3 );
+		$this->toggle_use_custom_table( true );
+
+		// Break the billing email on the first item.
+		update_post_meta( $order_ids[0], '_billing_email', 'this is not an email address' );
+
+		$this->cli->migrate();
+
+		$this->assertEquals(
+			2,
+			$this->count_orders_in_table_with_ids( $order_ids ),
+			'Expected to only see two orders in the custom table.'
+		);
+
+		$this->assertContains( $order_ids[0], $this->get_skipped_ids() );
+	}
+
 	public function test_migrate_with_duplicate_ids() {
 		$this->toggle_use_custom_table( false );
 		$order_id = WC_Helper_Order::create_order()->get_id();
@@ -222,5 +244,17 @@ class CLITest extends TestCase {
 
 		$this->assertEmpty( get_post_meta( $order1->get_id(), '_billing_email', true ) );
 		$this->assertNotEmpty( get_post_meta( $order2->get_id(), '_billing_email', true ) );
+	}
+
+	/**
+	 * Retrieve the array of skipped IDs from the CLI instance.
+	 *
+	 * @return array
+	 */
+	protected function get_skipped_ids() {
+		$property = new ReflectionProperty( $this->cli, 'skipped_ids' );
+		$property->setAccessible( true );
+
+		return (array) $property->getValue( $this->cli );
 	}
 }
