@@ -138,6 +138,69 @@ class InstallationTest extends TestCase {
 	}
 
 	/**
+	 * Test the lengths of VARCHAR fields.
+	 *
+	 * @global $wpdb
+	 *
+	 * @testWith ["order_key", 100]
+	 *           ["billing_index", 255]
+	 *           ["billing_first_name", 100]
+	 *           ["billing_last_name", 100]
+	 *           ["billing_company", 100]
+	 *           ["billing_address_1", 200]
+	 *           ["billing_address_2", 200]
+	 *           ["billing_city", 100]
+	 *           ["billing_state", 100]
+	 *           ["billing_postcode", 100]
+	 *           ["billing_country", 100]
+	 *           ["billing_email", 200]
+	 *           ["billing_phone", 200]
+	 *           ["shipping_index", 255]
+	 *           ["shipping_first_name", 100]
+	 *           ["shipping_last_name", 100]
+	 *           ["shipping_company", 100]
+	 *           ["shipping_address_1", 200]
+	 *           ["shipping_address_2", 200]
+	 *           ["shipping_city", 100]
+	 *           ["shipping_state", 100]
+	 *           ["shipping_postcode", 100]
+	 *           ["shipping_country", 100]
+	 *           ["payment_method", 100]
+	 *           ["payment_method_title", 100]
+	 *           ["discount_total", 100]
+	 *           ["discount_tax", 100]
+	 *           ["shipping_total", 100]
+	 *           ["shipping_tax", 100]
+	 *           ["cart_tax", 100]
+	 *           ["total", 100]
+	 *           ["version", 16]
+	 *           ["currency", 3]
+	 *           ["prices_include_tax", 3]
+	 *           ["transaction_id", 200]
+	 *           ["customer_ip_address", 40]
+	 *           ["customer_user_agent", 200]
+	 *           ["created_via", 200]
+	 *           ["date_completed", 20]
+	 *           ["date_paid", 20]
+	 *           ["cart_hash", 32]
+	 *           ["amount", 100]
+	 *
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
+	 */
+	public function test_varchar_length( $column, $length ) {
+		global $wpdb;
+
+		$this->assertEquals(
+			sprintf( 'varchar(%d)', $length ),
+			$wpdb->get_row( $wpdb->prepare(
+				'SHOW COLUMNS FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE Field = %s',
+				$column
+			) )->Type,
+			sprintf( 'Column "%s" did not match the expected VARCHAR length of %d.', $column, $length )
+		);
+	}
+
+	/**
 	 * Determine if the custom orders table exists.
 	 *
 	 * @global $wpdb
