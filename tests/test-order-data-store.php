@@ -117,6 +117,20 @@ class OrderDataStoreTest extends TestCase {
 		$this->assertEquals( 'PHPUnit', $row['customer_user_agent'] );
 	}
 
+	/**
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/49
+	 */
+	public function test_update_post_meta_for_existing_order_id() {
+		$order = WC_Helper_Order::create_order();
+		$order->set_customer_user_agent( 'PHPUnit' );
+
+		$this->invoke_update_post_meta( $order, true );
+
+		$row = $this->get_order_row( $order->get_id() );
+
+		$this->assertEquals( 'PHPUnit', $row['customer_user_agent'] );
+	}
+
 	public function test_get_order_id_by_order_key() {
 		$order = WC_Helper_Order::create_order();
 		$instance = new WC_Order_Data_Store_Custom_Table();

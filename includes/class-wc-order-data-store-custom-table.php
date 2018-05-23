@@ -189,7 +189,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		}
 
 		// Insert or update the database record.
-		if ( $this->creating ) {
+		if ( $this->creating && ! wc_custom_order_table()->row_exists( $order_data['order_id'] ) ) {
 			$inserted = $wpdb->insert( $table, $order_data ); // WPCS: DB call OK.
 
 			if ( 1 !== $inserted ) {

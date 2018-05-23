@@ -113,7 +113,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 		);
 
 		// Insert or update the database record.
-		if ( $this->creating ) {
+		if ( $this->creating && ! wc_custom_order_table()->row_exists( $refund_data['order_id'] ) ) {
 			$inserted = $wpdb->insert( $table, $refund_data ); // WPCS: DB call OK.
 
 			if ( 1 !== $inserted ) {
