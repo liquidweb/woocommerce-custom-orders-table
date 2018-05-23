@@ -48,14 +48,7 @@ matrix:
   #
   # PHP 7.1, WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.2.6
   # - WC_Tests_CRUD_Orders::test_get_billing_email
-  #
-  # Additionally, WordPress trunk seems to be having issues bootstrapping the core test suite,
-  # so those tests are currently permitted to fail.
-  #
-  # Example failure: https://travis-ci.org/liquidweb/woocommerce-custom-orders-table/jobs/382677515
   allow_failures:
-    - php: 7.2
-      env: WP_VERSION=trunk WP_MULTISITE=0 WC_VERSION=latest RUN_PHPCS=1
     - php: 7.2
       env: WP_VERSION=trunk WP_MULTISITE=1 WC_VERSION=latest
     - php: 7.1
