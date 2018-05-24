@@ -138,6 +138,24 @@ class InstallationTest extends TestCase {
 	}
 
 	/**
+	 * Test the lengths of CHAR fields.
+	 *
+	 * @testWith ["billing_country", 2]
+	 *           ["shipping_country", 2]
+	 *
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
+	 */
+	public function test_char_length( $column, $length ) {
+		global $wpdb;
+
+		$this->assert_column_has_type(
+			$column,
+			sprintf( 'char(%d)', $length ),
+			sprintf( 'Column "%s" did not match the expected CHAR length of %d.', $column, $length )
+		);
+	}
+
+	/**
 	 * Test the lengths of VARCHAR fields.
 	 *
 	 * @global $wpdb
@@ -152,7 +170,6 @@ class InstallationTest extends TestCase {
 	 *           ["billing_city", 100]
 	 *           ["billing_state", 100]
 	 *           ["billing_postcode", 20]
-	 *           ["billing_country", 100]
 	 *           ["billing_email", 200]
 	 *           ["billing_phone", 200]
 	 *           ["shipping_index", 255]
@@ -164,7 +181,6 @@ class InstallationTest extends TestCase {
 	 *           ["shipping_city", 100]
 	 *           ["shipping_state", 100]
 	 *           ["shipping_postcode", 20]
-	 *           ["shipping_country", 100]
 	 *           ["payment_method", 100]
 	 *           ["payment_method_title", 100]
 	 *           ["discount_total", 100]
@@ -190,13 +206,32 @@ class InstallationTest extends TestCase {
 	public function test_varchar_length( $column, $length ) {
 		global $wpdb;
 
-		$this->assertEquals(
+		$this->assert_column_has_type(
+			$column,
 			sprintf( 'varchar(%d)', $length ),
+			sprintf( 'Column "%s" did not match the expected VARCHAR length of %d.', $column, $length )
+		);
+	}
+
+	/**
+	 * Assert the type of a given column matches expectations.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param string $column   The column name to find.
+	 * @param string $expected The expected column type, e.g. "varchar(255)".
+	 * @param string $message  Optional. An error message to display if the assertion fails.
+	 */
+	protected function assert_column_has_type( $column, $expected, $message = '' ) {
+		global $wpdb;
+
+		$this->assertSame(
+			$expected,
 			$wpdb->get_row( $wpdb->prepare(
 				'SHOW COLUMNS FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE Field = %s',
 				$column
 			) )->Type,
-			sprintf( 'Column "%s" did not match the expected VARCHAR length of %d.', $column, $length )
+			$message
 		);
 	}
 
