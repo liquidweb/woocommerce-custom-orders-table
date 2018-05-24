@@ -88,7 +88,7 @@ class WooCommerce_Custom_Orders_Table_Install {
 				cart_tax varchar(100) NOT NULL DEFAULT 0 COMMENT 'Cart tax',
 				total varchar(100) NOT NULL DEFAULT 0 COMMENT 'Order total',
 				version varchar(16) NOT NULL COMMENT 'Version of WooCommerce when the order was made',
-				currency varchar(3) NOT NULL COMMENT 'Currency the order was created with',
+				currency char(3) NOT NULL COMMENT 'Currency the order was created with',
 				prices_include_tax varchar(3) NOT NULL COMMENT 'Did the prices include tax during checkout?',
 				transaction_id varchar(200) NOT NULL COMMENT 'Unique transaction ID',
 				customer_ip_address varchar(40) DEFAULT NULL COMMENT 'The customer\'s IP address',

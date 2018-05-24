@@ -142,6 +142,7 @@ class InstallationTest extends TestCase {
 	 *
 	 * @testWith ["billing_country", 2]
 	 *           ["shipping_country", 2]
+	 *           ["currency", 3]
 	 *
 	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
 	 */
@@ -190,7 +191,6 @@ class InstallationTest extends TestCase {
 	 *           ["cart_tax", 100]
 	 *           ["total", 100]
 	 *           ["version", 16]
-	 *           ["currency", 3]
 	 *           ["prices_include_tax", 3]
 	 *           ["transaction_id", 200]
 	 *           ["customer_ip_address", 40]
