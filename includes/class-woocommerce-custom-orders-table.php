@@ -66,6 +66,24 @@ class WooCommerce_Custom_Orders_Table {
 	}
 
 	/**
+	 * Simple helper method to determine if a row already exists for the given order ID.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param int $order_id The order ID.
+	 *
+	 * @return bool Whether or not a row already exists for this order ID.
+	 */
+	public function row_exists( $order_id ) {
+		global $wpdb;
+
+		return (bool) $wpdb->get_var( $wpdb->prepare(
+			'SELECT COUNT(order_id) FROM ' . esc_sql( $this->get_table_name() ) . ' WHERE order_id = %d',
+			$order_id
+		) );
+	}
+
+	/**
 	 * Retrieve the database table column => post_meta mapping.
 	 *
 	 * @return array An array of database columns and their corresponding post_meta keys.

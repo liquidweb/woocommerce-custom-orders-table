@@ -15,30 +15,12 @@
 class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 	/**
-	 * Set to true when creating so we know to insert meta data.
-	 *
-	 * @var boolean
-	 */
-	protected $creating = false;
-
-	/**
 	 * Hook into WooCommerce database queries related to orders.
 	 */
 	public function __construct() {
 
 		// When creating a WooCommerce order data store request, filter the MySQL query.
 		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_database_queries', 10, 2 );
-	}
-
-	/**
-	 * Create a new order in the database.
-	 *
-	 * @param WC_Order $order The order object, passed by reference.
-	 */
-	public function create( &$order ) {
-		$this->creating = true;
-
-		parent::create( $order );
 	}
 
 	/**
@@ -99,20 +81,15 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		global $wpdb;
 
 		$table = wc_custom_order_table()->get_table_name();
-		$data  = $wpdb->get_row( $wpdb->prepare(
+		$data  = (array) $wpdb->get_row( $wpdb->prepare(
 			'SELECT * FROM ' . esc_sql( $table ) . ' WHERE order_id = %d LIMIT 1',
 			$order->get_id()
 		), ARRAY_A ); // WPCS: DB call OK.
 
-		// If no matches were found, this record needs to be created.
-		if ( null === $data ) {
-			$this->creating = true;
-
-			return array();
-		}
-
 		// Expand anything that might need assistance.
-		$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
+		if ( isset( $data['prices_include_tax'] ) ) {
+			$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
+		}
 
 		return $data;
 	}
@@ -189,7 +166,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		}
 
 		// Insert or update the database record.
-		if ( $this->creating ) {
+		if ( ! wc_custom_order_table()->row_exists( $order_data['order_id'] ) ) {
 			$inserted = $wpdb->insert( $table, $order_data ); // WPCS: DB call OK.
 
 			if ( 1 !== $inserted ) {
@@ -205,9 +182,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 				update_post_meta( $order->get_id(), '_billing_email', $order->get_billing_email() );
 				update_post_meta( $order->get_id(), '_customer_user', $order->get_customer_id() );
 			}
-
-			$this->creating = false;
-
 		} else {
 			$changes = array_intersect_key( $order_data, $order->get_changes() );
 
