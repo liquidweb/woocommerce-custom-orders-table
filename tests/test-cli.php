@@ -27,7 +27,24 @@ class CLITest extends TestCase {
 		$this->generate_orders( 3 );
 		$this->toggle_use_custom_table( true );
 
-		$this->assertEquals( 3, $this->cli->count() );
+		$count = $this->cli->count();
+
+		$this->assertEquals( 3, $count, 'Expected to see 3 orders to migrate.' );
+		$this->assertInternalType( 'integer', $count, 'Expected the count to return as an integer.' );
+	}
+
+	/**
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
+	 */
+	public function test_count_handles_refunded_orders() {
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 2 );
+		$refund    = wc_create_refund( array(
+			'order_id' => $order_ids[0]
+		) );
+		$this->toggle_use_custom_table( true );
+
+		$this->assertEquals( 3, $this->cli->count(), 'Expected to see 3 orders to migrate.' );
 	}
 
 	public function test_migrate() {
@@ -48,6 +65,7 @@ class CLITest extends TestCase {
 			$this->count_orders_in_table_with_ids( $order_ids ),
 			'Expected to see 5 orders in the custom table.'
 		);
+		$this->greaterThanOrEqual( 5, WP_CLI::$__counts['debug'], 'Expected to see at least five calls to WP_CLI::debug().' );
 	}
 
 	public function test_migrate_works_in_batches() {
@@ -90,6 +108,28 @@ class CLITest extends TestCase {
 		$this->assertEquals( 'error', $error['level'], 'Expected to see a call to WP_CLI::error().' );
 	}
 
+	public function test_migrate_catches_infinite_loops() {
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 2 );
+		$this->toggle_use_custom_table( true );
+
+		// After an order is inserted, delete it to force an infinite loop.
+		add_action( 'woocommerce_order_object_updated_props', function ( $order ) {
+			global $wpdb;
+
+			$wpdb->delete( wc_custom_order_table()->get_table_name(), array(
+				'order_id' => $order->get_id(),
+			) );
+		} );
+
+		$this->cli->migrate( array(), array(
+			'batch-size' => 1,
+		) );
+
+		$error = array_pop( WP_CLI::$__logger );
+		$this->assertEquals( 'error', $error['level'], 'Expected to see a call to WP_CLI::error().' );
+	}
+
 	/**
 	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/43
 	 */
@@ -109,6 +149,27 @@ class CLITest extends TestCase {
 			2,
 			$this->count_orders_in_table_with_ids( $order_ids ),
 			'Expected to only see two orders in the custom table.'
+		);
+	}
+
+	/**
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
+	 */
+	public function test_migrate_handles_refunded_orders() {
+		$this->toggle_use_custom_table( false );
+		$order_ids   = $this->generate_orders( 2 );
+		$refund      = wc_create_refund( array(
+			'order_id' => $order_ids[0]
+		) );
+		$order_ids[] = $refund->get_id();
+		$this->toggle_use_custom_table( true );
+
+		$this->cli->migrate();
+
+		$this->assertEquals(
+			3,
+			$this->count_orders_in_table_with_ids( $order_ids ),
+			'Expected to see both orders and the refund in the table.'
 		);
 	}
 

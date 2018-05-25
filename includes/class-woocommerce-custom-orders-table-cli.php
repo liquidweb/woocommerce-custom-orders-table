@@ -19,6 +19,13 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	protected $skipped_ids = array();
 
 	/**
+	 * Ensure the custom table has been installed.
+	 */
+	public function __construct() {
+		WooCommerce_Custom_Orders_Table_Install::activate();
+	}
+
+	/**
 	 * Count how many orders have yet to be migrated into the custom orders table.
 	 *
 	 * ## EXAMPLES
@@ -26,6 +33,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 *     wp wc-order-table count
 	 *
 	 * @global $wpdb
+	 *
+	 * @return int The number of orders to be migrated.
 	 */
 	public function count() {
 		global $wpdb;
@@ -47,7 +56,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			$order_count
 		) );
 
-		return $order_count;
+		return (int) $order_count;
 	}
 
 	/**
@@ -128,11 +137,17 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 					if ( is_wp_error( $result ) ) {
 						return WP_CLI::error( sprintf(
 							/* Translators: %1$d is the order ID, %2$s is the error message. */
-							'A database error occurred while migrating order %1$d: %2$s.',
+							__( 'A database error occurred while migrating order %1$d: %2$s.', 'woocommerce-custom-orders-table' ),
 							$order_id,
 							$result->get_error_message()
 						) );
 					}
+
+					WP_CLI::debug( sprintf(
+						/* Translators: %1$d is the migrated order ID. */
+						__( 'Order ID %1$d has been migrated.', 'woocommerce-custom-orders-table' ),
+						$order_id
+					) );
 				}
 
 				$processed++;
@@ -140,7 +155,13 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			}
 
 			// Load up the next batch.
-			$order_data = array_filter( $wpdb->get_col( $order_query ) ); // WPCS: Unprepared SQL ok, DB call ok.
+			$next_batch = array_filter( $wpdb->get_col( $order_query ) ); // WPCS: Unprepared SQL ok, DB call ok.
+
+			if ( $next_batch === $order_data ) {
+				return WP_CLI::error( __( 'Infinite loop detected, aborting.', 'woocommerce-custom-orders-table' ) );
+			} else {
+				$order_data = $next_batch;
+			}
 		}
 
 		$progress->finish();

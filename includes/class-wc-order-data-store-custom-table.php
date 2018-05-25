@@ -27,72 +27,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function __construct() {
 
 		// When creating a WooCommerce order data store request, filter the MySQL query.
-		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', __CLASS__ . '::filter_database_queries', 10, 2 );
-
-		// Filter order report queries.
-		add_filter( 'woocommerce_reports_get_order_report_query', __CLASS__ . '::filter_order_report_query' );
-
-		// Fill-in after re-indexing of billing/shipping addresses.
-		add_action( 'woocommerce_rest_system_status_tool_executed', __CLASS__ . '::rest_populate_address_indexes' );
-
-		// When associating previous orders with a customer based on email, update the record.
-		add_action( 'woocommerce_update_new_customer_past_order', __CLASS__ . '::update_past_customer_order', 10, 2 );
-	}
-
-	/**
-	 * Retrieve the database table column => post_meta mapping.
-	 *
-	 * @return array An array of database columns and their corresponding post_meta keys.
-	 */
-	public static function get_postmeta_mapping() {
-		return array(
-			'order_key'            => '_order_key',
-			'customer_id'          => '_customer_user',
-			'payment_method'       => '_payment_method',
-			'payment_method_title' => '_payment_method_title',
-			'transaction_id'       => '_transaction_id',
-			'customer_ip_address'  => '_customer_ip_address',
-			'customer_user_agent'  => '_customer_user_agent',
-			'created_via'          => '_created_via',
-			'date_completed'       => '_date_completed',
-			'date_paid'            => '_date_paid',
-			'cart_hash'            => '_cart_hash',
-
-			'billing_index'        => '_billing_address_index',
-			'billing_first_name'   => '_billing_first_name',
-			'billing_last_name'    => '_billing_last_name',
-			'billing_company'      => '_billing_company',
-			'billing_address_1'    => '_billing_address_1',
-			'billing_address_2'    => '_billing_address_2',
-			'billing_city'         => '_billing_city',
-			'billing_state'        => '_billing_state',
-			'billing_postcode'     => '_billing_postcode',
-			'billing_country'      => '_billing_country',
-			'billing_email'        => '_billing_email',
-			'billing_phone'        => '_billing_phone',
-
-			'shipping_index'       => '_shipping_address_index',
-			'shipping_first_name'  => '_shipping_first_name',
-			'shipping_last_name'   => '_shipping_last_name',
-			'shipping_company'     => '_shipping_company',
-			'shipping_address_1'   => '_shipping_address_1',
-			'shipping_address_2'   => '_shipping_address_2',
-			'shipping_city'        => '_shipping_city',
-			'shipping_state'       => '_shipping_state',
-			'shipping_postcode'    => '_shipping_postcode',
-			'shipping_country'     => '_shipping_country',
-
-			'discount_total'       => '_cart_discount',
-			'discount_tax'         => '_cart_discount_tax',
-			'shipping_total'       => '_order_shipping',
-			'shipping_tax'         => '_order_shipping_tax',
-			'cart_tax'             => '_order_tax',
-			'total'                => '_order_total',
-
-			'version'              => '_order_version',
-			'currency'             => '_order_currency',
-			'prices_include_tax'   => '_prices_include_tax',
-		);
+		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_database_queries', 10, 2 );
 	}
 
 	/**
@@ -308,6 +243,28 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	}
 
 	/**
+	 * Get amount already refunded.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param WC_Order $order Order object.
+	 *
+	 * @return float The amount already refunded.
+	 */
+	public function get_total_refunded( $order ) {
+		global $wpdb;
+
+		$total = $wpdb->get_var( $wpdb->prepare(
+			'SELECT SUM(o.amount) FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . " AS o
+			INNER JOIN $wpdb->posts AS p ON ( p.post_type = 'shop_order_refund' AND p.post_parent = %d )
+			WHERE o.order_id = p.ID",
+			$order->get_id()
+		) );
+
+		return floatval( $total );
+	}
+
+	/**
 	 * Finds an order ID based on its order key.
 	 *
 	 * @param string $order_key The order key.
@@ -362,7 +319,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// Search for order meta fields.
 		if ( ! empty( $search_fields ) ) {
-			$mapping   = self::get_postmeta_mapping();
+			$mapping   = WooCommerce_Custom_Orders_Table::get_postmeta_mapping();
 			$in_table  = array_intersect( $search_fields, $mapping );
 			$meta_keys = array_diff( $search_fields, $in_table );
 			$table     = wc_custom_order_table()->get_table_name();
@@ -425,26 +382,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		global $wpdb;
 
 		$table_data = $this->get_order_data_from_table( $order );
-
-		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
-			$meta = get_post_meta( $order->get_id(), $meta_key, true );
-
-			if ( empty( $table_data->$column ) && ! empty( $meta ) ) {
-				switch ( $column ) {
-					case 'billing_index':
-					case 'shipping_index':
-						break;
-
-					case 'prices_include_tax':
-						$order->set_prices_include_tax( 'yes' === $meta );
-						break;
-
-					default:
-						$order->{"set_{$column}"}( $meta );
-						break;
-				}
-			}
-		}
+		$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
 
 		$this->update_post_meta( $order );
 
@@ -453,7 +391,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		}
 
 		if ( true === $delete ) {
-			foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
+			foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
 				delete_post_meta( $order->get_id(), $meta_key );
 			}
 		}
@@ -475,258 +413,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			$data['prices_include_tax'] = wc_bool_to_string( $data['prices_include_tax'] );
 		}
 
-		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
+		foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
 			if ( isset( $data[ $column ] ) ) {
 				update_post_meta( $order->get_id(), $meta_key, $data[ $column ] );
 			}
 		}
-	}
-
-	/**
-	 * Determine if any filters are required on the MySQL query and, if so, apply them.
-	 *
-	 * @param array $query_args The arguments to be passed to WP_Query.
-	 * @param array $query_vars The raw query vars passed to build the query.
-	 *
-	 * @return array The potentially-filtered $query_args array.
-	 */
-	public static function filter_database_queries( $query_args, $query_vars ) {
-		$query_args['wc_order_meta_query']  = array();
-		$query_args['_wc_has_meta_columns'] = false;
-
-		// Iterate over the meta_query to find special cases.
-		if ( isset( $query_args['meta_query'] ) ) {
-			foreach ( $query_args['meta_query'] as $index => $meta_query ) {
-
-				// Flatten complex meta queries.
-				if ( is_array( $meta_query ) && 1 === count( $meta_query ) && is_array( current( $meta_query ) ) ) {
-					$meta_query = current( $meta_query );
-				}
-
-				if ( isset( $meta_query['customer_emails'] ) ) {
-					$query_args['wc_order_meta_query'][] = array_merge( $meta_query['customer_emails'], array(
-						'key'      => 'billing_email',
-						'_old_key' => $meta_query['customer_emails']['key'],
-					) );
-				}
-
-				if ( isset( $meta_query['customer_ids'] ) ) {
-					$query_args['wc_order_meta_query'][] = array_merge( $meta_query['customer_ids'], array(
-						'key'      => 'customer_id',
-						'_old_key' => $meta_query['customer_ids']['key'],
-					) );
-				}
-
-				if ( isset( $meta_query['key'] ) ) {
-					$column = array_search( $meta_query['key'], self::get_postmeta_mapping(), true );
-
-					if ( $column ) {
-						$query_args['wc_order_meta_query'][] = array_merge( $meta_query, array(
-							'key'      => $column,
-							'_old_key' => $meta_query['key'],
-						) );
-					} else {
-						// Let this meta query pass through unaltered.
-						$query_args['_wc_has_meta_columns'] = true;
-					}
-				}
-			}
-		}
-
-		// Add filters to address specific portions of the query.
-		add_filter( 'posts_join', __CLASS__ . '::posts_join', 10, 2 );
-		add_filter( 'posts_where', __CLASS__ . '::meta_query_where', 100, 2 );
-
-		return $query_args;
-	}
-
-	/**
-	 * Filter the JOIN statement generated by WP_Query.
-	 *
-	 * @global $wpdb
-	 *
-	 * @param string   $join     The MySQL JOIN statement.
-	 * @param WP_Query $wp_query The WP_Query object, passed by reference.
-	 *
-	 * @return string The filtered JOIN statement.
-	 */
-	public static function posts_join( $join, $wp_query ) {
-		global $wpdb;
-
-		/*
-		 * Remove the now-unnecessary INNER JOIN with the post_meta table unless there's some post
-		 * meta that doesn't have a column in the custom table.
-		 *
-		 * @see WP_Meta_Query::get_sql_for_clause()
-		 */
-		if ( ! $wp_query->get( '_wc_has_meta_columns', false ) ) {
-			// Match the post_meta table INNER JOIN, with or without an alias.
-			$regex = "/\sINNER\sJOIN\s{$wpdb->postmeta}\s+(AS\s[^\s]+)?\s*ON\s\([^\)]+\)/i";
-
-			$join = preg_replace( $regex, '', $join );
-		}
-
-		$table = esc_sql( wc_custom_order_table()->get_table_name() );
-		$join .= " LEFT JOIN {$table} ON ( {$wpdb->posts}.ID = {$table}.order_id ) ";
-
-		// Don't necessarily apply this to subsequent posts_join filter callbacks.
-		remove_filter( 'posts_join', __CLASS__ . '::posts_join', 10, 2 );
-
-		return $join;
-	}
-
-	/**
-	 * Filter the "WHERE" portion of the MySQL query to look at the custom orders table instead of
-	 * post meta.
-	 *
-	 * @global $wpdb
-	 *
-	 * @param string   $where    The MySQL WHERE statement.
-	 * @param WP_Query $wp_query The WP_Query object, passed by reference.
-	 *
-	 * @return string The [potentially-] filtered WHERE statement.
-	 */
-	public static function meta_query_where( $where, $wp_query ) {
-		global $wpdb;
-
-		$meta_query = $wp_query->get( 'wc_order_meta_query' );
-		$table      = esc_sql( wc_custom_order_table()->get_table_name() );
-
-		if ( empty( $meta_query ) ) {
-			return $where;
-		}
-
-		foreach ( $meta_query as $query ) {
-			$regex = $wpdb->prepare( '/\(\s?(\w+\.)?meta_key = %s AND (\w+\.)?meta_value /i', $query['_old_key'] );
-			$where = preg_replace( $regex, "( {$table}.{$query['key']} ", $where );
-		}
-
-		// Ensure this doesn't affect all subsequent queries.
-		remove_filter( 'posts_where', __CLASS__ . '::meta_query_where', 100, 2 );
-
-		return $where;
-	}
-
-	/**
-	 * Filter the query constructed by WC_Admin_Report::get_order_report_data() so that report data
-	 * comes from the orders table, not postmeta.
-	 *
-	 * @global $wpdb
-	 *
-	 * @param array $query Components of the MySQL query.
-	 *
-	 * @return array The filtered query components.
-	 */
-	public static function filter_order_report_query( $query ) {
-		global $wpdb;
-
-		if ( empty( $query['join'] ) ) {
-			return $query;
-		}
-
-		/*
-		 * Determine which JOIN statements are in play.
-		 *
-		 * This regular expression is designed to match queries in the following formats:
-		 *
-		 * - INNER JOIN $wpdb->postmeta AS meta_{key} ON (post.ID = meta_{key}.post_id AND meta_{key}.meta_key = {key})
-		 * - INNER JOIN $wpdb->postmeta AS parent_meta_{key} ON (posts.post_parent = parent_meta_{key}.post_id) AND
-		 *   (parent_meta_{key}.meta_key = {key})
-		 */
-		$regex = '/(?:INNER|LEFT)\s+JOIN\s+' . preg_quote( $wpdb->postmeta ) . '\s+AS\s((?:parent_)?meta_([^\s]+))\s+ON\s+(\((?:[^)]+\)\s+AND\s+\()?[^\)]+\))/im';
-
-		// Return early if we have no matches.
-		if ( ! preg_match_all( $regex, $query['join'], $matches ) ) {
-			return $query;
-		}
-
-		/*
-		 * Build a list of replacements.
-		 *
-		 * These will take the form of 'meta_{key}.meta_value' => 'meta_{key}.{table_column}'.
-		 */
-		$mapping      = self::get_postmeta_mapping();
-		$joins        = array(
-			'post_id'     => false,
-			'post_parent' => false,
-		);
-		$table        = esc_sql( wc_custom_order_table()->get_table_name() );
-		$replacements = array();
-
-		foreach ( $matches[0] as $key => $value ) {
-			$table_plus_meta_value = $matches[1][ $key ] . '.meta_value';
-			$order_table_column    = array_search( $matches[2][ $key ], $mapping, true );
-
-			// Don't replace the string if there isn't a table column mapped to this key.
-			if ( false === $order_table_column ) {
-				continue;
-			}
-
-			if ( false !== strpos( $matches[3][ $key ], 'posts.post_parent =' ) ) {
-				$table_alias          = 'order_parent_meta';
-				$joins['post_parent'] = true;
-			} else {
-				$table_alias      = 'order_meta';
-				$joins['post_id'] = true;
-			}
-
-			$replacements[ $table_plus_meta_value ] = $table_alias . '.' . $order_table_column;
-			$replacements[ $matches[0][ $key ] ]    = '';
-		}
-
-		// Update query fragments.
-		$replacement_keys = array_keys( $replacements );
-		$replacement_vals = array_values( $replacements );
-		$query['select']  = str_replace( $replacement_keys, $replacement_vals, $query['select'] );
-		$query['where']   = str_replace( $replacement_keys, $replacement_vals, $query['where'] );
-		$query['join']    = str_replace( $replacement_keys, $replacement_vals, $query['join'] );
-
-		// If replacements have been made, join on the orders table.
-		if ( $joins['post_id'] ) {
-			$query['join'] .= " LEFT JOIN {$table} AS order_meta ON ( posts.ID = order_meta.order_id ) ";
-		}
-
-		if ( $joins['post_parent'] ) {
-			$query['join'] .= " LEFT JOIN {$table} AS order_parent_meta ON ( posts.post_parent = order_parent_meta.order_id ) ";
-		}
-
-		return $query;
-	}
-
-	/**
-	 * When the add_order_indexes system status tool is run, populate missing address indexes in
-	 * the orders table.
-	 *
-	 * @global $wpdb
-	 *
-	 * @param array $tool Details about the tool that has been executed.
-	 */
-	public static function rest_populate_address_indexes( $tool ) {
-		global $wpdb;
-
-		if ( ! isset( $tool['id'] ) || 'add_order_indexes' !== $tool['id'] ) {
-			return;
-		}
-
-		$table = wc_custom_order_table()->get_table_name();
-
-		$wpdb->query( 'UPDATE ' . esc_sql( $table ) . "
-			SET billing_index = CONCAT_WS( ' ', billing_first_name, billing_last_name, billing_company, billing_company, billing_address_1, billing_address_2, billing_city, billing_state, billing_postcode, billing_country, billing_email, billing_phone )
-			WHERE billing_index IS NULL OR billing_index = ''" ); // WPCS: DB call ok.
-		$wpdb->query( 'UPDATE ' . esc_sql( $table ) . "
-			SET shipping_index = CONCAT_WS( ' ', shipping_first_name, shipping_last_name, shipping_company, shipping_company, shipping_address_1, shipping_address_2, shipping_city, shipping_state, shipping_postcode, shipping_country )
-			WHERE shipping_index IS NULL OR shipping_index = ''" ); // WPCS: DB call ok.
-	}
-
-	/**
-	 * Associate previous orders from an email address that matches that of a new customer.
-	 *
-	 * @param int     $order_id The order ID.
-	 * @param WP_User $customer The customer object.
-	 */
-	public static function update_past_customer_order( $order_id, $customer ) {
-		$order = wc_get_order( $order_id );
-		$order->set_customer_id( $customer->ID );
-		$order->save();
 	}
 }
