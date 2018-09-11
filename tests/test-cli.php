@@ -18,7 +18,7 @@ class CLITest extends TestCase {
 	/**
 	 * @before
 	 */
-	public function init() {
+	public function init_cli() {
 		$this->cli = new WooCommerce_Custom_Orders_Table_CLI();
 	}
 
