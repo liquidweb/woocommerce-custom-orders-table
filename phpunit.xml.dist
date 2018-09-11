@@ -29,6 +29,15 @@
 			-->
 			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/api/system-status.php</exclude>
 			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/api/v2/system-status.php</exclude>
+
+			<!--
+				Combinations of PHP < 7.2 and WooCommerce < 3.4 are failing due to the
+				WC_Tests_Product_CSV_Importer::test_import() test, which relies on an external HTTP
+				request that's failing.
+
+				@link https://github.com/woocommerce/woocommerce/commit/0e785d46146c04f05d4ed5bc06e9ea2d575553b0
+			-->
+			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/importer/product.php</exclude>
 		</testsuite>
 	</testsuites>
 	<filter>
