@@ -19,6 +19,8 @@ class CLITest extends TestCase {
 	 * @before
 	 */
 	public function init_cli() {
+		WP_CLI::reset();
+
 		$this->cli = new WooCommerce_Custom_Orders_Table_CLI();
 	}
 
@@ -221,6 +223,14 @@ class CLITest extends TestCase {
 		$this->cli->migrate();
 
 		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( $order_id ));
+	}
+
+	public function test_migrate_aborts_if_no_orders_require_migration() {
+		$this->assertSame( 0, $this->cli->count(), 'Expected to start with 0 orders.' );
+
+		$this->cli->migrate();
+
+		$this->assertSame( 1, WP_CLI::$__counts['warning'], 'A warning should have been displayed.' );
 	}
 
 	public function test_backfill() {
