@@ -138,6 +138,104 @@ class InstallationTest extends TestCase {
 	}
 
 	/**
+	 * Test the lengths of CHAR fields.
+	 *
+	 * @testWith ["billing_country", 2]
+	 *           ["shipping_country", 2]
+	 *           ["currency", 3]
+	 *
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
+	 */
+	public function test_char_length( $column, $length ) {
+		global $wpdb;
+
+		$this->assert_column_has_type(
+			$column,
+			sprintf( 'char(%d)', $length ),
+			sprintf( 'Column "%s" did not match the expected CHAR length of %d.', $column, $length )
+		);
+	}
+
+	/**
+	 * Test the lengths of VARCHAR fields.
+	 *
+	 * @global $wpdb
+	 *
+	 * @testWith ["order_key", 100]
+	 *           ["billing_index", 255]
+	 *           ["billing_first_name", 100]
+	 *           ["billing_last_name", 100]
+	 *           ["billing_company", 100]
+	 *           ["billing_address_1", 255]
+	 *           ["billing_address_2", 200]
+	 *           ["billing_city", 100]
+	 *           ["billing_state", 100]
+	 *           ["billing_postcode", 20]
+	 *           ["billing_email", 200]
+	 *           ["billing_phone", 200]
+	 *           ["shipping_index", 255]
+	 *           ["shipping_first_name", 100]
+	 *           ["shipping_last_name", 100]
+	 *           ["shipping_company", 100]
+	 *           ["shipping_address_1", 255]
+	 *           ["shipping_address_2", 200]
+	 *           ["shipping_city", 100]
+	 *           ["shipping_state", 100]
+	 *           ["shipping_postcode", 20]
+	 *           ["payment_method", 100]
+	 *           ["payment_method_title", 100]
+	 *           ["discount_total", 100]
+	 *           ["discount_tax", 100]
+	 *           ["shipping_total", 100]
+	 *           ["shipping_tax", 100]
+	 *           ["cart_tax", 100]
+	 *           ["total", 100]
+	 *           ["version", 16]
+	 *           ["prices_include_tax", 3]
+	 *           ["transaction_id", 200]
+	 *           ["customer_ip_address", 40]
+	 *           ["customer_user_agent", 200]
+	 *           ["created_via", 200]
+	 *           ["date_completed", 20]
+	 *           ["date_paid", 20]
+	 *           ["cart_hash", 32]
+	 *           ["amount", 100]
+	 *
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
+	 */
+	public function test_varchar_length( $column, $length ) {
+		global $wpdb;
+
+		$this->assert_column_has_type(
+			$column,
+			sprintf( 'varchar(%d)', $length ),
+			sprintf( 'Column "%s" did not match the expected VARCHAR length of %d.', $column, $length )
+		);
+	}
+
+	/**
+	 * Assert the type of a given column matches expectations.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param string $column   The column name to find.
+	 * @param string $expected The expected column type, e.g. "varchar(255)".
+	 * @param string $message  Optional. An error message to display if the assertion fails.
+	 */
+	protected function assert_column_has_type( $column, $expected, $message = '' ) {
+		global $wpdb;
+
+		$this->assertSame(
+			$expected,
+			$wpdb->get_row( $wpdb->prepare(
+				'SHOW COLUMNS FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE Field = %s',
+				$column
+			) )->Type,
+			$message
+		);
+	}
+
+	/**
 	 * Determine if the custom orders table exists.
 	 *
 	 * @global $wpdb

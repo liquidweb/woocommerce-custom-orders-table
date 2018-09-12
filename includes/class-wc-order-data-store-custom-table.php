@@ -131,7 +131,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'billing_state'        => $order->get_billing_state( 'edit' ),
 			'billing_postcode'     => $order->get_billing_postcode( 'edit' ),
 			'billing_country'      => $order->get_billing_country( 'edit' ),
-
 			'billing_email'        => $order->get_billing_email( 'edit' ),
 			'billing_phone'        => $order->get_billing_phone( 'edit' ),
 
