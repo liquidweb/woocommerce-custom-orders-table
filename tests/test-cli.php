@@ -100,6 +100,10 @@ class CLITest extends TestCase {
 			$this->count_orders_in_table_with_ids( $order_ids ),
 			'Expected to see 5 total orders in the custom table.'
 		);
+
+		$this->cli->assertReceivedMessage( 'Beginning batch #1 (2 orders/batch).', 'debug' );
+		$this->cli->assertReceivedMessage( 'Beginning batch #2 (2 orders/batch).', 'debug' );
+		$this->cli->assertReceivedMessage( 'Beginning batch #3 (2 orders/batch).', 'debug' );
 	}
 
 	/**
