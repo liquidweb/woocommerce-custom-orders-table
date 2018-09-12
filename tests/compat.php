@@ -6,7 +6,6 @@
  * @author  Liquid Web
  */
 
-
 /**
  * Convert all instances of "USA" in tests to use the ISO 3166-1 alpha-2 (2 character) standard,
  * (e.g. "US").
