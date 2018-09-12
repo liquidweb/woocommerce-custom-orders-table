@@ -20,15 +20,9 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 	/**
 	 * Bootstrap the WP-CLI command.
-	 *
-	 * @global $wpdb
 	 */
 	public function __construct() {
-		global $wpdb;
-
-		// Ensure that errors aren't being totally suppressed.
 		add_action( 'woocommerce_caught_exception', 'self::handle_exceptions' );
-		$wpdb->suppress_errors();
 
 		// Ensure the custom table has been installed.
 		WooCommerce_Custom_Orders_Table_Install::activate();

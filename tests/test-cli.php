@@ -107,6 +107,11 @@ class CLITest extends TestCase {
 	 * @see DataStoreTest::test_populate_from_meta_handles_errors()
 	 */
 	public function test_migrate_stops_on_database_error() {
+		global $wpdb;
+
+		// This test will trigger a DB error due to the duplicate order key.
+		$wpdb->suppress_errors();
+
 		$this->toggle_use_custom_table( false );
 		$order1 = WC_Helper_Order::create_order();
 		$order1->set_order_key( '' );
@@ -120,6 +125,7 @@ class CLITest extends TestCase {
 
 		$error = array_pop( WP_CLI::$__logger );
 		$this->assertEquals( 'error', $error['level'], 'Expected to see a call to WP_CLI::error().' );
+		$this->assertContains( "Duplicate entry '' for key 'order_key'", $error['message'] );
 	}
 
 	public function test_migrate_catches_infinite_loops() {
