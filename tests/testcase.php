@@ -29,6 +29,7 @@ class TestCase extends WC_Unit_Test_Case {
 
 		WooCommerce_Custom_Orders_Table_Install::activate();
 
+		$wpdb->suppress_errors( false );
 		$wpdb->query( 'DELETE FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) );
 	}
 
