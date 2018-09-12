@@ -47,6 +47,18 @@ class CLITest extends TestCase {
 		$this->assertEquals( 3, $this->cli->count(), 'Expected to see 3 orders to migrate.' );
 	}
 
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/57
+	 */
+	public function test_count_only_counts_unmigrated_orders() {
+		$this->toggle_use_custom_table( false );
+		$this->generate_orders( 3 );
+		$this->toggle_use_custom_table( true );
+		$this->generate_orders( 2 );
+
+		$this->assertSame( 3, $this->cli->count(), 'Expected to only see 3 orders to migrate.' );
+	}
+
 	public function test_migrate() {
 		$this->toggle_use_custom_table( false );
 		$order_ids = $this->generate_orders( 5 );
