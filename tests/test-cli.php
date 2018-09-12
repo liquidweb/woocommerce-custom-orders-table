@@ -80,6 +80,7 @@ class CLITest extends TestCase {
 			'Expected to see 5 orders in the custom table.'
 		);
 		$this->greaterThanOrEqual( 5, WP_CLI::$__counts['debug'], 'Expected to see at least five calls to WP_CLI::debug().' );
+		$this->cli->assertReceivedMessage( '5 orders were migrated.', 'success' );
 	}
 
 	public function test_migrate_works_in_batches() {
@@ -123,9 +124,7 @@ class CLITest extends TestCase {
 
 		$this->cli->migrate();
 
-		$error = array_pop( WP_CLI::$__logger );
-		$this->assertEquals( 'error', $error['level'], 'Expected to see a call to WP_CLI::error().' );
-		$this->assertContains( "Duplicate entry '' for key 'order_key'", $error['message'] );
+		$this->cli->assertReceivedMessageContaining( "Duplicate entry '' for key 'order_key'", 'warning' );
 	}
 
 	public function test_migrate_catches_infinite_loops() {
