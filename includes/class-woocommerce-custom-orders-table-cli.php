@@ -19,9 +19,18 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	protected $skipped_ids = array();
 
 	/**
-	 * Ensure the custom table has been installed.
+	 * Bootstrap the WP-CLI command.
+	 *
+	 * @global $wpdb
 	 */
 	public function __construct() {
+		global $wpdb;
+
+		// Ensure that errors aren't being totally suppressed.
+		add_action( 'woocommerce_caught_exception', 'self::handle_exceptions' );
+		$wpdb->suppress_errors();
+
+		// Ensure the custom table has been installed.
 		WooCommerce_Custom_Orders_Table_Install::activate();
 	}
 
@@ -82,9 +91,6 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	public function migrate( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
 
-		add_action( 'woocommerce_caught_exception', 'self::handle_exceptions' );
-
-		$wpdb->suppress_errors();
 		$order_count = $this->count();
 
 		if ( ! $order_count ) {
