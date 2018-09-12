@@ -34,7 +34,7 @@ class CLITest extends TestCase {
 	}
 
 	/**
-	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
 	 */
 	public function test_count_handles_refunded_orders() {
 		$this->toggle_use_custom_table( false );
@@ -131,7 +131,7 @@ class CLITest extends TestCase {
 	}
 
 	/**
-	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/43
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/43
 	 */
 	public function test_migrate_handles_errors_with_wc_get_order() {
 		$this->toggle_use_custom_table( false );
@@ -153,7 +153,7 @@ class CLITest extends TestCase {
 	}
 
 	/**
-	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
 	 */
 	public function test_migrate_handles_refunded_orders() {
 		$this->toggle_use_custom_table( false );
@@ -174,7 +174,7 @@ class CLITest extends TestCase {
 	}
 
 	/**
-	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/56
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/56
 	 */
 	public function test_migrate_handles_exceptions() {
 		$this->toggle_use_custom_table( false );
