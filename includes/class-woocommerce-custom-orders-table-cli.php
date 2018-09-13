@@ -6,6 +6,8 @@
  * @author  Liquid Web
  */
 
+use WP_CLI\Iterators\Query as QueryIterator;
+
 /**
  * Manages the contents of the WooCommerce orders table.
  */
@@ -216,12 +218,6 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 * default: 100
 	 * ---
 	 *
-	 * [--batch=<batch>]
-	 * : The batch number to start from when migrating data.
-	 * ---
-	 * default: 1
-	 * ---
-	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp wc-order-table backfill --batch-size=100 --batch=3
@@ -234,46 +230,25 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	public function backfill( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
 
-		$order_table = wc_custom_order_table()->get_table_name();
-		$order_count = $wpdb->get_var( 'SELECT COUNT(order_id) FROM ' . esc_sql( $order_table ) ); // WPCS: DB call ok.
-
-		if ( ! $order_count ) {
-			return WP_CLI::warning( __( 'There are no orders to migrate, aborting.', 'woocommerce-custom-orders-table' ) );
-		}
-
 		$assoc_args  = wp_parse_args( $assoc_args, array(
 			'batch-size' => 100,
-			'batch'      => 1,
 		) );
+		$order_table = wc_custom_order_table()->get_table_name();
+		$order_count = $wpdb->get_var( 'SELECT COUNT(order_id) FROM ' . esc_sql( $order_table ) ); // WPCS: DB call ok.
+		$order_query = new QueryIterator( 'SELECT order_id FROM ' . esc_sql( $order_table ), $assoc_args['batch-size'] );
 		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
 		$processed   = 0;
-		$starting    = ( $assoc_args['batch'] - 1 ) * $assoc_args['batch-size'];
-		$order_query = 'SELECT order_id FROM ' . esc_sql( $order_table ) . ' LIMIT %d, %d';
-		$order_data  = $wpdb->get_col( $wpdb->prepare( $order_query, $starting, $assoc_args['batch-size'] ) ); // WPCS: Unprepared SQL ok, DB call ok.
-		$batch_count = 1;
 
-		while ( ! empty( $order_data ) ) {
-			WP_CLI::debug( sprintf(
-				/* Translators: %1$d is the batch number, %2$d is the batch size. */
-				__( 'Beginning batch #%1$d (%2$d orders/batch).', 'woocommerce-custom-orders-table' ),
-				$batch_count,
-				$assoc_args['batch-size']
-			) );
+		while ( $order_query->valid() ) {
+			$order = wc_get_order( $order_query->current()->order_id );
 
-			foreach ( $order_data as $order_id ) {
-				$order = wc_get_order( $order_id );
-
-				if ( $order ) {
-					$order->get_data_store()->backfill_postmeta( $order );
-				}
-
-				$processed++;
-				$progress->tick();
+			if ( $order ) {
+				$order->get_data_store()->backfill_postmeta( $order );
 			}
 
-			// Load up the next batch.
-			$order_data = $wpdb->get_col( $wpdb->prepare( $order_query, $starting + $processed, $assoc_args['batch-size'] ) ); // WPCS: Unprepared SQL ok, DB call ok.
-			$batch_count++;
+			$processed++;
+			$progress->tick();
+			$order_query->next();
 		}
 
 		$progress->finish();

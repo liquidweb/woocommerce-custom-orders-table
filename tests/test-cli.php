@@ -272,40 +272,19 @@ class CLITest extends TestCase {
 
 	public function test_backfill() {
 		$order_ids = $this->generate_orders( 5 );
-		$index     = 0;
 
 		foreach ( $order_ids as $order_id ) {
 			$this->assertEmpty( get_post_meta( $order_id, '_billing_first_name', true ) );
 		}
 
-		$this->cli->backfill( array(), array(
-			'batch-size' => 2,
-		) );
+		$this->cli->backfill();
 
 		foreach ( $order_ids as $order_id ) {
-			$index++;
-
 			$this->assertNotEmpty(
 				get_post_meta( $order_id, '_billing_email', true ),
-				"The billing email for order #{$index} was not saved to post meta."
+				"The billing email for order {$order_id} was not saved to post meta."
 			);
 		}
-	}
-
-	public function testbackfill_works_in_batches() {
-		global $wpdb;
-
-		$order_ids = $this->generate_orders( 5 );
-
-		$this->cli->backfill( array(), array(
-			'batch-size' => 2,
-		) );
-
-		$this->assertContains( 'LIMIT 5, 2', $wpdb->last_query, 'The batch size should be used to limit query results.' );
-
-		$this->cli->assertReceivedMessage( 'Beginning batch #1 (2 orders/batch).', 'debug' );
-		$this->cli->assertReceivedMessage( 'Beginning batch #2 (2 orders/batch).', 'debug' );
-		$this->cli->assertReceivedMessage( 'Beginning batch #3 (2 orders/batch).', 'debug' );
 	}
 
 	public function test_backfill_when_an_order_has_been_deleted() {
