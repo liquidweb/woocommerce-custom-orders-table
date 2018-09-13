@@ -243,7 +243,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			$order = wc_get_order( $order_query->current()->order_id );
 
 			if ( $order ) {
-				$order->get_data_store()->backfill_postmeta( $order );
+				WooCommerce_Custom_Orders_Table::migrate_to_post_meta( $order );
 			}
 
 			$processed++;
