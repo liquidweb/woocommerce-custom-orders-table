@@ -126,7 +126,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 					$order = false;
 					WP_CLI::warning( sprintf(
 						/* Translators: %1$d is the order ID, %2$s is the exception message. */
-						__( 'Encountered an error migrating order #%1$d, skipping: %2$s', 'woocommerce-custom-orders-table' ),
+						__( 'Encountered an error migrating order #%1$d: %2$s', 'woocommerce-custom-orders-table' ),
 						$order_id,
 						$e->getMessage()
 					) );
@@ -138,7 +138,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 					WP_CLI::warning( sprintf(
 						/* Translators: %1$d is the order ID. */
-						__( 'Unable to retrieve order with ID %1$d', 'woocommerce-custom-orders-table' ),
+						__( 'Unable to retrieve order with ID %1$d, skipping', 'woocommerce-custom-orders-table' ),
 						$order_id
 					) );
 
@@ -146,22 +146,25 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 					$result = $order->get_data_store()->populate_from_meta( $order );
 
 					if ( is_wp_error( $result ) ) {
-						return WP_CLI::error( sprintf(
+						$this->skipped_ids[] = $order_id;
+
+						WP_CLI::warning( sprintf(
 							/* Translators: %1$d is the order ID, %2$s is the error message. */
-							__( 'A database error occurred while migrating order %1$d: %2$s.', 'woocommerce-custom-orders-table' ),
+							__( 'A database error occurred while migrating order %1$d, skipping: %2$s.', 'woocommerce-custom-orders-table' ),
 							$order_id,
 							$result->get_error_message()
 						) );
-					}
+					} else {
+						$processed++;
 
-					WP_CLI::debug( sprintf(
-						/* Translators: %1$d is the migrated order ID. */
-						__( 'Order ID %1$d has been migrated.', 'woocommerce-custom-orders-table' ),
-						$order_id
-					) );
+						WP_CLI::debug( sprintf(
+							/* Translators: %1$d is the migrated order ID. */
+							__( 'Order ID %1$d has been migrated.', 'woocommerce-custom-orders-table' ),
+							$order_id
+						) );
+					}
 				}
 
-				$processed++;
 				$progress->tick();
 			}
 
@@ -183,11 +186,20 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			return WP_CLI::warning( __( 'No orders were migrated.', 'woocommerce-custom-orders-table' ) );
 		}
 
-		WP_CLI::success( sprintf(
-			/* Translators: %1$d is the number of migrated orders. */
-			_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'woocommerce-custom-orders-table' ),
-			$processed
-		) );
+		if ( empty( $this->skipped_ids ) ) {
+			return WP_CLI::success( sprintf(
+				/* Translators: %1$d is the number of migrated orders. */
+				_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'woocommerce-custom-orders-table' ),
+				$processed
+			) );
+		} else {
+			WP_CLI::warning( sprintf(
+				/* Translators: %1$d is the number of orders migrated, %2$d is the number of skipped records. */
+				_n( '%1$d order was migrated, with %2$d skipped.', '%1$d orders were migrated, with %2$d skipped.', $processed, 'woocommerce-custom-orders-table' ),
+				$processed,
+				count( $this->skipped_ids )
+			) );
+		}
 	}
 
 	/**
