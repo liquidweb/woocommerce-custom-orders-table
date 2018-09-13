@@ -292,6 +292,22 @@ class CLITest extends TestCase {
 		}
 	}
 
+	public function testbackfill_works_in_batches() {
+		global $wpdb;
+
+		$order_ids = $this->generate_orders( 5 );
+
+		$this->cli->backfill( array(), array(
+			'batch-size' => 2,
+		) );
+
+		$this->assertContains( 'LIMIT 5, 2', $wpdb->last_query, 'The batch size should be used to limit query results.' );
+
+		$this->cli->assertReceivedMessage( 'Beginning batch #1 (2 orders/batch).', 'debug' );
+		$this->cli->assertReceivedMessage( 'Beginning batch #2 (2 orders/batch).', 'debug' );
+		$this->cli->assertReceivedMessage( 'Beginning batch #3 (2 orders/batch).', 'debug' );
+	}
+
 	public function test_backfill_when_an_order_has_been_deleted() {
 		$order1 = WC_Helper_Order::create_order();
 		$order2 = WC_Helper_Order::create_order();

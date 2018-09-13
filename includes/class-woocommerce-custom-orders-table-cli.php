@@ -250,8 +250,16 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		$starting    = ( $assoc_args['batch'] - 1 ) * $assoc_args['batch-size'];
 		$order_query = 'SELECT order_id FROM ' . esc_sql( $order_table ) . ' LIMIT %d, %d';
 		$order_data  = $wpdb->get_col( $wpdb->prepare( $order_query, $starting, $assoc_args['batch-size'] ) ); // WPCS: Unprepared SQL ok, DB call ok.
+		$batch_count = 1;
 
 		while ( ! empty( $order_data ) ) {
+			WP_CLI::debug( sprintf(
+				/* Translators: %1$d is the batch number, %2$d is the batch size. */
+				__( 'Beginning batch #%1$d (%2$d orders/batch).', 'woocommerce-custom-orders-table' ),
+				$batch_count,
+				$assoc_args['batch-size']
+			) );
+
 			foreach ( $order_data as $order_id ) {
 				$order = wc_get_order( $order_id );
 
@@ -265,6 +273,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 			// Load up the next batch.
 			$order_data = $wpdb->get_col( $wpdb->prepare( $order_query, $starting + $processed, $assoc_args['batch-size'] ) ); // WPCS: Unprepared SQL ok, DB call ok.
+			$batch_count++;
 		}
 
 		$progress->finish();
