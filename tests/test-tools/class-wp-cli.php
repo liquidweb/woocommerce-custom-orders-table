@@ -10,13 +10,19 @@ if ( ! class_exists( 'WP_CLI' ) ) {
 	class WP_CLI {
 		public static $__commands = array();
 		public static $__logger   = array();
-		public static $__counts   = array(
-			'debug'   => 0,
-			'info'    => 0,
-			'success' => 0,
-			'warning' => 0,
-			'error'   => 0,
-		);
+		public static $__counts   = array();
+
+		public static function reset() {
+			self::$__commands = array();
+			self::$__logger   = array();
+			self::$__counts   = array(
+				'debug'   => 0,
+				'info'    => 0,
+				'success' => 0,
+				'warning' => 0,
+				'error'   => 0,
+			);
+		}
 
 		public static function add_command( $name, $callable, $args = array() ) {
 			self::$__commands[] = func_get_args();

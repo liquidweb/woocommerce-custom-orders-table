@@ -19,9 +19,12 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	protected $skipped_ids = array();
 
 	/**
-	 * Ensure the custom table has been installed.
+	 * Bootstrap the WP-CLI command.
 	 */
 	public function __construct() {
+		add_action( 'woocommerce_caught_exception', 'self::handle_exceptions' );
+
+		// Ensure the custom table has been installed.
 		WooCommerce_Custom_Orders_Table_Install::activate();
 	}
 
@@ -82,11 +85,9 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	public function migrate( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
 
-		add_action( 'woocommerce_caught_exception', 'self::handle_exceptions' );
-
-		$wpdb->suppress_errors();
 		$order_count = $this->count();
 
+		// Abort if there are no orders to migrate.
 		if ( ! $order_count ) {
 			return WP_CLI::warning( __( 'There are no orders to migrate, aborting.', 'woocommerce-custom-orders-table' ) );
 		}
@@ -107,8 +108,17 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			array_merge( $order_types, array( $assoc_args['batch-size'] ) )
 		);
 		$order_data  = $wpdb->get_col( $order_query ); // WPCS: Unprepared SQL ok, DB call ok.
+		$batch_count = 1;
 
 		while ( ! empty( array_diff( $order_data, $this->skipped_ids ) ) ) {
+			WP_CLI::debug( sprintf(
+				/* Translators: %1$d is the batch number, %2$d is the batch size. */
+				__( 'Beginning batch #%1$d (%2$d orders/batch).', 'woocommerce-custom-orders-table' ),
+				$batch_count,
+				$assoc_args['batch-size']
+			) );
+
+			// Iterate over each order in this batch.
 			foreach ( $order_data as $order_id ) {
 				try {
 					$order = wc_get_order( $order_id );
@@ -122,6 +132,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 					) );
 				}
 
+				// Either an error occurred or wc_get_order() could not find the order.
 				if ( false === $order ) {
 					$this->skipped_ids[] = $order_id;
 
@@ -161,6 +172,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 				return WP_CLI::error( __( 'Infinite loop detected, aborting.', 'woocommerce-custom-orders-table' ) );
 			} else {
 				$order_data = $next_batch;
+				$batch_count++;
 			}
 		}
 

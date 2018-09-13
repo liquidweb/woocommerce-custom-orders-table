@@ -19,6 +19,8 @@ class CLITest extends TestCase {
 	 * @before
 	 */
 	public function init_cli() {
+		WP_CLI::reset();
+
 		$this->cli = new WooCommerce_Custom_Orders_Table_CLI();
 	}
 
@@ -34,7 +36,7 @@ class CLITest extends TestCase {
 	}
 
 	/**
-	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
 	 */
 	public function test_count_handles_refunded_orders() {
 		$this->toggle_use_custom_table( false );
@@ -45,6 +47,18 @@ class CLITest extends TestCase {
 		$this->toggle_use_custom_table( true );
 
 		$this->assertEquals( 3, $this->cli->count(), 'Expected to see 3 orders to migrate.' );
+	}
+
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/57
+	 */
+	public function test_count_only_counts_unmigrated_orders() {
+		$this->toggle_use_custom_table( false );
+		$this->generate_orders( 3 );
+		$this->toggle_use_custom_table( true );
+		$this->generate_orders( 2 );
+
+		$this->assertSame( 3, $this->cli->count(), 'Expected to only see 3 orders to migrate.' );
 	}
 
 	public function test_migrate() {
@@ -66,6 +80,7 @@ class CLITest extends TestCase {
 			'Expected to see 5 orders in the custom table.'
 		);
 		$this->greaterThanOrEqual( 5, WP_CLI::$__counts['debug'], 'Expected to see at least five calls to WP_CLI::debug().' );
+		$this->cli->assertReceivedMessage( '5 orders were migrated.', 'success' );
 	}
 
 	public function test_migrate_works_in_batches() {
@@ -85,6 +100,10 @@ class CLITest extends TestCase {
 			$this->count_orders_in_table_with_ids( $order_ids ),
 			'Expected to see 5 total orders in the custom table.'
 		);
+
+		$this->cli->assertReceivedMessage( 'Beginning batch #1 (2 orders/batch).', 'debug' );
+		$this->cli->assertReceivedMessage( 'Beginning batch #2 (2 orders/batch).', 'debug' );
+		$this->cli->assertReceivedMessage( 'Beginning batch #3 (2 orders/batch).', 'debug' );
 	}
 
 	/**
@@ -93,6 +112,11 @@ class CLITest extends TestCase {
 	 * @see DataStoreTest::test_populate_from_meta_handles_errors()
 	 */
 	public function test_migrate_stops_on_database_error() {
+		global $wpdb;
+
+		// This test will trigger a DB error due to the duplicate order key.
+		$wpdb->suppress_errors();
+
 		$this->toggle_use_custom_table( false );
 		$order1 = WC_Helper_Order::create_order();
 		$order1->set_order_key( '' );
@@ -104,8 +128,7 @@ class CLITest extends TestCase {
 
 		$this->cli->migrate();
 
-		$error = array_pop( WP_CLI::$__logger );
-		$this->assertEquals( 'error', $error['level'], 'Expected to see a call to WP_CLI::error().' );
+		$this->cli->assertReceivedMessageContaining( "Duplicate entry '' for key 'order_key'", 'error' );
 	}
 
 	public function test_migrate_catches_infinite_loops() {
@@ -131,7 +154,7 @@ class CLITest extends TestCase {
 	}
 
 	/**
-	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/43
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/43
 	 */
 	public function test_migrate_handles_errors_with_wc_get_order() {
 		$this->toggle_use_custom_table( false );
@@ -153,7 +176,7 @@ class CLITest extends TestCase {
 	}
 
 	/**
-	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/45
 	 */
 	public function test_migrate_handles_refunded_orders() {
 		$this->toggle_use_custom_table( false );
@@ -174,7 +197,7 @@ class CLITest extends TestCase {
 	}
 
 	/**
-	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/56
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/56
 	 */
 	public function test_migrate_handles_exceptions() {
 		$this->toggle_use_custom_table( false );
@@ -209,6 +232,14 @@ class CLITest extends TestCase {
 		$this->cli->migrate();
 
 		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( $order_id ));
+	}
+
+	public function test_migrate_aborts_if_no_orders_require_migration() {
+		$this->assertSame( 0, $this->cli->count(), 'Expected to start with 0 orders.' );
+
+		$this->cli->migrate();
+
+		$this->assertSame( 1, WP_CLI::$__counts['warning'], 'A warning should have been displayed.' );
 	}
 
 	public function test_backfill() {
