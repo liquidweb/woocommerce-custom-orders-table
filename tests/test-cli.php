@@ -128,7 +128,7 @@ class CLITest extends TestCase {
 
 		$this->cli->migrate();
 
-		$this->cli->assertReceivedMessageContaining( "Duplicate entry '' for key 'order_key'", 'warning' );
+		$this->cli->assertReceivedMessageContaining( "Duplicate entry '' for key 'order_key'", 'error' );
 	}
 
 	public function test_migrate_catches_infinite_loops() {
