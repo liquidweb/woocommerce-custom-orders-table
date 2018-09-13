@@ -79,6 +79,10 @@ class CoreTest extends TestCase {
 	}
 
 	public function test_migrate_to_post_meta_can_delete_table_rows() {
-		$this->markTestIncomplete();
+		$order = WC_Helper_Order::create_order();
+
+		WooCommerce_Custom_Orders_Table::migrate_to_post_meta( $order, true );
+
+		$this->assertEmpty( $this->get_order_row( $order->get_id() ) );
 	}
 }
