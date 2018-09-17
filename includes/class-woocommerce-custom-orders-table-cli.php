@@ -122,17 +122,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 			// Iterate over each order in this batch.
 			foreach ( $order_data as $order_id ) {
-				try {
-					$order = wc_get_order( $order_id );
-				} catch ( Exception $e ) {
-					$order = false;
-					WP_CLI::warning( sprintf(
-						/* Translators: %1$d is the order ID, %2$s is the exception message. */
-						__( 'Encountered an error migrating order #%1$d: %2$s', 'woocommerce-custom-orders-table' ),
-						$order_id,
-						$e->getMessage()
-					) );
-				}
+				$order = $this->get_order( $order_id );
 
 				// Either an error occurred or wc_get_order() could not find the order.
 				if ( false === $order ) {
@@ -240,7 +230,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		$processed   = 0;
 
 		while ( $order_query->valid() ) {
-			$order = wc_get_order( $order_query->current()->order_id );
+			$order = $this->get_order( $order_query->current()->order_id );
 
 			if ( $order ) {
 				WooCommerce_Custom_Orders_Table::migrate_to_post_meta( $order );
@@ -274,5 +264,29 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 */
 	public static function handle_exceptions( $exception ) {
 		throw $exception;
+	}
+
+	/**
+	 * Helper function for calling wc_get_order(), with error handling.
+	 *
+	 * @param int $order_id The order/refund ID.
+	 *
+	 * @return WC_Abstract_Order|bool Either the WC_Order/WC_Order_Refund object or false if the
+	 *                                order object couldn't be loaded.
+	 */
+	protected function get_order( $order_id ) {
+		try {
+			$order = wc_get_order( $order_id );
+		} catch ( Exception $e ) {
+			$order = false;
+			WP_CLI::warning( sprintf(
+				/* Translators: %1$d is the order ID, %2$s is the exception message. */
+				__( 'Encountered an error retrieving order #%1$d: %2$s', 'woocommerce-custom-orders-table' ),
+				$order_id,
+				$e->getMessage()
+			) );
+		}
+
+		return $order;
 	}
 }
