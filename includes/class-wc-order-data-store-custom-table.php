@@ -85,11 +85,15 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'SELECT * FROM ' . esc_sql( $table ) . ' WHERE order_id = %d LIMIT 1',
 			$order->get_id()
 		), ARRAY_A ); // WPCS: DB call OK.
+		$post  = get_post( $order->get_id() );
 
 		// Expand anything that might need assistance.
 		if ( isset( $data['prices_include_tax'] ) ) {
 			$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
 		}
+
+		// Append additional data.
+		$data['customer_note'] = $post->post_excerpt;
 
 		return $data;
 	}

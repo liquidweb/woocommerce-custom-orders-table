@@ -76,6 +76,19 @@ class OrderDataStoreTest extends TestCase {
 		$this->assertEmpty( $order->get_data_store()->get_order_data_from_table( $order ) );
 	}
 
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/68
+	 */
+	public function test_get_order_data_from_table_populates_customer_notes() {
+		$order = WC_Helper_Order::create_order();
+		$order->set_customer_note( 'This is a new post excerpt.' );
+		$order->save();
+
+		$order = wc_get_order( $order );
+
+		$this->assertEquals( 'This is a new post excerpt.', $order->get_customer_note() );
+	}
+
 	public function test_update_post_meta_for_new_order() {
 		$order = new WC_Order( wp_insert_post( array(
 			'post_type' => 'product',
