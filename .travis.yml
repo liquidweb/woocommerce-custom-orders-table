@@ -9,49 +9,31 @@ cache:
   directories:
     - $HOME/.composer/cache
 
+php:
+  - 7.2
+  - 7.1
+  - 7.0
+
+env:
+  - WP_VERSION=latest WC_VERSION=latest
+  - WP_VERSION=latest WC_VERSION=3.4.5
+  - WP_VERSION=latest WC_VERSION=3.3.5
+  - WP_VERSION=latest WC_VERSION=3.2.6
+
 matrix:
   fast_finish: true
   include:
-    - php: 7.2
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest
-    - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest
-    - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest
-    - php: 7.2
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.3.3
-    - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.3.3
-    - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.3.3
-    - php: 7.2
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.2.6
-    - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.2.6
-    - php: 7.0
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.2.6
-    # Run PHP_CodeSniffer on a bleeding-edge configuration.
-    - php: 7.2
-      env: WP_VERSION=trunk WP_MULTISITE=0 WC_VERSION=latest RUN_PHPCS=1
-    # WordPress Multisite on the latest
-    - php: 7.2
-      env: WP_VERSION=trunk WP_MULTISITE=1 WC_VERSION=latest
+    - name: Coding Standards
+      php: 7.2
+      env: WP_VERSION=trunk WC_VERSION=latest RUN_PHPCS=1
     # Generate code coverage from PHP 7.1.
-    - php: 7.1
+    - name: Code Coverage
+      php: 7.2
       env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest RUN_CODE_COVERAGE=1
 
-  # The following WooCommerce core test currently fails in multisite, with or without this
-  # plugin being active:
-  #
-  # PHP 7.2, WP_VERSION=trunk WP_MULTISITE=1 WC_VERSION=latest
-  # - WC_Tests_Setup_Functions::test_wizard_in_cart_payment_gateways()
-  #
-  # PHP 7.1, WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=3.2.6
-  # - WC_Tests_CRUD_Orders::test_get_billing_email
   allow_failures:
-    - php: 7.2
-      env: WP_VERSION=trunk WP_MULTISITE=1 WC_VERSION=latest
-    - php: 7.1
+    - name: Code Coverage
+      php: 7.2
       env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest RUN_CODE_COVERAGE=1
 
 before_script:
