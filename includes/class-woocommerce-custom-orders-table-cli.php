@@ -35,7 +35,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wc-order-table count
+	 *     wp wc orders-table count
 	 *
 	 * @global $wpdb
 	 *
@@ -77,7 +77,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wc-order-table migrate --batch-size=100
+	 *     wp wc orders-table migrate --batch-size=100
 	 *
 	 * @global $wpdb
 	 *
@@ -210,7 +210,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wc-order-table backfill --batch-size=100 --batch=3
+	 *     wp wc orders-table backfill --batch-size=100 --batch=3
 	 *
 	 * @global $wpdb
 	 *

@@ -32,7 +32,7 @@ The easiest way to accomplish this is via [WP-CLI](http://wp-cli.org/), and the 
 If you'd like to see the number of orders that have yet to be moved into the orders table, you can quickly retrieve this value with the `count` command:
 
 ```
-$ wp wc-order-table count
+$ wp wc orders-table count
 ```
 
 ### Migrate order data from post meta to the orders table
@@ -40,7 +40,7 @@ $ wp wc-order-table count
 The `migrate` command will flatten the most common post meta values for WooCommerce orders into a flat database table, optimized for performance.
 
 ```
-$ wp wc-order-table migrate
+$ wp wc orders-table migrate
 ```
 
 Orders are queried in batches (determined via the `--batch-size` option) in order to reduce the memory footprint of the command (e.g. "only retrieve {$size} orders at a time). Some environments may require a lower value than the default of 1000.
@@ -58,7 +58,7 @@ Orders are queried in batches (determined via the `--batch-size` option) in orde
 If you require the post meta fields to be present (or are removing the custom orders table plugin), you may rollback the migration at any time with the `backfill` command.
 
 ```
-$ wp wc-order-table backfill
+$ wp wc orders-table backfill
 ```
 
 This command does the opposite of `migrate`, looping through the orders table and saving each column into the corresponding post meta key. Be aware that this may dramatically increase the size of your post meta table!
