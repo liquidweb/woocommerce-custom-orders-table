@@ -43,13 +43,17 @@ The `migrate` command will flatten the most common post meta values for WooComme
 $ wp wc orders-table migrate
 ```
 
-Orders are queried in batches (determined via the `--batch-size` option) in order to reduce the memory footprint of the command (e.g. "only retrieve {$size} orders at a time). Some environments may require a lower value than the default of 1000.
+Orders are queried in batches (determined via the `--batch-size` option) in order to reduce the memory footprint of the command (e.g. "only retrieve {$size} orders at a time). Some environments may require a lower value than the default of 100.
+
+**Please note** that `migrate` will delete the original order post meta rows after a successful migration. If you want to preserve these, include the `--save-post-meta` flag!
 
 #### Options
 
 <dl>
 	<dt>batch-size</dt>
 	<dd>The number of orders to process in each batch. Default is 100 orders.</dd>
+	<dt>save-post-meta</dt>
+	<dd>Preserve the original post meta after a successful migration. Default behavior is to clean up post meta.</dd>
 </dl>
 
 
