@@ -12,7 +12,7 @@
  *
  * @ticket https://github.com/woocommerce/woocommerce/pull/20222
  */
-if ( version_compare( WC_VERSION, '3.4.4', '<=' ) ) {
+if ( version_compare( WC_VERSION, '3.5', '<' ) ) {
 	add_filter( 'woocommerce_before_order_object_save', 'tests_truncate_order_data_store_country_codes' );
 	add_filter( 'woocommerce_order_query_args', 'tests_truncate_order_query_country_codes' );
 }
