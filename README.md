@@ -49,7 +49,7 @@ Orders are queried in batches (determined via the `--batch-size` option) in orde
 
 <dl>
 	<dt>batch-size</dt>
-	<dd>The number of orders to process in each batch. Default is 1000 orders.</dd>
+	<dd>The number of orders to process in each batch. Default is 100 orders.</dd>
 </dl>
 
 
@@ -67,9 +67,7 @@ This command does the opposite of `migrate`, looping through the orders table an
 
 <dl>
 	<dt>batch-size</dt>
-	<dd>The number of orders to process in each batch. Default is 1000 orders.</dd>
-	<dt>batch</dt>
-	<dd>The batch number to start from when migrating data. Default is 1.</dd>
+	<dd>The number of orders to process in each batch. Default is 100 orders.</dd>
 </dl>
 
 ## Contributing

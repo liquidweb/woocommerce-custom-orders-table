@@ -193,6 +193,44 @@ class WooCommerce_Custom_Orders_Table {
 	}
 
 	/**
+	 * Restore an order's data in the post_meta table.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param WC_Abstract_Order $order  The order or refund object, passed by reference.
+	 * @param bool              $delete Optional. Should the row in the custom table be deleted?
+	 *                                  Default is false.
+	 */
+	public static function migrate_to_post_meta( &$order, $delete = false ) {
+		global $wpdb;
+
+		$data = $order->get_data_store()->get_order_data_from_table( $order );
+
+		if ( is_null( $data ) ) {
+			return;
+		}
+
+		if ( isset( $data['prices_include_tax'] ) ) {
+			$data['prices_include_tax'] = wc_bool_to_string( $data['prices_include_tax'] );
+		}
+
+		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
+			if ( isset( $data[ $column ] ) ) {
+				update_post_meta( $order->get_id(), $meta_key, $data[ $column ] );
+			}
+		}
+
+		// Remove the row from the custom table.
+		if ( true === $delete ) {
+			$wpdb->delete(
+				wc_custom_order_table()->get_table_name(),
+				array( 'order_id' => $order->get_id() ),
+				array( '%d' )
+			);
+		}
+	}
+
+	/**
 	 * Retrieve the class name of the WooCommerce customer data store.
 	 *
 	 * @return string The data store class name.

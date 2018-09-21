@@ -11,6 +11,7 @@
     "woocommerce/woocommerce": "dev-master",
     "woocommerce/woocommerce-git-hooks": "*",
     "woocommerce/woocommerce-sniffs": "^0.0.1",
+    "wp-cli/wp-cli": "^2.0",
     "wp-coding-standards/wpcs": "^0.14"
   },
   "autoload-dev": {
