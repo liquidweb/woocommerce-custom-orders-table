@@ -111,7 +111,7 @@ class CLITest extends TestCase {
 	 *
 	 * @see DataStoreTest::test_populate_from_meta_handles_errors()
 	 */
-	public function test_migrate_stops_on_database_error() {
+	public function test_migrate_skips_on_database_error() {
 		global $wpdb;
 
 		// This test will trigger a DB error due to the duplicate order key.
@@ -128,7 +128,7 @@ class CLITest extends TestCase {
 
 		$this->cli->migrate();
 
-		$this->cli->assertReceivedMessageContaining( "Duplicate entry '' for key 'order_key'", 'error' );
+		$this->cli->assertReceivedMessageContaining( "Duplicate entry '' for key 'order_key'", 'warning' );
 	}
 
 	public function test_migrate_catches_infinite_loops() {
@@ -242,24 +242,47 @@ class CLITest extends TestCase {
 		$this->assertSame( 1, WP_CLI::$__counts['warning'], 'A warning should have been displayed.' );
 	}
 
+	public function test_migrate_output_when_items_were_skipped() {
+		global $wpdb;
+
+		$wpdb->suppress_errors();
+
+		$this->toggle_use_custom_table( false );
+		$order1 = WC_Helper_Order::create_order();
+		$order1->set_order_key( 'first' );
+		$order1->save();
+		$order2 = WC_Helper_Order::create_order();
+		$order2->set_order_key( 'first' );
+		$order2->save();
+		$order3 = WC_Helper_Order::create_order();
+		$order3->set_order_key( 'third' );
+		$order3->save();
+		$this->toggle_use_custom_table( true );
+
+		$this->cli->migrate();
+
+		$this->assertEquals(
+			2,
+			$this->count_orders_in_table_with_ids( array( $order1->get_id(), $order3->get_id() ) ),
+			'Expected to only see two orders in the custom table.'
+		);
+
+		$this->cli->assertReceivedMessage( '2 orders were migrated, with 1 skipped.', 'warning' );
+	}
+
 	public function test_backfill() {
 		$order_ids = $this->generate_orders( 5 );
-		$index     = 0;
 
 		foreach ( $order_ids as $order_id ) {
 			$this->assertEmpty( get_post_meta( $order_id, '_billing_first_name', true ) );
 		}
 
-		$this->cli->backfill( array(), array(
-			'batch-size' => 2,
-		) );
+		$this->cli->backfill();
 
 		foreach ( $order_ids as $order_id ) {
-			$index++;
-
 			$this->assertNotEmpty(
 				get_post_meta( $order_id, '_billing_email', true ),
-				"The billing email for order #{$index} was not saved to post meta."
+				"The billing email for order {$order_id} was not saved to post meta."
 			);
 		}
 	}

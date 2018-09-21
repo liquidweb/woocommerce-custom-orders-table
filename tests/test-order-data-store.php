@@ -282,45 +282,6 @@ class OrderDataStoreTest extends TestCase {
 		$this->assertInstanceOf( 'WP_Error', $order1->get_data_store()->populate_from_meta( $order2 ) );
 	}
 
-	public function test_backfill_postmeta() {
-		$order    = WC_Helper_Order::create_order();
-		$row      = $this->get_order_row( $order->get_id() );
-		$mapping  = WooCommerce_Custom_Orders_Table::get_postmeta_mapping();
-
-		// For versions < WooCommerce 3.3, a few fields may be set.
-		unset( $mapping['billing_email'], $mapping['customer_id'] );
-
-		foreach ( $mapping as $column => $meta_key ) {
-			$this->assertEmpty( get_post_meta( $order->get_id(), $meta_key, true ) );
-		}
-
-		$order->get_data_store()->backfill_postmeta( $order );
-
-		foreach ( $mapping as $column => $meta_key ) {
-			$this->assertEquals(
-				$row[ $column ],
-				get_post_meta( $order->get_id(), $meta_key, true ),
-				"Value of the $meta_key meta key did not meet expectations."
-			);
-		}
-	}
-
-	public function test_backfill_postmeta_returns_early_if_table_row_is_empty() {
-		$this->toggle_use_custom_table( false );
-		$order = WC_Helper_Order::create_order();
-		$this->toggle_use_custom_table( true );
-
-		$last_changed = wp_cache_get( 'last_changed', 'posts' );
-
-		$order->get_data_store()->backfill_postmeta( $order );
-
-		$this->assertEquals(
-			$last_changed,
-			wp_cache_get( 'last_changed', 'posts' ),
-			'No calls to update_post_meta() should have been made.'
-		);
-	}
-
 	/**
 	 * Shortcut for setting up reflection methods + properties for update_post_meta().
 	 *
