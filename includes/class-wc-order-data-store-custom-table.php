@@ -75,7 +75,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 *
 	 * @param WC_Order $order The order object.
 	 *
-	 * @return object The order row, as an associative array.
+	 * @return array The order row, as an associative array.
 	 */
 	public function get_order_data_from_table( $order ) {
 		global $wpdb;
@@ -85,7 +85,13 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			'SELECT * FROM ' . esc_sql( $table ) . ' WHERE order_id = %d LIMIT 1',
 			$order->get_id()
 		), ARRAY_A ); // WPCS: DB call OK.
-		$post  = get_post( $order->get_id() );
+
+		// Return early if there's no matching row in the orders table.
+		if ( empty( $data ) ) {
+			return array();
+		}
+
+		$post = get_post( $order->get_id() );
 
 		// Expand anything that might need assistance.
 		if ( isset( $data['prices_include_tax'] ) ) {
