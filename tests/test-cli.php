@@ -227,11 +227,11 @@ class CLITest extends TestCase {
 		$order = wc_get_order( $order_id );
 		$order->get_total();
 
-		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( $order_id ));
+		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( array( $order_id ) ) );
 
 		$this->cli->migrate();
 
-		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( $order_id ));
+		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( array( $order_id ) ) );
 	}
 
 	public function test_migrate_aborts_if_no_orders_require_migration() {
@@ -263,7 +263,7 @@ class CLITest extends TestCase {
 
 		$this->assertEquals(
 			2,
-			$this->count_orders_in_table_with_ids( array( $order1->get_id(), $order3->get_id() ) ),
+			$this->count_orders_in_table_with_ids( array( $order2->get_id(), $order3->get_id() ) ),
 			'Expected to only see two orders in the custom table.'
 		);
 

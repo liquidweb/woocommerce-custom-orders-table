@@ -13,11 +13,11 @@ class OrderDataStoreTest extends TestCase {
 		$order_id = WC_Helper_Order::create_order()->get_id();
 		$this->toggle_use_custom_table( true );
 
-		$this->assertEquals( 0, $this->count_orders_in_table_with_ids( $order_id ) );
+		$this->assertEquals( 0, $this->count_orders_in_table_with_ids( array( $order_id ) ) );
 
 		$order = wc_get_order( $order_id );
 
-		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( $order->get_id() ) );
+		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( array( $order->get_id() ) ) );
 	}
 
 	/**
@@ -34,7 +34,7 @@ class OrderDataStoreTest extends TestCase {
 		$order = wc_get_order( $order_id );
 
 		$this->assertEmpty( $order->get_total() );
-		$this->assertEquals( 0, $this->count_orders_in_table_with_ids( $order_id ) );
+		$this->assertEquals( 0, $this->count_orders_in_table_with_ids( array( $order_id ) ) );
 	}
 
 	public function test_delete() {

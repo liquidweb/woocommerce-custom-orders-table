@@ -110,7 +110,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN " . esc_sql( $order_table ) . ' o ON p.ID = o.order_id
 			WHERE p.post_type IN (' . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
 			AND o.order_id IS NULL
-			ORDER BY p.post_date DESC
+			ORDER BY p.post_date DESC, p.ID DESC
 			LIMIT %d',
 			array_merge( $order_types, array( $assoc_args['batch-size'] ) )
 		);
