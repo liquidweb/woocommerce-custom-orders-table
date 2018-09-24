@@ -35,7 +35,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wc-order-table count
+	 *     wp wc orders-table count
 	 *
 	 * @global $wpdb
 	 *
@@ -75,9 +75,13 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 * default: 100
 	 * ---
 	 *
+	 * [--save-post-meta]
+	 * : Preserve the original post meta after a successful migration.
+	 * Default behavior is to clean up post meta.
+	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wc-order-table migrate --batch-size=100
+	 *     wp wc orders-table migrate --batch-size=100 --save-post-meta
 	 *
 	 * @global $wpdb
 	 *
@@ -95,7 +99,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		}
 
 		$assoc_args  = wp_parse_args( $assoc_args, array(
-			'batch-size' => 100,
+			'batch-size'     => 100,
+			'save-post-meta' => false,
 		) );
 		$order_table = wc_custom_order_table()->get_table_name();
 		$order_types = wc_get_order_types( 'reports' );
@@ -135,7 +140,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 					) );
 
 				} else {
-					$result = $order->get_data_store()->populate_from_meta( $order );
+					$result = $order->get_data_store()->populate_from_meta( $order, ! $assoc_args['save-post-meta'] );
 
 					if ( is_wp_error( $result ) ) {
 						$this->skipped_ids[] = $order_id;
@@ -210,7 +215,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wc-order-table backfill --batch-size=100 --batch=3
+	 *     wp wc orders-table backfill --batch-size=100 --batch=3
 	 *
 	 * @global $wpdb
 	 *
