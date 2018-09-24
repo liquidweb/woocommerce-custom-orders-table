@@ -358,10 +358,14 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function populate_from_meta( &$order, $delete = false ) {
 		global $wpdb;
 
-		$table_data = $this->get_order_data_from_table( $order );
-		$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
+		try {
+			$table_data = $this->get_order_data_from_table( $order );
+			$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
 
-		$this->update_post_meta( $order );
+			$this->update_post_meta( $order );
+		} catch ( WC_Data_Exception $e ) {
+			return new WP_Error( 'woocommerce-custom-order-table-migration', $e->getMessage() );
+		}
 
 		if ( $wpdb->last_error ) {
 			return new WP_Error( 'woocommerce-custom-order-table-migration', $wpdb->last_error );

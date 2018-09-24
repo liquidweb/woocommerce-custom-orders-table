@@ -282,6 +282,20 @@ class OrderDataStoreTest extends TestCase {
 		$this->assertInstanceOf( 'WP_Error', $order1->get_data_store()->populate_from_meta( $order2 ) );
 	}
 
+	public function test_populate_from_meta_handles_wc_data_exceptions() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		// Give an invalid billing email.
+		update_post_meta( $order->get_id(), '_billing_email', 'this is not an email address' );
+
+		// Refresh the instance.
+		$order = wc_get_order( $order->get_id() );
+
+		$this->assertInstanceOf( 'WP_Error', $order->get_data_store()->populate_from_meta( $order ) );
+	}
+
 	/**
 	 * Shortcut for setting up reflection methods + properties for update_post_meta().
 	 *
