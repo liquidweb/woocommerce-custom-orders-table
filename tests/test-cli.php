@@ -270,6 +270,38 @@ class CLITest extends TestCase {
 		$this->cli->assertReceivedMessage( '2 orders were migrated, with 1 skipped.', 'warning' );
 	}
 
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/55
+	 */
+	public function test_migrate_cleans_up_post_meta_by_default() {
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 1 );
+		$order_id  = array_shift( $order_ids );
+		$this->toggle_use_custom_table( true );
+
+		$this->assertNotEmpty( get_post_meta( $order_id, '_billing_email', true ) );
+
+		$this->cli->migrate();
+
+		$this->assertEmpty( get_post_meta( $order_id, '_billing_email', true ) );
+	}
+
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/55
+	 */
+	public function test_migrate_can_leave_post_meta() {
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 1 );
+		$order_id  = array_shift( $order_ids );
+		$this->toggle_use_custom_table( true );
+
+		$this->assertNotEmpty( get_post_meta( $order_id, '_billing_email', true ) );
+
+		$this->cli->migrate( array(), array( 'save-post-meta' => true ) );
+
+		$this->assertNotEmpty( get_post_meta( $order_id, '_billing_email', true ) );
+	}
+
 	public function test_backfill() {
 		$order_ids = $this->generate_orders( 5 );
 
