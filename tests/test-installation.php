@@ -8,51 +8,34 @@
 
 class InstallationTest extends TestCase {
 
+	/**
+	 * Clean up existing installations.
+	 *
+	 * @global $wpdb
+	 */
 	public function setUp() {
-		self::drop_orders_table();
+		global $wpdb;
+
+		parent::setUp();
+
+		$wpdb->query( 'DROP TABLE IF EXISTS ' . esc_sql( wc_custom_order_table()->get_table_name() ) );
+		delete_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY );
 	}
 
 	public function test_table_is_created_on_plugin_activation() {
-		$this->assertFalse(
-			self::orders_table_exists(),
-			'The wp_woocommerce_orders table should not exist at the beginning of this test.'
-		);
-
 		self::reactivate_plugin();
 
 		$this->assertTrue(
-			self::orders_table_exists(),
+			$this->orders_table_exists(),
 			'Upon activation, the table should be created.'
-		);
-	}
-
-	public function test_table_is_only_installed_if_it_does_not_already_exist() {
-		self::reactivate_plugin();
-
-		$this->assertTrue(
-			self::orders_table_exists(),
-			'Upon activation, the table should be created.'
-		);
-
-		// Deactivate, then re-activate the plugin.
-		self::reactivate_plugin();
-
-		$this->assertTrue(
-			self::orders_table_exists(),
-			'The table should still exist, just as it was.'
 		);
 	}
 
 	public function test_can_install_table() {
-		$this->assertFalse(
-			self::orders_table_exists(),
-			'The wp_woocommerce_orders table should not exist at the beginning of this test.'
-		);
-
 		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		$this->assertTrue(
-			self::orders_table_exists(),
+			$this->orders_table_exists(),
 			'Upon activation, the table should be created.'
 		);
 		$this->assertNotEmpty(
@@ -107,7 +90,10 @@ class InstallationTest extends TestCase {
 	/**
 	 * Test that the generated database schema contains the expected indexes.
 	 *
-	 * @dataProvider table_index_provider()
+	 * @testWith [0, "PRIMARY", "order_id"]
+	 *           [0, "order_key", "order_key"]
+	 *           [1, "customer_id", "customer_id"]
+	 *           [1, "order_total", "total"]
 	 */
 	public function test_database_indexes( $non_unique, $key_name, $column_name ) {
 		global $wpdb;
@@ -132,7 +118,7 @@ class InstallationTest extends TestCase {
 				$non_unique,
 				$index['Non_unique'],
 				sprintf(
-					'Did not match expected non-uniqueness (Received %d, expected %d',
+					'Did not match expected non-uniqueness (Received %d, expected %d)',
 					$non_unique,
 					$index['Non_unique']
 				)
@@ -151,12 +137,115 @@ class InstallationTest extends TestCase {
 		$this->fail( sprintf( 'Could not find an index with name "%s".', $key_name ) );
 	}
 
-	public function table_index_provider() {
-		return array(
-			'Primary key' => array( 0, 'PRIMARY', 'order_id' ),
-			'Order key'   => array( 0, 'order_key', 'order_key' ),
-			'Customer ID' => array( 1, 'customer_id', 'customer_id' ),
-			'Order total' => array( 1, 'order_total', 'total' ),
+	/**
+	 * Test the lengths of CHAR fields.
+	 *
+	 * @testWith ["billing_country", 2]
+	 *           ["shipping_country", 2]
+	 *           ["currency", 3]
+	 *
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
+	 */
+	public function test_char_length( $column, $length ) {
+		global $wpdb;
+
+		$this->assert_column_has_type(
+			$column,
+			sprintf( 'char(%d)', $length ),
+			sprintf( 'Column "%s" did not match the expected CHAR length of %d.', $column, $length )
 		);
+	}
+
+	/**
+	 * Test the lengths of VARCHAR fields.
+	 *
+	 * @global $wpdb
+	 *
+	 * @testWith ["order_key", 100]
+	 *           ["billing_index", 255]
+	 *           ["billing_first_name", 100]
+	 *           ["billing_last_name", 100]
+	 *           ["billing_company", 100]
+	 *           ["billing_address_1", 255]
+	 *           ["billing_address_2", 200]
+	 *           ["billing_city", 100]
+	 *           ["billing_state", 100]
+	 *           ["billing_postcode", 20]
+	 *           ["billing_email", 200]
+	 *           ["billing_phone", 200]
+	 *           ["shipping_index", 255]
+	 *           ["shipping_first_name", 100]
+	 *           ["shipping_last_name", 100]
+	 *           ["shipping_company", 100]
+	 *           ["shipping_address_1", 255]
+	 *           ["shipping_address_2", 200]
+	 *           ["shipping_city", 100]
+	 *           ["shipping_state", 100]
+	 *           ["shipping_postcode", 20]
+	 *           ["payment_method", 100]
+	 *           ["payment_method_title", 100]
+	 *           ["discount_total", 100]
+	 *           ["discount_tax", 100]
+	 *           ["shipping_total", 100]
+	 *           ["shipping_tax", 100]
+	 *           ["cart_tax", 100]
+	 *           ["total", 100]
+	 *           ["version", 16]
+	 *           ["prices_include_tax", 3]
+	 *           ["transaction_id", 200]
+	 *           ["customer_ip_address", 40]
+	 *           ["customer_user_agent", 200]
+	 *           ["created_via", 200]
+	 *           ["date_completed", 20]
+	 *           ["date_paid", 20]
+	 *           ["cart_hash", 32]
+	 *           ["amount", 100]
+	 *
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
+	 */
+	public function test_varchar_length( $column, $length ) {
+		global $wpdb;
+
+		$this->assert_column_has_type(
+			$column,
+			sprintf( 'varchar(%d)', $length ),
+			sprintf( 'Column "%s" did not match the expected VARCHAR length of %d.', $column, $length )
+		);
+	}
+
+	/**
+	 * Assert the type of a given column matches expectations.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param string $column   The column name to find.
+	 * @param string $expected The expected column type, e.g. "varchar(255)".
+	 * @param string $message  Optional. An error message to display if the assertion fails.
+	 */
+	protected function assert_column_has_type( $column, $expected, $message = '' ) {
+		global $wpdb;
+
+		$this->assertSame(
+			$expected,
+			$wpdb->get_row( $wpdb->prepare(
+				'SHOW COLUMNS FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE Field = %s',
+				$column
+			) )->Type,
+			$message
+		);
+	}
+
+	/**
+	 * Determine if the custom orders table exists.
+	 *
+	 * @global $wpdb
+	 */
+	protected function orders_table_exists() {
+		global $wpdb;
+
+		return (bool) $wpdb->get_var( $wpdb->prepare(
+			'SELECT COUNT(*) FROM information_schema.tables WHERE table_name = %s LIMIT 1',
+			wc_custom_order_table()->get_table_name()
+		) );
 	}
 }

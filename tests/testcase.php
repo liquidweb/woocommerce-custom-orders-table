@@ -9,6 +9,15 @@
 class TestCase extends WC_Unit_Test_Case {
 
 	/**
+	 * Ensure each testcase starts off with a clean table installations.
+	 *
+	 * @beforeClass
+	 */
+	public static function remove_table_version_from_options() {
+		delete_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY );
+	}
+
+	/**
 	 * Delete all data from the orders table after each test.
 	 *
 	 * @after
@@ -18,6 +27,9 @@ class TestCase extends WC_Unit_Test_Case {
 	protected function truncate_table() {
 		global $wpdb;
 
+		WooCommerce_Custom_Orders_Table_Install::activate();
+
+		$wpdb->suppress_errors( false );
 		$wpdb->query( 'DELETE FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) );
 	}
 
@@ -30,9 +42,11 @@ class TestCase extends WC_Unit_Test_Case {
 		if ( $enabled ) {
 			add_filter( 'woocommerce_customer_data_store', 'WooCommerce_Custom_Orders_Table::customer_data_store' );
 			add_filter( 'woocommerce_order_data_store', 'WooCommerce_Custom_Orders_Table::order_data_store' );
+			add_filter( 'woocommerce_order-refund_data_store', 'WooCommerce_Custom_Orders_Table::order_refund_data_store' );
 		} else {
 			remove_filter( 'woocommerce_customer_data_store', 'WooCommerce_Custom_Orders_Table::customer_data_store' );
 			remove_filter( 'woocommerce_order_data_store', 'WooCommerce_Custom_Orders_Table::order_data_store' );
+			remove_filter( 'woocommerce_order-refund_data_store', 'WooCommerce_Custom_Orders_Table::order_refund_data_store' );
 		}
 	}
 
@@ -71,7 +85,7 @@ class TestCase extends WC_Unit_Test_Case {
 
 		return (int) $wpdb->get_var( $wpdb->prepare(
 			'SELECT COUNT(order_id) FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . '
-			WHERE order_id IN (' . implode( ', ', array_fill( 0, count( $order_ids ), '%d' ) ) . ')',
+			WHERE order_id IN (' . implode( ', ', array_fill( 0, count( (array) $order_ids ), '%d' ) ) . ')',
 		$order_ids ) );
 	}
 
@@ -94,37 +108,10 @@ class TestCase extends WC_Unit_Test_Case {
 	}
 
 	/**
-	 * Determine if the custom orders table exists.
-	 *
-	 * @global $wpdb
-	 */
-	protected static function orders_table_exists() {
-		global $wpdb;
-
-		return (bool) $wpdb->get_var( $wpdb->prepare(
-			'SELECT COUNT(*) FROM information_schema.tables WHERE table_name = %s LIMIT 1',
-			wc_custom_order_table()->get_table_name()
-		) );
-	}
-
-	/**
-	 * Drop the wp_woocommerce_orders table.
-	 *
-	 * @global $wpdb
-	 */
-	protected static function drop_orders_table() {
-		global $wpdb;
-
-		$wpdb->query( 'DROP TABLE IF EXISTS ' . esc_sql( wc_custom_order_table()->get_table_name() ) );
-
-		delete_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY );
-	}
-
-	/**
 	 * Emulate deactivating, then subsequently reactivating the plugin.
 	 */
 	protected static function reactivate_plugin() {
-		$plugin = plugin_basename( dirname( __DIR__ ) . '/woocommerce-custom-orders-table.php' );
+		$plugin = basename( dirname( __DIR__ ) ) . '/woocommerce-custom-orders-table.php';
 
 		do_action( 'deactivate_' . $plugin, false );
 		do_action( 'activate_' . $plugin, false );
