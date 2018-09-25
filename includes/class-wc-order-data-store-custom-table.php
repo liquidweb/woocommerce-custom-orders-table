@@ -47,22 +47,29 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	}
 
 	/**
-	 * Read order data.
+	 * Read order data from the custom orders table.
 	 *
-	 * @param WC_Order $order The order object, passed by reference.
+	 * If the order does not yet exist, the plugin will attempt to migrate it automatically. This
+	 * behavior can be modified via the "wc_custom_order_table_automatic_migration" filter.
+	 *
+	 * @param WC_Order $order       The order object, passed by reference.
 	 * @param object   $post_object The post object.
 	 */
 	protected function read_order_data( &$order, $post_object ) {
-		global $wpdb;
-
 		$data = $this->get_order_data_from_table( $order );
 
 		if ( ! empty( $data ) ) {
 			$order->set_props( $data );
-
 		} else {
-			// Automatically backfill order data from meta, but allow for disabling.
-			if ( apply_filters( 'wc_custom_order_table_automatic_migration', true ) ) {
+			/**
+			 * Toggle the ability for WooCommerce Custom Orders Table to automatically migrate orders.
+			 *
+			 * @param bool $migrate Whether or not orders should automatically be migrated once they
+			 *                      have been loaded.
+			 */
+			$migrate = apply_filters( 'wc_custom_order_table_automatic_migration', true );
+
+			if ( $migrate ) {
 				$this->populate_from_meta( $order );
 			}
 		}
@@ -75,7 +82,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	 *
 	 * @param WC_Order $order The order object.
 	 *
-	 * @return object The order row, as an associative array.
+	 * @return array The order row, as an associative array.
 	 */
 	public function get_order_data_from_table( $order ) {
 		global $wpdb;
@@ -86,10 +93,20 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			$order->get_id()
 		), ARRAY_A ); // WPCS: DB call OK.
 
+		// Return early if there's no matching row in the orders table.
+		if ( empty( $data ) ) {
+			return array();
+		}
+
+		$post = get_post( $order->get_id() );
+
 		// Expand anything that might need assistance.
 		if ( isset( $data['prices_include_tax'] ) ) {
 			$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
 		}
+
+		// Append additional data.
+		$data['customer_note'] = $post->post_excerpt;
 
 		return $data;
 	}
@@ -354,10 +371,14 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function populate_from_meta( &$order, $delete = false ) {
 		global $wpdb;
 
-		$table_data = $this->get_order_data_from_table( $order );
-		$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
+		try {
+			$table_data = $this->get_order_data_from_table( $order );
+			$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
 
-		$this->update_post_meta( $order );
+			$this->update_post_meta( $order );
+		} catch ( WC_Data_Exception $e ) {
+			return new WP_Error( 'woocommerce-custom-order-table-migration', $e->getMessage() );
+		}
 
 		if ( $wpdb->last_error ) {
 			return new WP_Error( 'woocommerce-custom-order-table-migration', $wpdb->last_error );

@@ -76,6 +76,19 @@ class OrderDataStoreTest extends TestCase {
 		$this->assertEmpty( $order->get_data_store()->get_order_data_from_table( $order ) );
 	}
 
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/68
+	 */
+	public function test_get_order_data_from_table_populates_customer_notes() {
+		$order = WC_Helper_Order::create_order();
+		$order->set_customer_note( 'This is a new post excerpt.' );
+		$order->save();
+
+		$order = wc_get_order( $order );
+
+		$this->assertEquals( 'This is a new post excerpt.', $order->get_customer_note() );
+	}
+
 	public function test_update_post_meta_for_new_order() {
 		$order = new WC_Order( wp_insert_post( array(
 			'post_type' => 'product',
@@ -267,6 +280,20 @@ class OrderDataStoreTest extends TestCase {
 		$order1->get_data_store()->populate_from_meta( $order1 );
 
 		$this->assertInstanceOf( 'WP_Error', $order1->get_data_store()->populate_from_meta( $order2 ) );
+	}
+
+	public function test_populate_from_meta_handles_wc_data_exceptions() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		// Give an invalid billing email.
+		update_post_meta( $order->get_id(), '_billing_email', 'this is not an email address' );
+
+		// Refresh the instance.
+		$order = wc_get_order( $order->get_id() );
+
+		$this->assertInstanceOf( 'WP_Error', $order->get_data_store()->populate_from_meta( $order ) );
 	}
 
 	/**
