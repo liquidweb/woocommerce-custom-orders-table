@@ -15,23 +15,25 @@
 class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store_CPT {
 
 	/**
-	 * Read refund data.
+	 * Read refund data from the custom orders table.
 	 *
-	 * @param WC_Order_Refund $refund      The refund object, passed by reference.
-	 * @param object          $post_object The post object.
+	 * If the refund does not yet exist, the plugin will attempt to migrate it automatically. This
+	 * behavior can be modified via the "wc_custom_order_table_automatic_migration" filter.
+	 *
+	 * @param WC_Refund $order       The refund object, passed by reference.
+	 * @param object    $post_object The post object.
 	 */
-	protected function read_order_data( &$refund, $post_object ) {
-		global $wpdb;
-
-		$data = $this->get_order_data_from_table( $refund );
+	protected function read_order_data( &$order, $post_object ) {
+		$data = $this->get_order_data_from_table( $order );
 
 		if ( ! empty( $data ) ) {
-			$refund->set_props( $data );
-
+			$order->set_props( $data );
 		} else {
-			// Automatically backfill refund data from meta, but allow for disabling.
-			if ( apply_filters( 'wc_custom_order_table_automatic_migration', true ) ) {
-				$this->populate_from_meta( $refund );
+			/** This filter is defined in class-wc-order-data-store-custom-table.php. */
+			$migrate = apply_filters( 'wc_custom_order_table_automatic_migration', true );
+
+			if ( $migrate ) {
+				$this->populate_from_meta( $order );
 			}
 		}
 	}
