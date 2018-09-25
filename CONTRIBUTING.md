@@ -56,7 +56,7 @@ When submitting pull requests, please include relevant tests for your new featur
 
 #### Test coverage
 
-[![Coverage Status](https://coveralls.io/repos/github/liquidweb/woocommerce-custom-orders-table/badge.svg?branch=feature%2Fcode-coverage)](https://coveralls.io/github/liquidweb/woocommerce-custom-orders-table?branch=feature%2Fcode-coverage)
+[![Coverage Status](https://coveralls.io/repos/github/liquidweb/woocommerce-custom-orders-table/badge.svg?branch=develop)](https://coveralls.io/github/liquidweb/woocommerce-custom-orders-table?branch=develop)
 
 To generate a code coverage report (test coverage percentage as well as areas of untested or under-tested code that could pose risk), you run the following:
 
