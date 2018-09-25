@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Version 1.0.0 (Release Candidate)] - 2018-09-25
 
 * Major refactoring of the WP-CLI migration commands ([#61], [#79], [#81]).
 * Database table optimizations ([#65], props @raunak-gupta).
@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 [Unreleased]: https://github.com/liquidweb/woocommerce-order-tables/compare/master...develop
+[Version 1.0.0 (Release Candidate)]: https://github.com/liquidweb/woocommerce-order-tables/releases/tag/v1.0.0-rc1
 [Version 1.0.0 (Beta 3)]: https://github.com/liquidweb/woocommerce-order-tables/releases/tag/v1.0.0-beta.3
 [Version 1.0.0 (Beta 2)]: https://github.com/liquidweb/woocommerce-order-tables/releases/tag/v1.0.0-beta.2
 [Version 1.0.0 (Beta 1)]: https://github.com/liquidweb/woocommerce-order-tables/releases/tag/v1.0.0-beta.1
