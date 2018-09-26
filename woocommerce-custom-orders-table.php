@@ -20,10 +20,6 @@
 define( 'WC_CUSTOM_ORDER_TABLE_URL', plugin_dir_url( __FILE__ ) );
 define( 'WC_CUSTOM_ORDER_TABLE_PATH', plugin_dir_path( __FILE__ ) );
 
-// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
-set_include_path( get_include_path() . PATH_SEPARATOR . WC_CUSTOM_ORDER_TABLE_PATH . '/includes/' );
-// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_include_path
-
 /**
  * Autoloader for plugin files.
  *
@@ -31,11 +27,25 @@ set_include_path( get_include_path() . PATH_SEPARATOR . WC_CUSTOM_ORDER_TABLE_PA
  * conventions, where a class of 'Foo_Bar' would be named 'class-foo-bar.php'.
  *
  * @param string $class The class name to autoload.
+ *
+ * @return void
  */
 function wc_custom_order_table_autoload( $class ) {
-	$class = 'class-' . str_replace( '_', '-', $class );
+	// Bail early if the class/trait/interface is not in the root namespace.
+	if ( strpos( $class, '\\' ) !== false ) {
+		return;
+	}
 
-	return spl_autoload( $class );
+	// Assemble file path and name according to WordPress code style.
+	$filename = strtolower( 'class-' . str_replace( '_', '-', $class ) . '.php' );
+	$filepath = WC_CUSTOM_ORDER_TABLE_PATH . 'includes/' . $filename;
+
+	// Bail if the file name we generated does not exist.
+	if ( ! is_readable( $filepath ) ) {
+		return;
+	}
+
+	include $filepath;
 }
 spl_autoload_register( 'wc_custom_order_table_autoload' );
 
