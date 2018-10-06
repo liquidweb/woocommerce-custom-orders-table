@@ -56,7 +56,7 @@ before_script:
 script:
   - |
     if [[ ${RUN_CODE_COVERAGE} ]]; then
-      phpdbg -qrr -d memory_limit=-1 ./vendor/bin/phpunit -c phpunit.xml --coverage-clover=build/logs/clover.xml --exclude-group=timeout
+      phpdbg -qrr -d memory_limit=-1 ./vendor/bin/phpunit -c phpunit.xml.dist --coverage-clover=build/logs/clover.xml --exclude-group=timeout
     else
       ./vendor/bin/phpunit
     fi
