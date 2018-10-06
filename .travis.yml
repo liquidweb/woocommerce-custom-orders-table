@@ -43,6 +43,7 @@ before_script:
       wget https://github.com/php-coveralls/php-coveralls/releases/download/v1.0.0/coveralls.phar
       chmod +x coveralls.phar
       mkdir -p build/logs
+    fi
   - phpenv config-rm xdebug.ini
   - |
     if [[ ${GITHUB_AUTH_TOKEN} != '' ]]; then
