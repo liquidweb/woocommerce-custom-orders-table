@@ -1951,12 +1951,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/woocommerce.git",
-                "reference": "b4242135546674e055701b9c017fff1d4d71bbcd"
+                "reference": "c12bb2dac52badd4b46146380a3054ddfbf41253"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/b4242135546674e055701b9c017fff1d4d71bbcd",
-                "reference": "b4242135546674e055701b9c017fff1d4d71bbcd",
+                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/c12bb2dac52badd4b46146380a3054ddfbf41253",
+                "reference": "c12bb2dac52badd4b46146380a3054ddfbf41253",
                 "shasum": ""
             },
             "require": {
@@ -1987,7 +1987,7 @@
             ],
             "description": "An eCommerce toolkit that helps you sell anything. Beautifully.",
             "homepage": "https://woocommerce.com/",
-            "time": "2018-09-24T20:03:20+00:00"
+            "time": "2018-10-05T17:50:56+00:00"
         },
         {
             "name": "woocommerce/woocommerce-git-hooks",
