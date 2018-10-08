@@ -1,7 +1,7 @@
 # WooCommerce Custom Orders Table
 
 [![Build Status](https://travis-ci.org/liquidweb/woocommerce-custom-orders-table.svg?branch=develop)](https://travis-ci.org/liquidweb/woocommerce-custom-orders-table)
-[![Coverage Status](https://coveralls.io/repos/github/liquidweb/woocommerce-custom-orders-table/badge.svg?branch=feature%2Fcode-coverage)](https://coveralls.io/github/liquidweb/woocommerce-custom-orders-table?branch=feature%2Fcode-coverage)
+[![Coverage Status](https://coveralls.io/repos/github/liquidweb/woocommerce-custom-orders-table/badge.svg?branch=develop)](https://coveralls.io/github/liquidweb/woocommerce-custom-orders-table?branch=develop)
 
 This plugin improves WooCommerce performance by introducing a custom table to hold all of the most common order information in a single, properly-indexed location.
 
