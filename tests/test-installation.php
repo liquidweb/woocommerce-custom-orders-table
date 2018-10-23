@@ -147,8 +147,6 @@ class InstallationTest extends TestCase {
 	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
 	 */
 	public function test_char_length( $column, $length ) {
-		global $wpdb;
-
 		$this->assert_column_has_type(
 			$column,
 			sprintf( 'char(%d)', $length ),
@@ -158,8 +156,6 @@ class InstallationTest extends TestCase {
 
 	/**
 	 * Test the lengths of VARCHAR fields.
-	 *
-	 * @global $wpdb
 	 *
 	 * @testWith ["order_key", 100]
 	 *           ["billing_index", 255]
@@ -194,7 +190,6 @@ class InstallationTest extends TestCase {
 	 *           ["prices_include_tax", 3]
 	 *           ["transaction_id", 200]
 	 *           ["customer_ip_address", 40]
-	 *           ["customer_user_agent", 200]
 	 *           ["created_via", 200]
 	 *           ["date_completed", 20]
 	 *           ["date_paid", 20]
@@ -204,13 +199,18 @@ class InstallationTest extends TestCase {
 	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
 	 */
 	public function test_varchar_length( $column, $length ) {
-		global $wpdb;
-
 		$this->assert_column_has_type(
 			$column,
 			sprintf( 'varchar(%d)', $length ),
 			sprintf( 'Column "%s" did not match the expected VARCHAR length of %d.', $column, $length )
 		);
+	}
+
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/89
+	 */
+	public function test_user_agent_is_stored_in_text_column() {
+		$this->assert_column_has_type( 'customer_user_agent', 'text' );
 	}
 
 	/**
