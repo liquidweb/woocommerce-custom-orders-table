@@ -147,8 +147,6 @@ class InstallationTest extends TestCase {
 	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
 	 */
 	public function test_char_length( $column, $length ) {
-		global $wpdb;
-
 		$this->assert_column_has_type(
 			$column,
 			sprintf( 'char(%d)', $length ),
@@ -158,8 +156,6 @@ class InstallationTest extends TestCase {
 
 	/**
 	 * Test the lengths of VARCHAR fields.
-	 *
-	 * @global $wpdb
 	 *
 	 * @testWith ["order_key", 100]
 	 *           ["billing_index", 255]
@@ -204,8 +200,6 @@ class InstallationTest extends TestCase {
 	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
 	 */
 	public function test_varchar_length( $column, $length ) {
-		global $wpdb;
-
 		$this->assert_column_has_type(
 			$column,
 			sprintf( 'varchar(%d)', $length ),
