@@ -116,8 +116,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		);
 		$order_data  = $wpdb->get_col( $order_query ); // WPCS: Unprepared SQL ok, DB call ok.
 		$batch_count = 1;
-
-		while ( ! empty( array_diff( $order_data, $this->skipped_ids ) ) ) {
+		$var = array_diff( $order_data, $this->skipped_ids );
+		while ( ! empty( $var ) ) { //empty() only supports variables
 			WP_CLI::debug( sprintf(
 				/* Translators: %1$d is the batch number, %2$d is the batch size. */
 				__( 'Beginning batch #%1$d (%2$d orders/batch).', 'woocommerce-custom-orders-table' ),
