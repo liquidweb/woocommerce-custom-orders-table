@@ -24,6 +24,7 @@ If applicable, add screenshots to help explain your problem.
 - WordPress version
 - WooCommerce version
 - Plugin version [e.g. "1.0.0 (Beta 3)" or "develop @ 027c6aa"]
+- PHP version
 
 **Additional context**
 Add any other context about the problem here.
