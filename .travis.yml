@@ -61,7 +61,7 @@ before_script:
       chmod +x coveralls.phar
       mkdir -p build/logs
     fi
-  - phpenv config-rm xdebug.ini
+  - phpenv config-rm xdebug.ini || true
   - |
     if [[ ${GITHUB_AUTH_TOKEN} != '' ]]; then
       composer config -g github-oauth.github.com $GITHUB_AUTH_TOKEN
