@@ -51,7 +51,7 @@ matrix:
   allow_failures:
     - name: Code Coverage
       php: 7.2
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest RUN_CODE_COVERAGE=1
+      env: WP_VERSION=latest WC_VERSION=latest RUN_CODE_COVERAGE=1
     - name: Bleeding Edge
       php: 7.3
       env: WP_VERSION=trunk WC_VERSION=latest
