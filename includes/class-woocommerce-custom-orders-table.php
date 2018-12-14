@@ -160,6 +160,24 @@ class WooCommerce_Custom_Orders_Table {
 					case 'shipping_index':
 						break;
 
+					/*
+					 * Migration isn't the time to validate (and potentially throw exceptions);
+					 * if it was accepted into WooCommerce core, let it persist.
+					 *
+					 * If we're unable to set an email address due to $order->set_billing_email(),
+					 * try to circumvent the check by using reflection to call the protected
+					 * $order->set_address_prop() method.
+					 */
+					case 'billing_email':
+						try {
+							$order->set_billing_email( $meta );
+						} catch ( WC_Data_Exception $e ) {
+							$method = new ReflectionMethod( $order, 'set_address_prop' );
+							$method->setAccessible( true );
+							$method->invoke( $order, 'email', 'billing', $meta );
+						}
+						break;
+
 					case 'prices_include_tax':
 						$order->set_prices_include_tax( 'yes' === $meta );
 						break;

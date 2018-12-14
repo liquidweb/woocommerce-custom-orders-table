@@ -204,8 +204,8 @@ class CLITest extends TestCase {
 		$order_ids = $this->generate_orders( 3 );
 		$this->toggle_use_custom_table( true );
 
-		// Break the billing email on the first item.
-		update_post_meta( $order_ids[0], '_billing_email', 'this is not an email address' );
+		// Set a duplicate order key for the middle order.
+		update_post_meta( $order_ids[1], '_order_key', get_post_meta( $order_ids[0], '_order_key' ) );
 
 		$this->cli->migrate();
 
@@ -215,7 +215,7 @@ class CLITest extends TestCase {
 			'Expected to only see two orders in the custom table.'
 		);
 
-		$this->assertContains( $order_ids[0], $this->get_skipped_ids() );
+		$this->assertContains( $order_ids[1], $this->get_skipped_ids() );
 	}
 
 	public function test_migrate_with_duplicate_ids() {
