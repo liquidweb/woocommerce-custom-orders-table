@@ -287,13 +287,23 @@ class OrderDataStoreTest extends TestCase {
 		$order = WC_Helper_Order::create_order();
 		$this->toggle_use_custom_table( true );
 
-		// Give an invalid billing email.
-		update_post_meta( $order->get_id(), '_billing_email', 'this is not an email address' );
-
 		// Refresh the instance.
 		$order = wc_get_order( $order->get_id() );
 
+		add_action( 'woocommerce_order_object_updated_props', array( $this, 'throw_wc_data_exception' ) );
+
 		$this->assertInstanceOf( 'WP_Error', $order->get_data_store()->populate_from_meta( $order ) );
+
+		remove_action( 'woocommerce_order_object_updated_props', array( $this, 'throw_wc_data_exception' ) );
+	}
+
+	/**
+	 * Hooked method that simply throws a WC_Data_Exception exception.
+	 *
+	 * @throws WC_Data_Exception
+	 */
+	public function throw_wc_data_exception() {
+		throw new WC_Data_Exception( 'test-data-exception', 'A sample WC_Data_Exception' );
 	}
 
 	/**
