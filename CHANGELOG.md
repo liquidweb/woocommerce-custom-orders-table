@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Version 1.0.0 (Release Candidate 2)] - 2018-12-14
+
+* Reduced overhead of PHP autoloader ([#86], props @schlessera).
+* Converted the `customer_user_agent` column from `varchar(200)` to `text` ([#91]).
+* Fixed an issue where `empty()` was being called on a non-variable, which causes a fatal error in PHP < 5.5 ([#94]).
+* Prevented empty strings from being saved to the `order_key` column, which causes issues with the column's uniqueness constraint ([#101], props @crstauf).
+* Fixed an issue where *existing* invalid emails in the system were causing migration errors as they were re-saved ([#104]).
+* Updated Travis CI testing matrix to include WordPress 5.0 ([#103]).
+* Repaired the generation of code coverage reports for Coveralls ([#87], [#88]).
+
 ## [Version 1.0.0 (Release Candidate)] - 2018-09-25
 
 * Major refactoring of the WP-CLI migration commands ([#61], [#79], [#81]).
@@ -48,6 +58,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 [Unreleased]: https://github.com/liquidweb/woocommerce-order-tables/compare/master...develop
+[Version 1.0.0 (Release Candidate 2)]: https://github.com/liquidweb/woocommerce-order-tables/releases/tag/v1.0.0-rc2
 [Version 1.0.0 (Release Candidate)]: https://github.com/liquidweb/woocommerce-order-tables/releases/tag/v1.0.0-rc1
 [Version 1.0.0 (Beta 3)]: https://github.com/liquidweb/woocommerce-order-tables/releases/tag/v1.0.0-beta.3
 [Version 1.0.0 (Beta 2)]: https://github.com/liquidweb/woocommerce-order-tables/releases/tag/v1.0.0-beta.2
@@ -80,3 +91,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [#81]: https://github.com/liquidweb/woocommerce-order-tables/pull/81
 [#82]: https://github.com/liquidweb/woocommerce-order-tables/pull/82
 [#84]: https://github.com/liquidweb/woocommerce-order-tables/pull/84
+[#86]: https://github.com/liquidweb/woocommerce-order-tables/pull/86
+[#87]: https://github.com/liquidweb/woocommerce-order-tables/pull/87
+[#88]: https://github.com/liquidweb/woocommerce-order-tables/pull/88
+[#91]: https://github.com/liquidweb/woocommerce-order-tables/pull/91
+[#94]: https://github.com/liquidweb/woocommerce-order-tables/pull/94
+[#101]: https://github.com/liquidweb/woocommerce-order-tables/pull/101
+[#103]: https://github.com/liquidweb/woocommerce-order-tables/pull/103
+[#104]: https://github.com/liquidweb/woocommerce-order-tables/pull/104
