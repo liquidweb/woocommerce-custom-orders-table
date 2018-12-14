@@ -119,16 +119,16 @@ class CLITest extends TestCase {
 
 		$this->toggle_use_custom_table( false );
 		$order1 = WC_Helper_Order::create_order();
-		$order1->set_order_key( '' );
+		$order1->set_order_key( 'some-key' );
 		$order1->save();
 		$order2 = WC_Helper_Order::create_order();
-		$order2->set_order_key( '' );
+		$order2->set_order_key( 'some-key' );
 		$order2->save();
 		$this->toggle_use_custom_table( true );
 
 		$this->cli->migrate();
 
-		$this->cli->assertReceivedMessageContaining( "Duplicate entry '' for key 'order_key'", 'warning' );
+		$this->cli->assertReceivedMessageContaining( "Duplicate entry 'some-key' for key 'order_key'", 'warning' );
 	}
 
 	public function test_migrate_catches_infinite_loops() {
