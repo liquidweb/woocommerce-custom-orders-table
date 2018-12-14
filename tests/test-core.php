@@ -15,6 +15,24 @@ class CoreTest extends TestCase {
 		$this->assertFalse( wc_custom_order_table()->row_exists( $order->get_id() + 1 ) );
 	}
 
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/98
+	 */
+	public function test_populate_order_from_post_meta_handles_invalid_billing_emails() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		update_post_meta( $order->get_id(), '_billing_email', 'this is an invalid email address' );
+		$this->toggle_use_custom_table( true );
+
+		WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
+
+		$this->assertSame(
+			'this is an invalid email address',
+			$order->get_billing_email(),
+			'Don\'t let an invalid email address cause a migration failure.'
+		);
+	}
+
 	public function test_migrate_to_post_meta() {
 		$order    = WC_Helper_Order::create_order();
 		$row      = $this->get_order_row( $order->get_id() );

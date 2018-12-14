@@ -119,16 +119,16 @@ class CLITest extends TestCase {
 
 		$this->toggle_use_custom_table( false );
 		$order1 = WC_Helper_Order::create_order();
-		$order1->set_order_key( '' );
+		$order1->set_order_key( 'some-key' );
 		$order1->save();
 		$order2 = WC_Helper_Order::create_order();
-		$order2->set_order_key( '' );
+		$order2->set_order_key( 'some-key' );
 		$order2->save();
 		$this->toggle_use_custom_table( true );
 
 		$this->cli->migrate();
 
-		$this->cli->assertReceivedMessageContaining( "Duplicate entry '' for key 'order_key'", 'warning' );
+		$this->cli->assertReceivedMessageContaining( "Duplicate entry 'some-key' for key 'order_key'", 'warning' );
 	}
 
 	public function test_migrate_catches_infinite_loops() {
@@ -204,8 +204,8 @@ class CLITest extends TestCase {
 		$order_ids = $this->generate_orders( 3 );
 		$this->toggle_use_custom_table( true );
 
-		// Break the billing email on the first item.
-		update_post_meta( $order_ids[0], '_billing_email', 'this is not an email address' );
+		// Set a duplicate order key for the middle order.
+		update_post_meta( $order_ids[1], '_order_key', get_post_meta( $order_ids[0], '_order_key' ) );
 
 		$this->cli->migrate();
 
@@ -215,7 +215,7 @@ class CLITest extends TestCase {
 			'Expected to only see two orders in the custom table.'
 		);
 
-		$this->assertContains( $order_ids[0], $this->get_skipped_ids() );
+		$this->assertContains( $order_ids[1], $this->get_skipped_ids() );
 	}
 
 	public function test_migrate_with_duplicate_ids() {
@@ -232,6 +232,29 @@ class CLITest extends TestCase {
 		$this->cli->migrate();
 
 		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( array( $order_id ) ) );
+	}
+
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/69
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/96
+	 */
+	public function test_migrate_with_duplicate_null_order_ids() {
+		$this->toggle_use_custom_table( false );
+		$order1 = WC_Helper_Order::create_order();
+		$order1->set_order_key( '' );
+		$order1->save();
+		$order2 = WC_Helper_Order::create_order();
+		$order2->set_order_key( '' );
+		$order2->save();
+		$this->toggle_use_custom_table( true );
+
+		$this->cli->migrate();
+
+		$this->assertSame(
+			2,
+			$this->count_orders_in_table_with_ids( array( $order1->get_id(), $order2->get_id() ) ),
+			'Two distinct orders can share a NULL order_key.'
+		);
 	}
 
 	public function test_migrate_aborts_if_no_orders_require_migration() {

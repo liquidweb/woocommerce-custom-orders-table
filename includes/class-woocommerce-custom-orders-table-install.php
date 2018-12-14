@@ -92,7 +92,7 @@ class WooCommerce_Custom_Orders_Table_Install {
 				prices_include_tax varchar(3) NOT NULL COMMENT 'Did the prices include tax during checkout?',
 				transaction_id varchar(200) NOT NULL COMMENT 'Unique transaction ID',
 				customer_ip_address varchar(40) DEFAULT NULL COMMENT 'The customer\'s IP address',
-				customer_user_agent varchar(200) DEFAULT NULL COMMENT 'The customer\'s User-Agent string',
+				customer_user_agent text DEFAULT NULL COMMENT 'The customer\'s User-Agent string',
 				created_via varchar(200) NOT NULL COMMENT 'Order creation method',
 				date_completed varchar(20) DEFAULT NULL COMMENT 'Date the order was completed',
 				date_paid varchar(20) DEFAULT NULL COMMENT 'Date the order was paid',
