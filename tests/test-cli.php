@@ -234,6 +234,29 @@ class CLITest extends TestCase {
 		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( array( $order_id ) ) );
 	}
 
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/69
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/96
+	 */
+	public function test_migrate_with_duplicate_null_order_ids() {
+		$this->toggle_use_custom_table( false );
+		$order1 = WC_Helper_Order::create_order();
+		$order1->set_order_key( '' );
+		$order1->save();
+		$order2 = WC_Helper_Order::create_order();
+		$order2->set_order_key( '' );
+		$order2->save();
+		$this->toggle_use_custom_table( true );
+
+		$this->cli->migrate();
+
+		$this->assertSame(
+			2,
+			$this->count_orders_in_table_with_ids( array( $order1->get_id(), $order2->get_id() ) ),
+			'Two distinct orders can share a NULL order_key.'
+		);
+	}
+
 	public function test_migrate_aborts_if_no_orders_require_migration() {
 		$this->assertSame( 0, $this->cli->count(), 'Expected to start with 0 orders.' );
 
