@@ -124,9 +124,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		$table      = wc_custom_order_table()->get_table_name();
 		$changes    = array();
+		$order_key  = $order->get_order_key( 'edit' );
 		$order_data = array(
 			'order_id'             => $order->get_id( 'edit' ),
-			'order_key'            => $order->get_order_key( 'edit' ),
+			'order_key'            => $order_key ? $order_key : null,
 			'customer_id'          => $order->get_customer_id( 'edit' ),
 			'payment_method'       => $order->get_payment_method( 'edit' ),
 			'payment_method_title' => $order->get_payment_method_title( 'edit' ),
