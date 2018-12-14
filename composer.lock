@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "76870c85fcb157ea6f0d20337614ada4",
+    "content-hash": "e95ba793159ad2671042b2de7ab36f77",
     "packages": [],
     "packages-dev": [
         {
@@ -197,32 +197,32 @@
         },
         {
             "name": "doctrine/instantiator",
-            "version": "1.0.5",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/instantiator.git",
-                "reference": "8e884e78f9f0eb1329e445619e04456e64d8051d"
+                "reference": "185b8868aa9bf7159f5f953ed5afb2d7fcdc3bda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/8e884e78f9f0eb1329e445619e04456e64d8051d",
-                "reference": "8e884e78f9f0eb1329e445619e04456e64d8051d",
+                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/185b8868aa9bf7159f5f953ed5afb2d7fcdc3bda",
+                "reference": "185b8868aa9bf7159f5f953ed5afb2d7fcdc3bda",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3,<8.0-DEV"
+                "php": "^7.1"
             },
             "require-dev": {
                 "athletic/athletic": "~0.1.8",
                 "ext-pdo": "*",
                 "ext-phar": "*",
-                "phpunit/phpunit": "~4.0",
-                "squizlabs/php_codesniffer": "~2.0"
+                "phpunit/phpunit": "^6.2.3",
+                "squizlabs/php_codesniffer": "^3.0.2"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.2.x-dev"
                 }
             },
             "autoload": {
@@ -247,7 +247,7 @@
                 "constructor",
                 "instantiate"
             ],
-            "time": "2015-06-14T21:17:01+00:00"
+            "time": "2017-07-22T11:58:36+00:00"
         },
         {
             "name": "mustache/mustache",
@@ -297,25 +297,28 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.7.0",
+            "version": "1.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e"
+                "reference": "3e01bdad3e18354c3dce54466b7fbe33a9f9f7f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
-                "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3e01bdad3e18354c3dce54466b7fbe33a9f9f7f8",
+                "reference": "3e01bdad3e18354c3dce54466b7fbe33a9f9f7f8",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.6 || ^7.0"
+                "php": "^7.1"
+            },
+            "replace": {
+                "myclabs/deep-copy": "self.version"
             },
             "require-dev": {
                 "doctrine/collections": "^1.0",
                 "doctrine/common": "^2.6",
-                "phpunit/phpunit": "^4.1"
+                "phpunit/phpunit": "^7.1"
             },
             "type": "library",
             "autoload": {
@@ -338,7 +341,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2017-10-19T19:58:43+00:00"
+            "time": "2018-06-11T23:09:50+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -1755,25 +1758,25 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v3.3.6",
+            "version": "v4.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "baea7f66d30854ad32988c11a09d7ffd485810c4"
+                "reference": "e53d477d7b5c4982d0e1bfd2298dbee63d01441d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/baea7f66d30854ad32988c11a09d7ffd485810c4",
-                "reference": "baea7f66d30854ad32988c11a09d7ffd485810c4",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/e53d477d7b5c4982d0e1bfd2298dbee63d01441d",
+                "reference": "e53d477d7b5c4982d0e1bfd2298dbee63d01441d",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.5.9"
+                "php": "^7.1.3"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.3-dev"
+                    "dev-master": "4.2-dev"
                 }
             },
             "autoload": {
@@ -1800,7 +1803,7 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2017-06-01T21:01:25+00:00"
+            "time": "2018-11-11T19:52:12+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -1948,6 +1951,7 @@
                 "phpcs",
                 "standards"
             ],
+            "abandoned": "phpcompatibility/php-compatibility",
             "time": "2018-10-07T17:38:02+00:00"
         },
         {
@@ -1956,12 +1960,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/woocommerce.git",
-                "reference": "4ad0fbd5217e8fc7ecb454fbed049b6092b28464"
+                "reference": "f13a0bc9eb49dad87b93e5b3ac019838e43b1404"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/4ad0fbd5217e8fc7ecb454fbed049b6092b28464",
-                "reference": "4ad0fbd5217e8fc7ecb454fbed049b6092b28464",
+                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/f13a0bc9eb49dad87b93e5b3ac019838e43b1404",
+                "reference": "f13a0bc9eb49dad87b93e5b3ac019838e43b1404",
                 "shasum": ""
             },
             "require": {
@@ -1969,14 +1973,10 @@
             },
             "require-dev": {
                 "apigen/apigen": "^4",
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
                 "nette/utils": "~2.3.0",
                 "phpunit/phpunit": "6.*",
-                "squizlabs/php_codesniffer": "*",
-                "wimg/php-compatibility": "^8.0",
                 "woocommerce/woocommerce-git-hooks": "*",
-                "woocommerce/woocommerce-sniffs": "*",
-                "wp-coding-standards/wpcs": "^0.14"
+                "woocommerce/woocommerce-sniffs": "^0.0.5"
             },
             "type": "wordpress-plugin",
             "extra": {
@@ -1992,7 +1992,7 @@
             ],
             "description": "An eCommerce toolkit that helps you sell anything. Beautifully.",
             "homepage": "https://woocommerce.com/",
-            "time": "2018-10-23T21:41:08+00:00"
+            "time": "2018-12-13T19:15:14+00:00"
         },
         {
             "name": "woocommerce/woocommerce-git-hooks",
@@ -2226,16 +2226,16 @@
         },
         {
             "name": "wp-coding-standards/wpcs",
-            "version": "1.1.0",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git",
-                "reference": "46d42828ce7355d8b3776e3171f2bda892d179b4"
+                "reference": "7aa217ab38156c5cb4eae0f04ae376027c407a9b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/46d42828ce7355d8b3776e3171f2bda892d179b4",
-                "reference": "46d42828ce7355d8b3776e3171f2bda892d179b4",
+                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/7aa217ab38156c5cb4eae0f04ae376027c407a9b",
+                "reference": "7aa217ab38156c5cb4eae0f04ae376027c407a9b",
                 "shasum": ""
             },
             "require": {
@@ -2243,7 +2243,7 @@
                 "squizlabs/php_codesniffer": "^2.9.0 || ^3.0.2"
             },
             "require-dev": {
-                "phpcompatibility/php-compatibility": "*"
+                "phpcompatibility/php-compatibility": "^9.0"
             },
             "suggest": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically."
@@ -2265,7 +2265,7 @@
                 "standards",
                 "wordpress"
             ],
-            "time": "2018-09-10T17:04:05+00:00"
+            "time": "2018-11-12T10:13:12+00:00"
         }
     ],
     "aliases": [],
@@ -2280,6 +2280,6 @@
         "php": "^7.0"
     },
     "platform-overrides": {
-        "php": "7.0"
+        "php": "7.2"
     }
 }

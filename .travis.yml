@@ -10,31 +10,51 @@ cache:
     - $HOME/.composer/cache
 
 php:
+  - 7.3
   - 7.2
   - 7.1
   - 7.0
 
 env:
   - WP_VERSION=latest WC_VERSION=latest
-  - WP_VERSION=latest WC_VERSION=3.4.5
-  - WP_VERSION=latest WC_VERSION=3.3.5
-  - WP_VERSION=latest WC_VERSION=3.2.6
+  - WP_VERSION=4.9.9 WC_VERSION=latest
+  - WP_VERSION=4.9.9 WC_VERSION=3.4.7
+  - WP_VERSION=4.9.9 WC_VERSION=3.3.5
+  - WP_VERSION=4.9.9 WC_VERSION=3.2.6
 
+# Considerations for the test matrix:
+#
+# - The "WC Requires At Least" is 3.2.6, so that's the lowest we need to go
+# - WordPress < 5.0 doesn't officially support PHP 7.3.
+# - WordPress 5.0 requires at least WooCommerce 3.5.1
 matrix:
   fast_finish: true
   include:
     - name: Coding Standards
       php: 7.2
-      env: WP_VERSION=trunk WC_VERSION=latest RUN_PHPCS=1
-    # Generate code coverage from PHP 7.1.
+      env: WP_VERSION=latest WC_VERSION=latest RUN_PHPCS=1
     - name: Code Coverage
       php: 7.2
-      env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest RUN_CODE_COVERAGE=1
-
+      env: WP_VERSION=latest WC_VERSION=latest RUN_CODE_COVERAGE=1
+    - name: Bleeding Edge
+      php: 7.3
+      env: WP_VERSION=trunk WC_VERSION=latest
+  exclude:
+    - php: 7.3
+      env: WP_VERSION=4.9.9 WC_VERSION=latest
+    - php: 7.3
+      env: WP_VERSION=4.9.9 WC_VERSION=3.4.7
+    - php: 7.3
+      env: WP_VERSION=4.9.9 WC_VERSION=3.3.5
+    - php: 7.3
+      env: WP_VERSION=4.9.9 WC_VERSION=3.2.6
   allow_failures:
     - name: Code Coverage
       php: 7.2
       env: WP_VERSION=latest WP_MULTISITE=0 WC_VERSION=latest RUN_CODE_COVERAGE=1
+    - name: Bleeding Edge
+      php: 7.3
+      env: WP_VERSION=trunk WC_VERSION=latest
 
 before_script:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
@@ -44,7 +64,7 @@ before_script:
       chmod +x coveralls.phar
       mkdir -p build/logs
     fi
-  - phpenv config-rm xdebug.ini
+  - phpenv config-rm xdebug.ini || true
   - |
     if [[ ${GITHUB_AUTH_TOKEN} != '' ]]; then
       composer config -g github-oauth.github.com $GITHUB_AUTH_TOKEN
