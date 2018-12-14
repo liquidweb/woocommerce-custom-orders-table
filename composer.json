@@ -40,10 +40,13 @@
       "phpunit --testsuite=plugin --coverage-html=tests/coverage"
     ]
   },
+  "scripts-descriptions": {
+    "test-coverage": "Generate test coverage for the plugin"
+  },
   "config": {
       "sort-packages": true,
       "platform": {
-          "php": "7.0"
+          "php": "7.2"
       }
   },
   "extra": {
