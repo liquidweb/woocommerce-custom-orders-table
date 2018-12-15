@@ -297,6 +297,32 @@ class OrderDataStoreTest extends TestCase {
 		remove_action( 'woocommerce_order_object_updated_props', array( $this, 'throw_wc_data_exception' ) );
 	}
 
+	public function test_backfill_postmeta() {
+		$order = WC_Helper_Order::create_order();
+
+		$order->get_data_store()->backfill_postmeta( $order );
+
+		$meta = get_post_meta( $order->get_id() );
+
+		$this->assertEmpty(
+			array_diff(
+				array_keys( $meta ),
+				WooCommerce_Custom_Orders_Table::get_postmeta_mapping()
+			),
+			'The only post meta the order should have is what was backfilled from the custom table.'
+		);
+	}
+
+	public function test_backfill_postmeta_does_nothing_if_the_order_row_is_empty() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		$order = wc_get_order( $order->get_id() );
+
+		$this->assertNull( $order->get_data_store()->backfill_postmeta( $order ) );
+	}
+
 	/**
 	 * Hooked method that simply throws a WC_Data_Exception exception.
 	 *
