@@ -406,6 +406,19 @@ class CLITest extends TestCase {
 		$this->assertEquals( 1, WP_CLI::$__counts['warning'], 'Expected to see a warning if no orders were backfilled.' );
 	}
 
+	public function test_handle_exceptions() {
+		$exception = new Exception( uniqid() );
+
+		try {
+			WooCommerce_Custom_Orders_Table_CLI::handle_exceptions( $exception );
+		} catch ( Exception $e ) {
+			$this->assertSame( $exception, $e );
+			return;
+		}
+
+		$this->fail( 'Did not receive the expected exception.' );
+	}
+
 	/**
 	 * Retrieve the array of skipped IDs from the CLI instance.
 	 *
