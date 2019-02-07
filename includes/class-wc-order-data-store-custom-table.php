@@ -207,11 +207,11 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			 *
 			 * If any of these fields are present, be sure we update the index column.
 			 */
-			if ( isset( $changes['billing_first_name'] ) ) {
+			if ( isset( $order_data['billing_index'] ) ) {
 				$changes['billing_index'] = $order_data['billing_index'];
 			}
 
-			if ( isset( $changes['shipping_first_name'] ) ) {
+			if ( isset( $order_data['shipping_index'] ) ) {
 				$changes['shipping_index'] = $order_data['shipping_index'];
 			}
 
