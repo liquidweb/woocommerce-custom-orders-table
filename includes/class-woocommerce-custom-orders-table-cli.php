@@ -174,6 +174,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 				$order_data = $next_batch;
 				$batch_count++;
 			}
+			wp_cache_flush();
 		}
 
 		$progress->finish();
