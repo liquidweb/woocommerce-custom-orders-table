@@ -213,7 +213,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 			if ( isset( $order_data['shipping_index'] ) ) {
 				$changes['shipping_index'] = $order_data['shipping_index'];
-			} 
+			}
 
 			if ( ! empty( $changes ) ) {
 				$wpdb->update( $table, $changes, array( 'order_id' => $order->get_id() ) ); // WPCS: DB call OK.
