@@ -129,7 +129,7 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 			update_user_meta( $customer->get_id(), '_money_spent', $spent );
 		}
 
-		return wc_format_decimal( $spent, 2 );
+		return $spent;
 	}
 
 	/**
