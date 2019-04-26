@@ -20,20 +20,20 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	 * If the refund does not yet exist, the plugin will attempt to migrate it automatically. This
 	 * behavior can be modified via the "wc_custom_order_table_automatic_migration" filter.
 	 *
-	 * @param WC_Refund $order       The refund object, passed by reference.
-	 * @param object    $post_object The post object.
+	 * @param WC_Order_Refund $refund      The refund object, passed by reference.
+	 * @param object          $post_object The post object.
 	 */
-	protected function read_order_data( &$order, $post_object ) {
-		$data = $this->get_order_data_from_table( $order );
+	protected function read_order_data( &$refund, $post_object ) {
+		$data = $this->get_order_data_from_table( $refund );
 
 		if ( ! empty( $data ) ) {
-			$order->set_props( $data );
+			$refund->set_props( $data );
 		} else {
 			/** This filter is defined in class-wc-order-data-store-custom-table.php. */
 			$migrate = apply_filters( 'wc_custom_order_table_automatic_migration', true );
 
 			if ( $migrate ) {
-				$this->populate_from_meta( $order );
+				$this->populate_from_meta( $refund );
 			}
 		}
 	}
@@ -45,7 +45,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	 *
 	 * @param WC_Order_Refund $refund The refund object.
 	 *
-	 * @return object The refund row, as an associative array.
+	 * @return array The refund row, as an associative array.
 	 */
 	public function get_order_data_from_table( $refund ) {
 		global $wpdb;
@@ -69,14 +69,14 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	 *
 	 * @global $wpdb
 	 *
-	 * @param WC_Order $refund The refund to be updated.
+	 * @param WC_Order_Refund $refund The refund to be updated.
 	 */
 	protected function update_post_meta( &$refund ) {
 		global $wpdb;
 
 		$table       = wc_custom_order_table()->get_table_name();
 		$refund_data = array(
-			'order_id'           => $refund->get_id( 'edit' ),
+			'order_id'           => $refund->get_id(),
 			'discount_total'     => $refund->get_discount_total( 'edit' ),
 			'discount_tax'       => $refund->get_discount_tax( 'edit' ),
 			'shipping_total'     => $refund->get_shipping_total( 'edit' ),
@@ -121,20 +121,20 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	 *
 	 * @global $wpdb
 	 *
-	 * @param WC_Order $order  The refund object, passed by reference.
-	 * @param bool     $delete Optional. Whether or not the post meta should be deleted. Default
-	 *                         is false.
+	 * @param WC_Order_Refund $refund The refund object, passed by reference.
+	 * @param bool            $delete Optional. Whether or not the post meta should be deleted.
+	 *                                Default is false.
 	 *
 	 * @return WP_Error|null A WP_Error object if there was a problem populating the refund, or null
 	 *                       if there were no issues.
 	 */
-	public function populate_from_meta( &$order, $delete = false ) {
+	public function populate_from_meta( &$refund, $delete = false ) {
 		global $wpdb;
 
-		$table_data = $this->get_order_data_from_table( $order );
-		$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
+		$table_data = $this->get_order_data_from_table( $refund );
+		$refund     = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $refund );
 
-		$this->update_post_meta( $order );
+		$this->update_post_meta( $refund );
 
 		if ( $wpdb->last_error ) {
 			return new WP_Error( 'woocommerce-custom-order-table-migration', $wpdb->last_error );
@@ -142,7 +142,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 
 		if ( true === $delete ) {
 			foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
-				delete_post_meta( $order->get_id(), $meta_key );
+				delete_post_meta( $refund->get_id(), $meta_key );
 			}
 		}
 	}

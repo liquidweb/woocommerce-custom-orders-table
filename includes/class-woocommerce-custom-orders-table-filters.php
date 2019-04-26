@@ -99,7 +99,7 @@ class WooCommerce_Custom_Orders_Table_Filters {
 		$join .= " LEFT JOIN {$table} ON ( {$wpdb->posts}.ID = {$table}.order_id ) ";
 
 		// Don't necessarily apply this to subsequent posts_join filter callbacks.
-		remove_filter( 'posts_join', __CLASS__ . '::posts_join', 10, 2 );
+		remove_filter( 'posts_join', __CLASS__ . '::posts_join', 10 );
 
 		return $join;
 	}
@@ -131,7 +131,7 @@ class WooCommerce_Custom_Orders_Table_Filters {
 		}
 
 		// Ensure this doesn't affect all subsequent queries.
-		remove_filter( 'posts_where', __CLASS__ . '::meta_query_where', 100, 2 );
+		remove_filter( 'posts_where', __CLASS__ . '::meta_query_where', 100 );
 
 		return $where;
 	}

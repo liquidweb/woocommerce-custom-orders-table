@@ -126,7 +126,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		$changes    = array();
 		$order_key  = $order->get_order_key( 'edit' );
 		$order_data = array(
-			'order_id'             => $order->get_id( 'edit' ),
+			'order_id'             => $order->get_id(),
 			'order_key'            => $order_key ? $order_key : null,
 			'customer_id'          => $order->get_customer_id( 'edit' ),
 			'payment_method'       => $order->get_payment_method( 'edit' ),
@@ -400,7 +400,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function backfill_postmeta( &$order ) {
 		$data = $this->get_order_data_from_table( $order );
 
-		if ( is_null( $data ) ) {
+		if ( empty( $data ) ) {
 			return;
 		}
 
