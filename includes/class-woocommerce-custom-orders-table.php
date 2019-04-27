@@ -154,7 +154,7 @@ class WooCommerce_Custom_Orders_Table {
 		foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
 			$meta = get_post_meta( $order->get_id(), $meta_key, true );
 
-			$table_data = $order->get_data_store()->get_order_data_from_table( $refund );
+			$table_data = $order->get_data_store()->get_order_data_from_table( $order );
 			if ( empty( $table_data->$column ) && ! empty( $meta ) ) {
 				switch ( $column ) {
 					case 'billing_index':
