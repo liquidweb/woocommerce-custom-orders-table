@@ -131,7 +131,6 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	public function populate_from_meta( &$refund, $delete = false ) {
 		global $wpdb;
 
-		$table_data = $this->get_order_data_from_table( $refund );
 		$refund     = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $refund );
 
 		$this->update_post_meta( $refund );
