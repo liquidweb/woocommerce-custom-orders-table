@@ -10,23 +10,25 @@ cache:
     - $HOME/.composer/cache
 
 php:
+  - nightly
   - 7.3
   - 7.2
   - 7.1
   - 7.0
 
-env:
-  - WP_VERSION=latest WC_VERSION=latest
-  - WP_VERSION=4.9.9 WC_VERSION=latest
-  - WP_VERSION=4.9.9 WC_VERSION=3.4.7
-  - WP_VERSION=4.9.9 WC_VERSION=3.3.5
-  - WP_VERSION=4.9.9 WC_VERSION=3.2.6
-
-# Considerations for the test matrix:
+# Compatibility policy:
 #
-# - The "WC Requires At Least" is 3.2.6, so that's the lowest we need to go
-# - WordPress < 5.0 doesn't officially support PHP 7.3.
-# - WordPress 5.0 requires at least WooCommerce 3.5.1
+# - WordPress: latest -1
+# - WooCommerce: latest -2
+#
+# Note: Since WordPress 5.0+ requires WooCommerce 3.5.1+, we don't need to go back
+#       to WooCommerce 3.4.x. Once 3.7.x is released,
+env:
+  - WP_VERSION=5.2 WC_VERSION=3.6
+  - WP_VERSION=5.2 WC_VERSION=3.5
+  - WP_VERSION=5.1 WC_VERSION=3.6
+  - WP_VERSION=5.1 WC_VERSION=3.5
+
 matrix:
   fast_finish: true
   include:
@@ -39,21 +41,12 @@ matrix:
     - name: Bleeding Edge
       php: 7.3
       env: WP_VERSION=trunk WC_VERSION=latest
-  exclude:
-    - php: 7.3
-      env: WP_VERSION=4.9.9 WC_VERSION=latest
-    - php: 7.3
-      env: WP_VERSION=4.9.9 WC_VERSION=3.4.7
-    - php: 7.3
-      env: WP_VERSION=4.9.9 WC_VERSION=3.3.5
-    - php: 7.3
-      env: WP_VERSION=4.9.9 WC_VERSION=3.2.6
   allow_failures:
     - name: Code Coverage
       php: 7.2
       env: WP_VERSION=latest WC_VERSION=latest RUN_CODE_COVERAGE=1
     - name: Bleeding Edge
-      php: 7.3
+      php: nightly
       env: WP_VERSION=trunk WC_VERSION=latest
 
 before_script:
