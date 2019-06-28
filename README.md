@@ -17,7 +17,7 @@ WooCommerce Custom Orders Table uses the WooCommerce CRUD design to save order d
 
 ## Requirements
 
-WooCommerce Custom Orders Table requires [WooCommerce 3.2.6 or newer](https://wordpress.org/plugins/woocommerce/).
+WooCommerce Custom Orders Table requires [WooCommerce 3.5.1 or newer](https://wordpress.org/plugins/woocommerce/).
 
 If you're looking to migrate existing order data, [you'll need to have the ability to run WP-CLI commands in your WooCommerce environment](http://wp-cli.org/).
 
