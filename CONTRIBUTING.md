@@ -26,11 +26,23 @@ If you're interested in contributing to the plugin by way of code and/or documen
 
 This project adheres to the [WordPress coding standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/), and [an `.editorconfig` file](http://editorconfig.org/) is included in the repository to help most <abbr title="Integrated Development Environment">IDE</abbr>s adjust accordingly. The repository also ships with [the WooCommerce git hooks](https://github.com/woocommerce/woocommerce-git-hooks) to aid in development.
 
-As a general rule, we strive to maintain 100% compatibility with [the latest stable release of WooCommerce](https://github.com/woocommerce/woocommerce/releases/latest):
+### Compatibility policy
+
+WooCommerce Custom Orders Table is designed to take advantage of the latest and greatest versions of WordPress and WooCommerce. Keeping both WordPress and WooCommerce up-to-date ensures that stores are able to take advantage of the latest WooCommerce features and security fixes.
 
 [![GitHub release](https://img.shields.io/github/release/woocommerce/woocommerce.svg)](https://github.com/woocommerce/woocommerce/releases/latest)
 
-As part of this commitment to compatibility, WooCommerce Custom Orders Table also targets PHP 5.2 as a minimum PHP version for the core plugin files (with the exception of the `WooCommerce_Custom_Orders_Table_CLI` class, which uses the WP-CLI minimum of PHP 5.3). The `tests/` directory, however, is accepting of modern (7.x) PHP.
+As such, the backwards compatibility policy for WooCommerce Custom Orders Table is:
+
+* The plugin must be compatible with two latest **major** versions of WordPress core (e.g. If the current release of WordPress is 5.2.x, the plugin must be compatible with 5.2.x and 5.1.x).
+* The plugin must be compatible with the three latest **minor** releases of WooCommerce.
+	- WooCommerce 3.0 switched to [semantic versioning](https://woocommerce.wordpress.com/2017/03/13/important-update-regarding-the-upcoming-woocommerce-release-2-7-will-be-3-0-0/), so if WooCommerce 3.7.x is current, the plugin must also be compatible with 3.6.x and 3.5.x.
+* In the case that a WordPress release requires a specific version of WooCommerce (for example, WordPress 5.0 requires WooCommerce 3.5.1 or higher), the WordPress compatibility will supersede the WooCommerce compatibility requirement.
+* Compatibility will be based on the latest **patch** release of WordPress and WooCommerce (e.g. if WooCommerce 3.6.2 patches a bug in WooCommerce 3.6.1, our 3.6.x commitment will be 3.6.2 or newer).
+
+As part of this commitment to compatibility, WooCommerce Custom Orders Table will continue to target PHP 5.2 as a minimum PHP version for the core plugin files (with the exception of the `WooCommerce_Custom_Orders_Table_CLI` class, which uses the WP-CLI minimum of PHP 5.3) until WordPress 5.3 is released. At that point, we'll be able to drop support for WordPress 5.1 and, as a result, PHP versions prior to 5.6.
+
+The `tests/` directory, however, is accepting of modern (7.x) PHP.
 
 
 ### Branching strategy
