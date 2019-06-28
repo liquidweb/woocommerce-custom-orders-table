@@ -4,6 +4,7 @@
   "type": "wordpress-plugin",
   "license": "GPL-2.0-only",
   "require-dev": {
+    "composer/installers": "~1.0",
     "php": "^7.0",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
     "phpunit/phpunit": "^6.5",
