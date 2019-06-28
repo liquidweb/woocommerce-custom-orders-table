@@ -4,11 +4,11 @@
   "type": "wordpress-plugin",
   "license": "GPL-2.0-only",
   "require-dev": {
-    "composer/installers": "~1.0",
     "php": "^7.0",
+    "composer/installers": "~1.0",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+    "phpcompatibility/php-compatibility": "^9.2",
     "phpunit/phpunit": "^6.5",
-    "wimg/php-compatibility": "^9.0",
     "woocommerce/woocommerce": "dev-master",
     "woocommerce/woocommerce-git-hooks": "*",
     "woocommerce/woocommerce-sniffs": "^0.0.2",
