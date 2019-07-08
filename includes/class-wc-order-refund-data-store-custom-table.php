@@ -50,10 +50,13 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	public function get_order_data_from_table( $refund ) {
 		global $wpdb;
 
-		$data = (array) $wpdb->get_row( $wpdb->prepare(
-			'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE order_id = %d LIMIT 1',
-			$refund->get_id()
-		), ARRAY_A ); // WPCS: DB call OK.
+		$data = (array) $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE order_id = %d LIMIT 1',
+				$refund->get_id()
+			),
+			ARRAY_A
+		); // WPCS: DB call OK.
 
 		// Expand anything that might need assistance.
 		if ( isset( $data['prices_include_tax'] ) ) {
@@ -131,7 +134,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	public function populate_from_meta( &$refund, $delete = false ) {
 		global $wpdb;
 
-		$refund     = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $refund );
+		$refund = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $refund );
 
 		$this->update_post_meta( $refund );
 

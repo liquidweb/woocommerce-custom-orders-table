@@ -33,27 +33,36 @@ class WooCommerce_Custom_Orders_Table_Filters {
 				}
 
 				if ( isset( $meta_query['customer_emails'] ) ) {
-					$query_args['wc_order_meta_query'][] = array_merge( $meta_query['customer_emails'], array(
-						'key'      => 'billing_email',
-						'_old_key' => $meta_query['customer_emails']['key'],
-					) );
+					$query_args['wc_order_meta_query'][] = array_merge(
+						$meta_query['customer_emails'],
+						array(
+							'key'      => 'billing_email',
+							'_old_key' => $meta_query['customer_emails']['key'],
+						)
+					);
 				}
 
 				if ( isset( $meta_query['customer_ids'] ) ) {
-					$query_args['wc_order_meta_query'][] = array_merge( $meta_query['customer_ids'], array(
-						'key'      => 'customer_id',
-						'_old_key' => $meta_query['customer_ids']['key'],
-					) );
+					$query_args['wc_order_meta_query'][] = array_merge(
+						$meta_query['customer_ids'],
+						array(
+							'key'      => 'customer_id',
+							'_old_key' => $meta_query['customer_ids']['key'],
+						)
+					);
 				}
 
 				if ( isset( $meta_query['key'] ) ) {
 					$column = array_search( $meta_query['key'], WooCommerce_Custom_Orders_Table::get_postmeta_mapping(), true );
 
 					if ( $column ) {
-						$query_args['wc_order_meta_query'][] = array_merge( $meta_query, array(
-							'key'      => $column,
-							'_old_key' => $meta_query['key'],
-						) );
+						$query_args['wc_order_meta_query'][] = array_merge(
+							$meta_query,
+							array(
+								'key'      => $column,
+								'_old_key' => $meta_query['key'],
+							)
+						);
 					} else {
 						// Let this meta query pass through unaltered.
 						$query_args['_wc_has_meta_columns'] = true;
@@ -239,12 +248,16 @@ class WooCommerce_Custom_Orders_Table_Filters {
 
 		$table = wc_custom_order_table()->get_table_name();
 
-		$wpdb->query( 'UPDATE ' . esc_sql( $table ) . "
+		$wpdb->query(
+			'UPDATE ' . esc_sql( $table ) . "
 			SET billing_index = CONCAT_WS( ' ', billing_first_name, billing_last_name, billing_company, billing_company, billing_address_1, billing_address_2, billing_city, billing_state, billing_postcode, billing_country, billing_email, billing_phone )
-			WHERE billing_index IS NULL OR billing_index = ''" ); // WPCS: DB call ok.
-		$wpdb->query( 'UPDATE ' . esc_sql( $table ) . "
+			WHERE billing_index IS NULL OR billing_index = ''"
+		); // WPCS: DB call ok.
+		$wpdb->query(
+			'UPDATE ' . esc_sql( $table ) . "
 			SET shipping_index = CONCAT_WS( ' ', shipping_first_name, shipping_last_name, shipping_company, shipping_company, shipping_address_1, shipping_address_2, shipping_city, shipping_state, shipping_postcode, shipping_country )
-			WHERE shipping_index IS NULL OR shipping_index = ''" ); // WPCS: DB call ok.
+			WHERE shipping_index IS NULL OR shipping_index = ''"
+		); // WPCS: DB call ok.
 	}
 
 	/**
