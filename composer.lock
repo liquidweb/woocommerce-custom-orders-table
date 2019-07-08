@@ -4,9 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "24e50fedc249f6c30a664319caac3956",
-    "packages": [],
-    "packages-dev": [
+    "content-hash": "8296084dfb1fab52b160020b5426ccec",
+    "packages": [
         {
             "name": "composer/installers",
             "version": "v1.6.0",
@@ -126,7 +125,9 @@
                 "zikula"
             ],
             "time": "2018-08-27T06:10:37+00:00"
-        },
+        }
+    ],
+    "packages-dev": [
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
             "version": "v0.5.0",
@@ -2074,18 +2075,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/woocommerce.git",
-                "reference": "356ad1882670a5b1979d941769d07ab9ffd7f813"
+                "reference": "b64fcc7317dcbd02ae270a0b9983362a261b4f6a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/356ad1882670a5b1979d941769d07ab9ffd7f813",
-                "reference": "356ad1882670a5b1979d941769d07ab9ffd7f813",
+                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/b64fcc7317dcbd02ae270a0b9983362a261b4f6a",
+                "reference": "b64fcc7317dcbd02ae270a0b9983362a261b4f6a",
                 "shasum": ""
             },
             "require": {
                 "composer/installers": "1.6.0"
             },
             "require-dev": {
+                "myclabs/deep-copy": "1.7.0",
                 "phpunit/phpunit": "6.5.14",
                 "woocommerce/woocommerce-sniffs": "0.0.6"
             },
@@ -2103,7 +2105,7 @@
             ],
             "description": "An eCommerce toolkit that helps you sell anything. Beautifully.",
             "homepage": "https://woocommerce.com/",
-            "time": "2019-06-28T14:23:36+00:00"
+            "time": "2019-07-08T16:57:01+00:00"
         },
         {
             "name": "woocommerce/woocommerce-git-hooks",
@@ -2387,7 +2389,7 @@
     "stability-flags": {
         "woocommerce/woocommerce": 20
     },
-    "prefer-stable": false,
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": {
