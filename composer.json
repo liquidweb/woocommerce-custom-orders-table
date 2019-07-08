@@ -10,8 +10,8 @@
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
         "php": "^7.0",
+        "phpcompatibility/php-compatibility": "^9.0",
         "phpunit/phpunit": "^6.5",
-        "wimg/php-compatibility": "^9.0",
         "woocommerce/woocommerce": "dev-master",
         "woocommerce/woocommerce-git-hooks": "*",
         "woocommerce/woocommerce-sniffs": "^0.0.2",
