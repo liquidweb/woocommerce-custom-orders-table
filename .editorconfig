@@ -15,7 +15,7 @@ indent_style = tab
 
 [{*.json,*.yml}]
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 [{*.txt,wp-config-sample.php}]
 end_of_line = crlf
