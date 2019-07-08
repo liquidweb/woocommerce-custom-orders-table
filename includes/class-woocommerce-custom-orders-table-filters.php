@@ -171,7 +171,7 @@ class WooCommerce_Custom_Orders_Table_Filters {
 		 * - INNER JOIN $wpdb->postmeta AS parent_meta_{key} ON (posts.post_parent = parent_meta_{key}.post_id) AND
 		 *   (parent_meta_{key}.meta_key = {key})
 		 */
-		$regex = '/(?:INNER|LEFT)\s+JOIN\s+' . preg_quote( $wpdb->postmeta ) . '\s+AS\s((?:parent_)?meta_([^\s]+))\s+ON\s+(\((?:[^)]+\)\s+AND\s+\()?[^\)]+\))/im';
+		$regex = '/(?:INNER|LEFT)\s+JOIN\s+' . preg_quote( $wpdb->postmeta, '/' ) . '\s+AS\s((?:parent_)?meta_([^\s]+))\s+ON\s+(\((?:[^)]+\)\s+AND\s+\()?[^\)]+\))/im';
 
 		// Return early if we have no matches.
 		if ( ! preg_match_all( $regex, $query['join'], $matches ) ) {
