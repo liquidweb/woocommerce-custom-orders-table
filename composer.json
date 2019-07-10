@@ -4,6 +4,20 @@
     "license": "GPL-2.0-only",
     "type": "wordpress-plugin",
     "readme": "README.md",
+    "authors": [
+        {
+            "name": "Liquid Web",
+            "homepage": "https://www.liquidweb.com"
+        },
+        {
+            "name": "Mindsize",
+            "homepage": "https://mindsize.me"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/liquidweb/woocommerce-custom-orders-table/issues",
+        "source": "https://github.com/liquidweb/woocommerce-custom-orders-table"
+    },
     "require": {
         "composer/installers": "~1.0"
     },
