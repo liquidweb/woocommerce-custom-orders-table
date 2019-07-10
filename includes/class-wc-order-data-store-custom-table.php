@@ -40,9 +40,12 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// Delete the database row if force_delete is true.
 		if ( isset( $args['force_delete'] ) && $args['force_delete'] ) {
-			$wpdb->delete( wc_custom_order_table()->get_table_name(), array(
-				'order_id' => $order_id,
-			) ); // WPCS: DB call OK.
+			$wpdb->delete(
+				wc_custom_order_table()->get_table_name(),
+				array(
+					'order_id' => $order_id,
+				)
+			); // WPCS: DB call OK.
 		}
 	}
 
@@ -88,10 +91,13 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		global $wpdb;
 
 		$table = wc_custom_order_table()->get_table_name();
-		$data  = (array) $wpdb->get_row( $wpdb->prepare(
-			'SELECT * FROM ' . esc_sql( $table ) . ' WHERE order_id = %d LIMIT 1',
-			$order->get_id()
-		), ARRAY_A ); // WPCS: DB call OK.
+		$data  = (array) $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT * FROM ' . esc_sql( $table ) . ' WHERE order_id = %d LIMIT 1',
+				$order->get_id()
+			),
+			ARRAY_A
+		); // WPCS: DB call OK.
 
 		// Return early if there's no matching row in the orders table.
 		if ( empty( $data ) ) {
@@ -245,12 +251,14 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function get_total_refunded( $order ) {
 		global $wpdb;
 
-		$total = $wpdb->get_var( $wpdb->prepare(
-			'SELECT SUM(o.amount) FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . " AS o
-			INNER JOIN $wpdb->posts AS p ON ( p.post_type = 'shop_order_refund' AND p.post_parent = %d )
-			WHERE o.order_id = p.ID",
-			$order->get_id()
-		) );
+		$total = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT SUM(o.amount) FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . " AS o
+				INNER JOIN $wpdb->posts AS p ON ( p.post_type = 'shop_order_refund' AND p.post_parent = %d )
+				WHERE o.order_id = p.ID",
+				$order->get_id()
+			)
+		);
 
 		return floatval( $total );
 	}
@@ -267,10 +275,12 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		$table = wc_custom_order_table()->get_table_name();
 
-		return $wpdb->get_var( $wpdb->prepare(
-			'SELECT order_id FROM ' . esc_sql( $table ) . ' WHERE order_key = %s',
-			$order_key
-		) ); // WPCS: DB call OK.
+		return $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT order_id FROM ' . esc_sql( $table ) . ' WHERE order_key = %s',
+				$order_key
+			)
+		); // WPCS: DB call OK.
 	}
 
 	/**
@@ -291,8 +301,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		 * @var array
 		 */
 		$search_fields = array_map(
-			'wc_clean', apply_filters(
-				'woocommerce_shop_order_search_fields', array(
+			'wc_clean',
+			apply_filters(
+				'woocommerce_shop_order_search_fields',
+				array(
 					'_billing_address_index',
 					'_shipping_address_index',
 					'_billing_last_name',
@@ -324,32 +336,49 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 					$where[] = "{$column} LIKE %s";
 				}
 
-				$order_ids = array_merge( $order_ids, $wpdb->get_col( $wpdb->prepare(
-					'SELECT DISTINCT order_id FROM ' . esc_sql( $table ) . ' WHERE ' . implode( ' OR ', $where ),
-					array_fill( 0, count( $where ), '%' . $wpdb->esc_like( $term ) . '%' )
-				) ) );  // WPCS: DB call OK, Unprepared SQL ok, PreparedSQLPlaceholders replacement count ok.
+				$order_ids = array_merge(
+					$order_ids,
+					$wpdb->get_col(
+						$wpdb->prepare(
+							'SELECT DISTINCT order_id FROM ' . esc_sql( $table ) . ' WHERE ' . implode( ' OR ', $where ),
+							array_fill( 0, count( $where ), '%' . $wpdb->esc_like( $term ) . '%' )
+						)
+					)
+				);  // WPCS: DB call OK, Unprepared SQL ok, PreparedSQLPlaceholders replacement count ok.
 			}
 
 			// For anything else, fall back to postmeta.
 			if ( ! empty( $meta_keys ) ) {
-				$order_ids = array_merge( $order_ids, $wpdb->get_col( $wpdb->prepare( "
+				$order_ids = array_merge(
+					$order_ids,
+					$wpdb->get_col(
+						$wpdb->prepare(
+							"
 					SELECT DISTINCT post_id FROM {$wpdb->postmeta}
 					WHERE meta_value LIKE %s
 					AND meta_key IN (" . implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) ) . ')',
-					array_merge(
-						array( '%' . $wpdb->esc_like( $term ) . '%' ),
-						$meta_keys
+							array_merge(
+								array( '%' . $wpdb->esc_like( $term ) . '%' ),
+								$meta_keys
+							)
+						)
 					)
-				) ) ); // WPCS: DB call OK.
+				); // WPCS: DB call OK.
 			}
 		}
 
 		// Search item names.
-		$order_ids = array_merge( $order_ids, $wpdb->get_col( $wpdb->prepare( "
-			SELECT order_id FROM {$wpdb->prefix}woocommerce_order_items
-			WHERE order_item_name LIKE %s",
-			'%' . $wpdb->esc_like( $term ) . '%'
-		) ) ); // WPCS: DB call OK.
+		$order_ids = array_merge(
+			$order_ids,
+			$wpdb->get_col(
+				$wpdb->prepare(
+					"
+					SELECT order_id FROM {$wpdb->prefix}woocommerce_order_items
+					WHERE order_item_name LIKE %s",
+					'%' . $wpdb->esc_like( $term ) . '%'
+				)
+			)
+		); // WPCS: DB call OK.
 
 		// Reduce the array of order IDs to unique values.
 		$order_ids = array_unique( $order_ids );
