@@ -64,7 +64,12 @@ before_script:
     fi
   - bash tests/bin/install-wp-tests.sh woocommerce_test root '' localhost $WP_VERSION
   - bash tests/bin/set-woocommerce-version.sh $WC_VERSION
-  - composer install --prefer-source
+  - |
+    if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
+      composer update --prefer-source --prefer-lowest --no-interaction --no-ansi
+    else
+      composer install --prefer-source --no-interaction --no-ansi
+    fi
 
 script:
   - |
