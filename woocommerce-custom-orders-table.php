@@ -9,8 +9,8 @@
  * License:              GPL2
  * License URI:          https://www.gnu.org/licenses/gpl-2.0.html
  *
- * WC requires at least: 3.2.6
- * WC tested up to:      3.5.2
+ * WC requires at least: 3.5.1
+ * WC tested up to:      3.6.4
  *
  * @package WooCommerce_Custom_Orders_Table
  * @author  Liquid Web
