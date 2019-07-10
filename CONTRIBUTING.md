@@ -38,7 +38,7 @@ As such, the backwards compatibility policy for WooCommerce Custom Orders Table 
 * The plugin must be compatible with the three latest **minor** releases of WooCommerce.
 	- WooCommerce 3.0 switched to [semantic versioning](https://woocommerce.wordpress.com/2017/03/13/important-update-regarding-the-upcoming-woocommerce-release-2-7-will-be-3-0-0/), so if WooCommerce 3.7.x is current, the plugin must also be compatible with 3.6.x and 3.5.x.
 * In the case that a WordPress release requires a specific version of WooCommerce (for example, WordPress 5.0 requires WooCommerce 3.5.1 or higher), the WordPress compatibility will supersede the WooCommerce compatibility requirement.
-* Compatibility will be based on the latest **patch** release of WordPress and WooCommerce (e.g. if WooCommerce 3.6.2 patches a bug in WooCommerce 3.6.1, our 3.6.x commitment will be 3.6.2 or newer).
+* Compatibility will be based on the latest **patch** releases of both WordPress and WooCommerce (e.g. if WooCommerce 3.6.2 patches a bug in WooCommerce 3.6.1, our 3.6.x commitment will be 3.6.2 or newer).
 
 As part of this commitment to compatibility, WooCommerce Custom Orders Table will continue to target PHP 5.2 as a minimum PHP version for the core plugin files (with the exception of the `WooCommerce_Custom_Orders_Table_CLI` class, which uses the WP-CLI minimum of PHP 5.3) until WordPress 5.3 is released. At that point, we'll be able to drop support for WordPress 5.1 and, as a result, PHP versions prior to 5.6.
 
@@ -65,6 +65,8 @@ Once master has been updated, the release should be tagged, then `master` should
 WooCommerce Custom Orders Table extends WooCommerce's own test suite (which uses [the WordPress core testing suite](https://make.wordpress.org/core/handbook/testing/automated-testing/writing-phpunit-tests/)) to provide automated tests for its functionality.
 
 When submitting pull requests, please include relevant tests for your new features and bug-fixes. This helps prevent regressions in future iterations of the plugin, and helps instill confidence in store owners using this to enhance their WooCommerce stores.
+
+Please note that WooCommerce's `master` branch will occasionally include failing tests, which should *not* be treated as a blocker for merging pull requests on this repo as long as the failing tests are within the "core" test suite **and** the same tests are failing against WooCommerce's `master` branch](https://travis-ci.org/woocommerce/woocommerce).
 
 #### Test coverage
 
