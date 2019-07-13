@@ -94,7 +94,7 @@ class FiltersTest extends TestCase {
 
 		$orders = wc_get_orders( array( '_custom_meta_key' => 'value' ) );
 
-		$this->assertEquals( 1, count($orders) );
+		$this->assertCount( 1, $orders );
 	}
 
 	public function test_filter_database_queries_without_meta_queries() {
