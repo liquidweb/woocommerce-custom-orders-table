@@ -81,6 +81,8 @@ class FiltersTest extends TestCase {
 		$order->update_meta_data( '_custom_meta_key', 'value' );
 		$order->save();
 
+		// Because we hook into this filter, we need to ensure that if anyone else also hooks in, that we're
+		// properly handling the resulting postmeta table JOIN clause in the resulting SQL query.
 		add_filter('woocommerce_order_data_store_cpt_get_orders_query', function ( $query, $query_vars ) {
 			if ( ! empty( $query_vars['_custom_meta_key'] ) ) {
 				$query['meta_query'][] = array(
