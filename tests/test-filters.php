@@ -72,18 +72,6 @@ class FiltersTest extends TestCase {
 					'_old_key' => '_billing_email',
 				],
 			],
-			'meta_query' => [
-				'relation' => 'AND',
-				'customer_emails' => [
-					'key'     => '_billing_email',
-					'value'   => [ 'test@example.com' ],
-					'compare' => 'IN',
-				],
-				'custom_key' => [
-					'key' => '_custom_meta_key',
-					'value' => 'value',
-				],
-			],
 		], WooCommerce_Custom_Orders_Table_Filters::filter_database_queries( $args, [] ) );
 	}
 
