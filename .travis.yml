@@ -42,6 +42,7 @@ matrix:
       php: nightly
       env: WP_VERSION=trunk WC_VERSION=latest
   allow_failures:
+    - php: 7.4snapshot
     - name: Code Coverage
       php: 7.2
       env: WP_VERSION=latest WC_VERSION=latest RUN_CODE_COVERAGE=1
