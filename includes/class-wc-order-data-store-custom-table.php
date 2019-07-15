@@ -20,7 +20,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function __construct() {
 
 		// When creating a WooCommerce order data store request, filter the MySQL query.
-		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_database_queries', 10, 2 );
+		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_database_queries', PHP_INT_MAX, 2 );
 	}
 
 	/**

@@ -45,6 +45,60 @@ class FiltersTest extends TestCase {
 		], WooCommerce_Custom_Orders_Table_Filters::filter_database_queries( $args, [] ) );
 	}
 
+	public function test_filter_database_queries_with_postmeta() {
+		$args = [
+			'meta_query' => [
+				'relation' => 'AND',
+				'customer_emails' => [
+					'key'     => '_billing_email',
+					'value'   => [ 'test@example.com' ],
+					'compare' => 'IN',
+				],
+				'custom_key' => [
+					'key' => '_custom_meta_key',
+					'value' => 'value',
+				],
+			],
+		];
+
+		$this->assertEquals( [
+			'meta_query' => $args['meta_query'],
+			'_wc_has_meta_columns' => true,
+			'wc_order_meta_query'  => [
+				[
+					'key'      => 'billing_email',
+					'value'    => [ 'test@example.com' ],
+					'compare'  => 'IN',
+					'_old_key' => '_billing_email',
+				],
+			],
+		], WooCommerce_Custom_Orders_Table_Filters::filter_database_queries( $args, [] ) );
+	}
+
+	public function test_wc_get_orders_custom_meta_key() {
+
+		$order = WC_Helper_Order::create_order();
+		$order->update_meta_data( '_custom_meta_key', 'value' );
+		$order->save();
+
+		// Because we hook into this filter, we need to ensure that if anyone else also hooks in, that we're
+		// properly handling the resulting postmeta table JOIN clause in the resulting SQL query.
+		add_filter('woocommerce_order_data_store_cpt_get_orders_query', function ( $query, $query_vars ) {
+			if ( ! empty( $query_vars['_custom_meta_key'] ) ) {
+				$query['meta_query'][] = array(
+					'key' => '_custom_meta_key',
+					'value' => esc_attr( $query_vars['_custom_meta_key'] ),
+				);
+			}
+
+			return $query;
+		}, 100, 2);
+
+		$orders = wc_get_orders( array( '_custom_meta_key' => 'value' ) );
+
+		$this->assertCount( 1, $orders );
+	}
+
 	public function test_filter_database_queries_without_meta_queries() {
 		$this->assertEquals( [
 			'foo'                  => 'bar',
