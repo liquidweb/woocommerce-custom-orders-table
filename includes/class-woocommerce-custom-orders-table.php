@@ -77,10 +77,12 @@ class WooCommerce_Custom_Orders_Table {
 	public function row_exists( $order_id ) {
 		global $wpdb;
 
-		return (bool) $wpdb->get_var( $wpdb->prepare(
-			'SELECT COUNT(order_id) FROM ' . esc_sql( $this->get_table_name() ) . ' WHERE order_id = %d',
-			$order_id
-		) );
+		return (bool) $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(order_id) FROM ' . esc_sql( $this->get_table_name() ) . ' WHERE order_id = %d',
+				$order_id
+			)
+		);
 	}
 
 	/**
@@ -151,9 +153,10 @@ class WooCommerce_Custom_Orders_Table {
 	 * @return WC_Order The populated WC_Order object.
 	 */
 	public static function populate_order_from_post_meta( $order ) {
-		foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
+		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
 			$meta = get_post_meta( $order->get_id(), $meta_key, true );
 
+			$table_data = $order->get_data_store()->get_order_data_from_table( $order );
 			if ( empty( $table_data->$column ) && ! empty( $meta ) ) {
 				switch ( $column ) {
 					case 'billing_index':
