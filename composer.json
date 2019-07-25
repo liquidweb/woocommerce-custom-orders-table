@@ -1,59 +1,82 @@
 {
-  "name": "liquidweb/woocommerce-custom-orders-table",
-  "description": "Store WooCommerce order data in a custom table for improved performance",
-  "type": "wordpress-plugin",
-  "license": "GPL-2.0-only",
-  "require-dev": {
-    "php": "^7.0",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
-    "phpunit/phpunit": "^6.5",
-    "wimg/php-compatibility": "^9.0",
-    "woocommerce/woocommerce": "dev-master",
-    "woocommerce/woocommerce-git-hooks": "*",
-    "woocommerce/woocommerce-sniffs": "^0.0.2",
-    "wp-cli/wp-cli": "^2.0",
-    "wp-coding-standards/wpcs": "^1.1"
-  },
-  "autoload-dev": {
-    "classmap": [
-      "tests/test-tools",
-      "vendor/woocommerce/woocommerce/tests/framework"
+    "name": "liquidweb/woocommerce-custom-orders-table",
+    "description": "Store WooCommerce order data in a custom table for improved performance",
+    "license": "GPL-3.0-or-later",
+    "type": "wordpress-plugin",
+    "readme": "README.md",
+    "authors": [
+        {
+            "name": "Liquid Web",
+            "homepage": "https://www.liquidweb.com"
+        },
+        {
+            "name": "Mindsize",
+            "homepage": "https://mindsize.me"
+        }
     ],
-    "files": [
-      "tests/test-tools/utils.php"
-    ]
-  },
-  "scripts": {
-    "pre-update-cmd": [
-      "WooCommerce\\GitHooks\\Hooks::preHooks"
-    ],
-    "pre-install-cmd": [
-      "WooCommerce\\GitHooks\\Hooks::preHooks"
-    ],
-    "post-install-cmd": [
-      "WooCommerce\\GitHooks\\Hooks::postHooks"
-    ],
-    "post-update-cmd": [
-      "WooCommerce\\GitHooks\\Hooks::postHooks"
-    ],
-    "test-coverage": [
-      "phpunit --testsuite=plugin --coverage-html=tests/coverage"
-    ]
-  },
-  "scripts-descriptions": {
-    "test-coverage": "Generate test coverage for the plugin"
-  },
-  "config": {
-      "sort-packages": true,
-      "platform": {
-          "php": "7.2"
-      }
-  },
-  "extra": {
-    "installer-paths": {
-      "vendor/{$vendor}/{$name}": [
-        "woocommerce/woocommerce"
-      ]
+    "support": {
+        "issues": "https://github.com/liquidweb/woocommerce-custom-orders-table/issues",
+        "source": "https://github.com/liquidweb/woocommerce-custom-orders-table"
+    },
+    "require": {
+        "composer/installers": "~1.0"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.5",
+        "php": "^7.0",
+        "phpcompatibility/php-compatibility": "^9.0",
+        "phpunit/phpunit": "^6.5",
+        "woocommerce/woocommerce": "dev-master",
+        "woocommerce/woocommerce-git-hooks": "*",
+        "woocommerce/woocommerce-sniffs": "^0.0.6",
+        "wp-cli/wp-cli": "^2.0",
+        "wp-coding-standards/wpcs": "^1.2"
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/test-tools",
+            "vendor/woocommerce/woocommerce/tests/framework"
+        ],
+        "files": [
+            "tests/test-tools/utils.php"
+        ]
+    },
+     "scripts": {
+        "post-install-cmd": [
+            "WooCommerce\\GitHooks\\Hooks::postHooks"
+        ],
+        "post-update-cmd": [
+            "WooCommerce\\GitHooks\\Hooks::postHooks"
+        ],
+        "pre-install-cmd": [
+            "WooCommerce\\GitHooks\\Hooks::preHooks"
+        ],
+        "pre-update-cmd": [
+            "WooCommerce\\GitHooks\\Hooks::preHooks"
+        ],
+        "test-coverage": [
+            "phpunit --testsuite=plugin --coverage-html=tests/coverage"
+        ]
+    },
+    "scripts-descriptions": {
+        "test-coverage": "Generate test coverage for the plugin"
+    },
+    "prefer-stable": true,
+    "config": {
+        "platform": {
+            "php": "7.2"
+        },
+        "preferred-install": {
+            "woocommerce/woocommerce": "source",
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "installer-paths": {
+            "vendor/{$vendor}/{$name}": [
+                "woocommerce/woocommerce"
+            ]
+        }
     }
-  }
 }
