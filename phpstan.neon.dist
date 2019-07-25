@@ -1,0 +1,20 @@
+# Start command: vendor/bin/phpstan analyze
+
+includes:
+    - phar://phpstan.phar/conf/bleedingEdge.neon
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+parameters:
+    level: 4
+    inferPrivatePropertyTypeFromConstructor: true
+    paths:
+        - %currentWorkingDirectory%/woocommerce-custom-orders-table.php
+        - %currentWorkingDirectory%/includes/
+    autoload_files:
+        - %currentWorkingDirectory%/tests/phpstan/woocommerce-stubs-3.6.5.php
+        - %currentWorkingDirectory%/woocommerce-custom-orders-table.php
+    autoload_directories:
+        - %currentWorkingDirectory%/includes/
+    ignoreErrors:
+        # Uses func_get_args()
+        - '#^Function apply_filters invoked with [34567] parameters, 2 required\.$#'
+        - '#^Function do_action invoked with [3456] parameters, 1-2 required\.$#'

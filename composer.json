@@ -22,10 +22,12 @@
         "composer/installers": "~1.0"
     },
     "require-dev": {
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.5",
         "php": "^7.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.5",
         "phpcompatibility/php-compatibility": "^9.0",
+        "phpstan/phpstan-shim": "^0.11.12",
         "phpunit/phpunit": "^6.5",
+        "szepeviktor/phpstan-wordpress": "dev-master",
         "woocommerce/woocommerce": "dev-master",
         "woocommerce/woocommerce-git-hooks": "*",
         "woocommerce/woocommerce-sniffs": "^0.0.6",
@@ -41,12 +43,14 @@
             "tests/test-tools/utils.php"
         ]
     },
-     "scripts": {
+    "scripts": {
         "post-install-cmd": [
-            "WooCommerce\\GitHooks\\Hooks::postHooks"
+            "WooCommerce\\GitHooks\\Hooks::postHooks",
+            "PHPStan\\WordPress\\Composer\\FixWpStubs::php73Polyfill"
         ],
         "post-update-cmd": [
-            "WooCommerce\\GitHooks\\Hooks::postHooks"
+            "WooCommerce\\GitHooks\\Hooks::postHooks",
+            "PHPStan\\WordPress\\Composer\\FixWpStubs::php73Polyfill"
         ],
         "pre-install-cmd": [
             "WooCommerce\\GitHooks\\Hooks::preHooks"
