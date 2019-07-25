@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d82b3daaf91e1f438990824973c4a745",
+    "content-hash": "8296084dfb1fab52b160020b5426ccec",
     "packages": [
         {
             "name": "composer/installers",
@@ -251,45 +251,6 @@
             "time": "2019-03-17T17:37:11+00:00"
         },
         {
-            "name": "giacocorsiglia/wordpress-stubs",
-            "version": "v5.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/GiacoCorsiglia/wordpress-stubs.git",
-                "reference": "1c6f011f5c241bab7293315d7fb7fca27fe79473"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/GiacoCorsiglia/wordpress-stubs/zipball/1c6f011f5c241bab7293315d7fb7fca27fe79473",
-                "reference": "1c6f011f5c241bab7293315d7fb7fca27fe79473",
-                "shasum": ""
-            },
-            "require-dev": {
-                "ext-gettext": "*",
-                "giacocorsiglia/stubs-generator": "^0.5.0",
-                "johnpbloch/wordpress": "5.1.1",
-                "php": "^7.1"
-            },
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0+"
-            ],
-            "authors": [
-                {
-                    "name": "Giaco Corsiglia",
-                    "email": "GiacoCorsiglia@gmail.com"
-                }
-            ],
-            "description": "WordPress function, class, and global variable declaration stubs for easier static analysis.",
-            "homepage": "https://github.com/GiacoCorsiglia/wordpress-stubs",
-            "keywords": [
-                "static analysis",
-                "wordpress"
-            ],
-            "time": "2019-03-13T21:16:05+00:00"
-        },
-        {
             "name": "mustache/mustache",
             "version": "v2.12.0",
             "source": {
@@ -525,13 +486,13 @@
                 },
                 {
                     "name": "Wim Godden",
-                    "role": "lead",
-                    "homepage": "https://github.com/wimg"
+                    "homepage": "https://github.com/wimg",
+                    "role": "lead"
                 },
                 {
                     "name": "Juliette Reinders Folmer",
-                    "role": "lead",
-                    "homepage": "https://github.com/jrfnl"
+                    "homepage": "https://github.com/jrfnl",
+                    "role": "lead"
                 }
             ],
             "description": "A set of sniffs for PHP_CodeSniffer that checks for PHP cross-version compatibility.",
@@ -859,50 +820,6 @@
             "time": "2019-06-13T12:50:23+00:00"
         },
         {
-            "name": "phpstan/phpstan-shim",
-            "version": "0.11.12",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/phpstan/phpstan-shim.git",
-                "reference": "e839cd60446dd967f5c0f7908d3b16d14bc39796"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-shim/zipball/e839cd60446dd967f5c0f7908d3b16d14bc39796",
-                "reference": "e839cd60446dd967f5c0f7908d3b16d14bc39796",
-                "shasum": ""
-            },
-            "require": {
-                "php": "~7.1"
-            },
-            "replace": {
-                "nikic/php-parser": "^4.0.2",
-                "phpstan/phpdoc-parser": "^0.3.3",
-                "phpstan/phpstan": "self.version"
-            },
-            "bin": [
-                "phpstan",
-                "phpstan.phar"
-            ],
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.11-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "bootstrap.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "PHPStan Phar distribution",
-            "time": "2019-07-08T07:29:02+00:00"
-        },
-        {
             "name": "phpunit/php-code-coverage",
             "version": "5.3.2",
             "source": {
@@ -952,8 +869,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "Library that provides collection, processing, and rendering functionality for PHP code coverage information.",
@@ -1222,8 +1139,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "The PHP Unit Testing framework.",
@@ -2062,53 +1979,6 @@
             "time": "2019-02-06T07:57:58+00:00"
         },
         {
-            "name": "szepeviktor/phpstan-wordpress",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/szepeviktor/phpstan-wordpress.git",
-                "reference": "4cef90361549ea42c0735e5a508c5782ab49880b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/szepeviktor/phpstan-wordpress/zipball/4cef90361549ea42c0735e5a508c5782ab49880b",
-                "reference": "4cef90361549ea42c0735e5a508c5782ab49880b",
-                "shasum": ""
-            },
-            "require": {
-                "giacocorsiglia/wordpress-stubs": "^5.1",
-                "php": "~7.1",
-                "phpstan/phpstan": "^0.11.5"
-            },
-            "require-dev": {
-                "composer/composer": "^1.8.6",
-                "consistence/coding-standard": "^3.8",
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
-                "jakub-onderka/php-parallel-lint": "^1.0",
-                "phpstan/phpstan-strict-rules": "^0.11",
-                "slevomat/coding-standard": "^5.0.4"
-            },
-            "type": "phpstan-extension",
-            "extra": {
-                "phpstan": {
-                    "includes": [
-                        "extension.neon"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "PHPStan\\WordPress\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "WordPress extensions for PHPStan",
-            "time": "2019-07-21T21:24:31+00:00"
-        },
-        {
             "name": "theseer/tokenizer",
             "version": "1.1.3",
             "source": {
@@ -2391,13 +2261,13 @@
             "authors": [
                 {
                     "name": "James Logsdon",
-                    "role": "Developer",
-                    "email": "jlogsdon@php.net"
+                    "email": "jlogsdon@php.net",
+                    "role": "Developer"
                 },
                 {
                     "name": "Daniel Bachhuber",
-                    "role": "Maintainer",
-                    "email": "daniel@handbuilt.co"
+                    "email": "daniel@handbuilt.co",
+                    "role": "Maintainer"
                 }
             ],
             "description": "Console utilities for PHP",
@@ -2517,7 +2387,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "szepeviktor/phpstan-wordpress": 20,
         "woocommerce/woocommerce": 20
     },
     "prefer-stable": true,

@@ -1,4 +1,4 @@
-# Start command: vendor/bin/phpstan analyze
+# Start command: composer require --dev phpstan/phpstan-shim szepeviktor/phpstan-wordpress:dev-master && vendor/bin/phpstan analyze
 
 includes:
     - phar://phpstan.phar/conf/bleedingEdge.neon
