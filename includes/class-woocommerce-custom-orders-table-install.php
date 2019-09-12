@@ -25,7 +25,7 @@ class WooCommerce_Custom_Orders_Table_Install {
 	 *
 	 * @var int
 	 */
-	protected static $table_version = 2;
+	protected static $table_version = 3;
 
 	/**
 	 * Actions to perform on plugin activation.
@@ -104,6 +104,22 @@ class WooCommerce_Custom_Orders_Table_Install {
 			UNIQUE KEY `order_key` (`order_key`),
 			KEY `customer_id` (`customer_id`),
 			KEY `order_total` (`total`)
+			) $collate;
+		";
+
+		// Apply the database migration.
+		dbDelta( $tables );
+
+		$table   = wc_custom_order_table()->get_meta_table_name();
+		$tables  = "
+			CREATE TABLE {$table} (
+				meta_id bigint(20) unsigned NOT NULL auto_increment,
+				order_id bigint(20) unsigned NOT NULL default '0',
+				meta_key varchar(255) default NULL,
+				meta_value longtext,
+				PRIMARY KEY  (meta_id),
+				KEY order_id (order_id),
+				KEY meta_key (meta_key(191))
 			) $collate;
 		";
 

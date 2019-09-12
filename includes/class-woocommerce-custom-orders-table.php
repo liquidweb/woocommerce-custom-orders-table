@@ -12,11 +12,18 @@
 class WooCommerce_Custom_Orders_Table {
 
 	/**
-	 * The database table name.
+	 * The database table name for orders.
 	 *
 	 * @var string
 	 */
 	protected $table_name = null;
+
+	/**
+	 * The database table name for order meta data.
+	 *
+	 * @var string
+	 */
+	protected $meta_table_name = null;
 
 	/**
 	 * Steps to run on plugin initialization.
@@ -27,6 +34,7 @@ class WooCommerce_Custom_Orders_Table {
 		global $wpdb;
 
 		$this->table_name = $wpdb->prefix . 'woocommerce_orders';
+		$this->meta_table_name = $wpdb->prefix . 'woocommerce_ordermeta';
 
 		// Use the plugin's custom data stores for customers and orders.
 		add_filter( 'woocommerce_customer_data_store', __CLASS__ . '::customer_data_store' );
@@ -43,7 +51,7 @@ class WooCommerce_Custom_Orders_Table {
 		add_action( 'woocommerce_update_new_customer_past_order', 'WooCommerce_Custom_Orders_Table_Filters::update_past_customer_order', 10, 2 );
 
 		// Register the table within WooCommerce.
-		add_filter( 'woocommerce_install_get_tables', array( $this, 'register_table_name' ) );
+		add_filter( 'woocommerce_install_get_tables', array( $this, 'register_tables_name' ) );
 
 		// If we're in a WP-CLI context, load the WP-CLI command.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -63,6 +71,20 @@ class WooCommerce_Custom_Orders_Table {
 		 * @param string $table The WooCommerce orders table name.
 		 */
 		return apply_filters( 'wc_customer_order_table_name', $this->table_name );
+	}
+
+	/**
+	 * Retrieve the WooCommerce ordermeta table name.
+	 *
+	 * @return string The database table name.
+	 */
+	public function get_meta_table_name() {
+		/**
+		 * Filter the WooCommerce order meta table name.
+		 *
+		 * @param string $table The WooCommerce order meta table name.
+		 */
+		return apply_filters( 'wc_customer_order_meta_table_name', $this->meta_table_name );
 	}
 
 	/**
@@ -196,18 +218,23 @@ class WooCommerce_Custom_Orders_Table {
 	}
 
 	/**
-	 * Register the table name within WooCommerce.
+	 * Register the tables names within WooCommerce.
 	 *
 	 * @param array $tables An array of known WooCommerce tables.
 	 *
 	 * @return array The filtered $tables array.
 	 */
-	public function register_table_name( $tables ) {
-		$table = $this->get_table_name();
+	public function register_tables_name( $tables ) {
+		$tables = [
+			$this->get_table_name(),
+			$this->get_meta_table_name(),
+		];
 
-		if ( ! in_array( $table, $tables, true ) ) {
-			$tables[] = $table;
-			sort( $tables );
+		foreach ( $tables as $table ) {
+			if ( ! in_array( $table, $tables, true ) ) {
+				$tables[] = $table;
+				sort( $tables );
+			}
 		}
 
 		return $tables;

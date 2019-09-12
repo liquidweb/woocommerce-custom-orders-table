@@ -15,12 +15,21 @@
 class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 	/**
+	 * Sets meta type to 'order' to use the 'woocommerce_ordermeta' table.
+	 */
+	protected $meta_type = 'order';
+
+	/**
 	 * Hook into WooCommerce database queries related to orders.
 	 */
 	public function __construct() {
 
 		// When creating a WooCommerce order data store request, filter the MySQL query.
 		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_database_queries', PHP_INT_MAX, 2 );
+
+		// Registers 'ordermeta' table in the global wpdb object.
+		global $wpdb;
+		$wpdb->ordermeta = wc_custom_order_table()->get_meta_table_name();
 	}
 
 	/**
@@ -443,4 +452,18 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			}
 		}
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function update_or_delete_post_meta( $order, $meta_key, $meta_value ) {
+		if ( in_array( $meta_value, array( array(), '' ), true ) && ! in_array( $meta_key, $this->must_exist_meta_keys, true ) ) {
+			$updated = delete_metadata( $this->meta_type, $order->get_id(), $meta_key, $meta_value );
+		} else {
+			$updated = update_metadata( $this->meta_type, $order->get_id(), $meta_key, $meta_value );
+		}
+
+		return (bool) $updated;
+	}
+
 }
