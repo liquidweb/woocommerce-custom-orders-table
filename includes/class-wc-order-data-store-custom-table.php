@@ -415,6 +415,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
 
 			$this->update_post_meta( $order );
+			$order->save_meta_data();
 		} catch ( WC_Data_Exception $e ) {
 			return new WP_Error( 'woocommerce-custom-order-table-migration', $e->getMessage() );
 		}
@@ -424,7 +425,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		}
 
 		if ( true === $delete ) {
-			foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
+			foreach ( get_post_meta( $order->get_id() ) as $meta_key => $meta_value ) {
 				delete_post_meta( $order->get_id(), $meta_key );
 			}
 		}

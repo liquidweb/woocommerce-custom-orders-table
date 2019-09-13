@@ -175,43 +175,54 @@ class WooCommerce_Custom_Orders_Table {
 	 * @return WC_Order The populated WC_Order object.
 	 */
 	public static function populate_order_from_post_meta( $order ) {
-		foreach ( self::get_postmeta_mapping() as $column => $meta_key ) {
-			$meta = get_post_meta( $order->get_id(), $meta_key, true );
+		$meta = get_post_meta( $order->get_id());//, '', true );
+		$order_fields = self::get_postmeta_mapping(); // Non order_fields are assumed to be order meta_data.
+		$key_to_column_map = array_flip($order_fields);
+		$table_data = $order->get_data_store()->get_order_data_from_table( $order );
 
-			$table_data = $order->get_data_store()->get_order_data_from_table( $order );
-			if ( empty( $table_data->$column ) && ! empty( $meta ) ) {
-				switch ( $column ) {
-					case 'billing_index':
-					case 'shipping_index':
-						break;
+		foreach ( $meta as $meta_key => $meta_value ) {
+			$meta_value = reset($meta_value);
+			WP_CLI::warning( $meta_key . ': '. $meta_value);
+			if ( in_array( $meta_key, $order_fields ) ) {
+				$column = $key_to_column_map[ $meta_key ];
+				if ( empty( $table_data->$column ) && ! empty( $meta_value ) ) {
+					WP_CLI::warning('Internal value into ' . $column);
+					switch ( $column ) {
+						case 'billing_index':
+						case 'shipping_index':
+							break;
 
-					/*
-					 * Migration isn't the time to validate (and potentially throw exceptions);
-					 * if it was accepted into WooCommerce core, let it persist.
-					 *
-					 * If we're unable to set an email address due to $order->set_billing_email(),
-					 * try to circumvent the check by using reflection to call the protected
-					 * $order->set_address_prop() method.
-					 */
-					case 'billing_email':
-						try {
-							$order->set_billing_email( $meta );
-						} catch ( WC_Data_Exception $e ) {
-							$method = new ReflectionMethod( $order, 'set_address_prop' );
-							$method->setAccessible( true );
-							$method->invoke( $order, 'email', 'billing', $meta );
-						}
-						break;
+						/*
+						 * Migration isn't the time to validate (and potentially throw exceptions);
+						 * if it was accepted into WooCommerce core, let it persist.
+						 *
+						 * If we're unable to set an email address due to $order->set_billing_email(),
+						 * try to circumvent the check by using reflection to call the protected
+						 * $order->set_address_prop() method.
+						 */
+						case 'billing_email':
+							try {
+								$order->set_billing_email( $meta_value );
+							} catch ( WC_Data_Exception $e ) {
+								$method = new ReflectionMethod( $order, 'set_address_prop' );
+								$method->setAccessible( true );
+								$method->invoke( $order, 'email', 'billing', $meta_value );
+							}
+							break;
 
-					case 'prices_include_tax':
-						$order->set_prices_include_tax( 'yes' === $meta );
-						break;
+						case 'prices_include_tax':
+							$order->set_prices_include_tax( 'yes' === $meta_value );
+							break;
 
-					default:
-						$order->{"set_{$column}"}( $meta );
-						break;
+						default:
+							$order->{"set_{$column}"}( $meta_value );
+							break;
+					}
 				}
+			} else {
+				$order->add_meta_data( $meta_key, $meta_value );
 			}
+
 		}
 
 		return $order;
