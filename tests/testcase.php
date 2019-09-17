@@ -43,10 +43,18 @@ class TestCase extends WC_Unit_Test_Case {
 			add_filter( 'woocommerce_customer_data_store', 'WooCommerce_Custom_Orders_Table::customer_data_store' );
 			add_filter( 'woocommerce_order_data_store', 'WooCommerce_Custom_Orders_Table::order_data_store' );
 			add_filter( 'woocommerce_order-refund_data_store', 'WooCommerce_Custom_Orders_Table::order_refund_data_store' );
+			add_action( 'add_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata', 10, 5 );
+			add_action( 'update_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata', 10, 5 );
+			add_action( 'delete_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata', 10, 5 );
+			add_action( 'get_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata', 10, 4 );
 		} else {
 			remove_filter( 'woocommerce_customer_data_store', 'WooCommerce_Custom_Orders_Table::customer_data_store' );
 			remove_filter( 'woocommerce_order_data_store', 'WooCommerce_Custom_Orders_Table::order_data_store' );
 			remove_filter( 'woocommerce_order-refund_data_store', 'WooCommerce_Custom_Orders_Table::order_refund_data_store' );
+			remove_action( 'add_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata' );
+			remove_action( 'update_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata' );
+			remove_action( 'delete_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata' );
+			remove_action( 'get_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata' );
 		}
 	}
 

@@ -33,9 +33,12 @@ class WooCommerce_Custom_Orders_Table {
 	public function setup() {
 		global $wpdb;
 
-		$this->table_name = $wpdb->prefix . 'woocommerce_orders';
+		$this->table_name      = $wpdb->prefix . 'woocommerce_orders';
 		$this->meta_table_name = $wpdb->prefix . 'woocommerce_ordermeta';
 
+		// Registers 'ordermeta' table in the global wpdb object.
+		global $wpdb;
+		$wpdb->ordermeta = wc_custom_order_table()->get_meta_table_name();
 		// Use the plugin's custom data stores for customers and orders.
 		add_filter( 'woocommerce_customer_data_store', __CLASS__ . '::customer_data_store' );
 		add_filter( 'woocommerce_order_data_store', __CLASS__ . '::order_data_store' );
@@ -50,8 +53,27 @@ class WooCommerce_Custom_Orders_Table {
 		// When associating previous orders with a customer based on email, update the record.
 		add_action( 'woocommerce_update_new_customer_past_order', 'WooCommerce_Custom_Orders_Table_Filters::update_past_customer_order', 10, 2 );
 
+		// Move custom meta keys query to the ordermeta table.
+		add_action( 'get_meta_sql', 'WooCommerce_Custom_Orders_Table_Filters::get_meta_sql', 10, 6 );
+
 		// Register the table within WooCommerce.
 		add_filter( 'woocommerce_install_get_tables', array( $this, 'register_tables_name' ) );
+
+		// Removes default metabox and add the ordermeta one.
+		add_action( 'add_meta_boxes_shop_order', 'WooCommerce_Custom_Orders_Table_Meta::replace_order_metabox' );
+		add_action( 'add_meta_boxes_shop_order_refund', 'WooCommerce_Custom_Orders_Table_Meta::replace_order_metabox' );
+
+		// Add save method for metadata in metabox in the edit form.
+		add_action( 'save_post_shop_order', 'WooCommerce_Custom_Orders_Table_Meta::save_order_meta_data', 10, 3 );
+
+		// Add save method for metadata in metabox in the edit form.
+		add_action( 'delete_post', 'WooCommerce_Custom_Orders_Table_Meta::delete_order_meta_data', 10 );
+
+		// Add support for ordermeta in pre-CRUD operations.
+		add_action( 'add_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata', 10, 5 );
+		add_action( 'update_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata', 10, 5 );
+		add_action( 'delete_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata', 10, 5 );
+		add_action( 'get_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata', 10, 4 );
 
 		// If we're in a WP-CLI context, load the WP-CLI command.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -99,6 +121,7 @@ class WooCommerce_Custom_Orders_Table {
 	public function row_exists( $order_id ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		return (bool) $wpdb->get_var(
 			$wpdb->prepare(
 				'SELECT COUNT(order_id) FROM ' . esc_sql( $this->get_table_name() ) . ' WHERE order_id = %d',
@@ -175,18 +198,16 @@ class WooCommerce_Custom_Orders_Table {
 	 * @return WC_Order The populated WC_Order object.
 	 */
 	public static function populate_order_from_post_meta( $order ) {
-		$meta = get_post_meta( $order->get_id());//, '', true );
-		$order_fields = self::get_postmeta_mapping(); // Non order_fields are assumed to be order meta_data.
-		$key_to_column_map = array_flip($order_fields);
-		$table_data = $order->get_data_store()->get_order_data_from_table( $order );
+		$meta              = get_post_meta( $order->get_id() );
+		$order_fields      = self::get_postmeta_mapping(); // Non order_fields are assumed to be order meta_data.
+		$key_to_column_map = array_flip( $order_fields );
+		$table_data        = $order->get_data_store()->get_order_data_from_table( $order );
 
 		foreach ( $meta as $meta_key => $meta_value ) {
-			$meta_value = reset($meta_value);
-			WP_CLI::warning( $meta_key . ': '. $meta_value);
-			if ( in_array( $meta_key, $order_fields ) ) {
+			$meta_value = reset( $meta_value );
+			if ( in_array( $meta_key, $order_fields, true ) ) {
 				$column = $key_to_column_map[ $meta_key ];
 				if ( empty( $table_data->$column ) && ! empty( $meta_value ) ) {
-					WP_CLI::warning('Internal value into ' . $column);
 					switch ( $column ) {
 						case 'billing_index':
 						case 'shipping_index':
@@ -222,7 +243,6 @@ class WooCommerce_Custom_Orders_Table {
 			} else {
 				$order->add_meta_data( $meta_key, $meta_value );
 			}
-
 		}
 
 		return $order;
@@ -236,12 +256,12 @@ class WooCommerce_Custom_Orders_Table {
 	 * @return array The filtered $tables array.
 	 */
 	public function register_tables_name( $tables ) {
-		$tables = [
+		$new_tables = array(
 			$this->get_table_name(),
 			$this->get_meta_table_name(),
-		];
+		);
 
-		foreach ( $tables as $table ) {
+		foreach ( $new_tables as $table ) {
 			if ( ! in_array( $table, $tables, true ) ) {
 				$tables[] = $table;
 				sort( $tables );
@@ -281,6 +301,8 @@ class WooCommerce_Custom_Orders_Table {
 
 		// Remove the row from the custom table.
 		if ( true === $delete ) {
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->delete(
 				wc_custom_order_table()->get_table_name(),
 				array( 'order_id' => $order->get_id() ),
@@ -315,4 +337,5 @@ class WooCommerce_Custom_Orders_Table {
 	public static function order_refund_data_store() {
 		return 'WC_Order_Refund_Data_Store_Custom_Table';
 	}
+
 }

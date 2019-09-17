@@ -110,8 +110,8 @@ class WooCommerce_Custom_Orders_Table_Install {
 		// Apply the database migration.
 		dbDelta( $tables );
 
-		$table   = wc_custom_order_table()->get_meta_table_name();
-		$tables  = "
+		$table  = wc_custom_order_table()->get_meta_table_name();
+		$tables = "
 			CREATE TABLE {$table} (
 				meta_id bigint(20) unsigned NOT NULL auto_increment,
 				order_id bigint(20) unsigned NOT NULL default '0',

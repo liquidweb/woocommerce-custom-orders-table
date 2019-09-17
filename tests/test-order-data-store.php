@@ -245,12 +245,15 @@ class OrderDataStoreTest extends TestCase {
 
 		$order->get_data_store()->populate_from_meta( $order, true );
 
+		// Use legacy meta access to check postmeta table is empty of order meta_key.
+		$this->toggle_use_custom_table( false );
 		foreach ( $mapping as $column => $meta_key ) {
 			$this->assertEmpty(
 				get_post_meta( $order->get_id(), $meta_key, true ),
 				"Post meta key $meta_key should have been deleted."
 			);
 		}
+		$this->toggle_use_custom_table( true );
 	}
 
 	/**

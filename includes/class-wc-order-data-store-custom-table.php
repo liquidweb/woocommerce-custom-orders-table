@@ -16,6 +16,8 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 	/**
 	 * Sets meta type to 'order' to use the 'woocommerce_ordermeta' table.
+	 *
+	 * @var string
 	 */
 	protected $meta_type = 'order';
 
@@ -26,10 +28,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// When creating a WooCommerce order data store request, filter the MySQL query.
 		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_database_queries', PHP_INT_MAX, 2 );
-
-		// Registers 'ordermeta' table in the global wpdb object.
-		global $wpdb;
-		$wpdb->ordermeta = wc_custom_order_table()->get_meta_table_name();
 	}
 
 	/**
@@ -363,7 +361,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 					$wpdb->get_col(
 						$wpdb->prepare(
 							"
-					SELECT DISTINCT post_id FROM {$wpdb->postmeta}
+					SELECT DISTINCT order_id FROM {$wpdb->ordermeta}
 					WHERE meta_value LIKE %s
 					AND meta_key IN (" . implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) ) . ')',
 							array_merge(
@@ -415,7 +413,10 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
 
 			$this->update_post_meta( $order );
-			$order->save_meta_data();
+			if ( empty( $wpdb->last_error ) ) {
+				// Only save order metadata in new table in case the previous step was ok.
+				$order->save_meta_data();
+			}
 		} catch ( WC_Data_Exception $e ) {
 			return new WP_Error( 'woocommerce-custom-order-table-migration', $e->getMessage() );
 		}
@@ -425,9 +426,14 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		}
 
 		if ( true === $delete ) {
+			// Remove the filter to enable `delete_post_meta` access to legacy postmeta table to remove order metadata.
+			remove_action( 'delete_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata' );
+			remove_action( 'get_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata' );
 			foreach ( get_post_meta( $order->get_id() ) as $meta_key => $meta_value ) {
 				delete_post_meta( $order->get_id(), $meta_key );
 			}
+			add_action( 'delete_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata', 10, 5 );
+			add_action( 'get_post_metadata', 'WooCommerce_Custom_Orders_Table_Meta::map_post_metadata', 10, 4 );
 		}
 	}
 
@@ -455,7 +461,11 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * Implements `update_or_delete_post_meta` method.
+	 *
+	 * @param WC_Order $order The order doing the operation.
+	 * @param string   $meta_key The key of the meta data.
+	 * @param string   $meta_value The value of the meta data.
 	 */
 	protected function update_or_delete_post_meta( $order, $meta_key, $meta_value ) {
 		if ( in_array( $meta_value, array( array(), '' ), true ) && ! in_array( $meta_key, $this->must_exist_meta_keys, true ) ) {
@@ -467,4 +477,24 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		return (bool) $updated;
 	}
 
+	/**
+	 * Implements has_meta() equivalent because it has `postmeta` table hardcoded.
+	 *
+	 * Todo: paramatrize 'has_meta()' to accept any kind of meta.
+	 *
+	 * @param int $order_id The ID of the post of the order.
+	 */
+	public static function order_has_meta( $order_id ) {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT meta_key, meta_value, meta_id, order_id
+				FROM $wpdb->ordermeta WHERE order_id = %d",
+				$order_id
+			),
+			ARRAY_A
+		);
+	}
 }

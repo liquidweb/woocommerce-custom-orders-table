@@ -205,7 +205,7 @@ class CLITest extends TestCase {
 		$this->toggle_use_custom_table( true );
 
 		// Set a duplicate order key for the middle order.
-		update_post_meta( $order_ids[1], '_order_key', get_post_meta( $order_ids[0], '_order_key' ) );
+		update_post_meta( $order_ids[1], '_order_key', get_post_meta( $order_ids[0], '_order_key', true ) );
 
 		$this->cli->migrate();
 
@@ -215,7 +215,7 @@ class CLITest extends TestCase {
 			'Expected to only see two orders in the custom table.'
 		);
 
-		$this->assertContains( $order_ids[1], $this->get_skipped_ids() );
+		$this->assertContains( $order_ids[0], $this->get_skipped_ids() );
 	}
 
 	public function test_migrate_with_duplicate_ids() {
@@ -300,13 +300,17 @@ class CLITest extends TestCase {
 		$this->toggle_use_custom_table( false );
 		$order_ids = $this->generate_orders( 1 );
 		$order_id  = array_shift( $order_ids );
-		$this->toggle_use_custom_table( true );
 
 		$this->assertNotEmpty( get_post_meta( $order_id, '_billing_email', true ) );
 
+		$this->toggle_use_custom_table( true );
+
 		$this->cli->migrate();
 
+		// Turn on legacy access to metakey in postmeta table to ensure is empty.
+		$this->toggle_use_custom_table( false );
 		$this->assertEmpty( get_post_meta( $order_id, '_billing_email', true ) );
+		$this->toggle_use_custom_table( true );
 	}
 
 	/**
