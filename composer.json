@@ -19,15 +19,15 @@
         "source": "https://github.com/liquidweb/woocommerce-custom-orders-table"
     },
     "require": {
-        "composer/installers": "~1.0"
+        "composer/installers": "1.7.0",
+        "php": ">=5.6|>=7.0"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.5",
         "php": "^7.0",
         "phpcompatibility/php-compatibility": "^9.0",
-        "phpunit/phpunit": "^6.5",
+        "phpunit/phpunit": "^7.5",
         "woocommerce/woocommerce": "dev-master",
-        "woocommerce/woocommerce-git-hooks": "*",
         "woocommerce/woocommerce-sniffs": "^0.0.6",
         "wp-cli/wp-cli": "^2.0",
         "wp-coding-standards/wpcs": "^1.2"
@@ -43,22 +43,20 @@
     },
      "scripts": {
         "post-install-cmd": [
-            "WooCommerce\\GitHooks\\Hooks::postHooks"
+            "@build-woocommerce"
         ],
         "post-update-cmd": [
-            "WooCommerce\\GitHooks\\Hooks::postHooks"
+            "@build-woocommerce"
         ],
-        "pre-install-cmd": [
-            "WooCommerce\\GitHooks\\Hooks::preHooks"
-        ],
-        "pre-update-cmd": [
-            "WooCommerce\\GitHooks\\Hooks::preHooks"
+        "build-woocommerce": [
+            "@composer install --no-dev -d ./vendor/woocommerce/woocommerce"
         ],
         "test-coverage": [
             "phpunit --testsuite=plugin --coverage-html=tests/coverage"
         ]
     },
     "scripts-descriptions": {
+        "build-woocommerce": "Install WooCommerce's dependencies and prepare its custom autoloader",
         "test-coverage": "Generate test coverage for the plugin"
     },
     "prefer-stable": true,
@@ -76,6 +74,10 @@
         "installer-paths": {
             "vendor/{$vendor}/{$name}": [
                 "woocommerce/woocommerce"
+            ],
+            "vendor/woocommerce/woocommerce/packages/{$name}": [
+                "woocommerce/woocommerce-blocks",
+                "woocommerce/woocommerce-rest-api"
             ]
         }
     }
