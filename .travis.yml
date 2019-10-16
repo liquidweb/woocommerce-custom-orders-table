@@ -57,7 +57,7 @@ before_script:
   - |
     # Install WP Test suite, install PHPUnit globally:
     if [[ ! -z "$WP_VERSION" ]]; then
-      bash tests/bin/install.sh woocommerce_test root '' localhost $WP_VERSION
+      bash tests/bin/install-wp-tests.sh woocommerce_test root '' localhost $WP_VERSION
       composer global require "phpunit/phpunit=5.7.*|7.5.*"
     fi
   - bash tests/bin/set-woocommerce-version.sh $WC_VERSION
