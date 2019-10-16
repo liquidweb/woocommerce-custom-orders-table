@@ -1,30 +1,28 @@
 language: php
-sudo: false
-dist: trusty
+dist: xenial
 
-notifications:
-  email: false
+services:
+  - mysql
 
 cache:
   directories:
+    - vendor
     - $HOME/.composer/cache
 
 php:
-  - 7.4snapshot
   - 7.3
   - 7.2
   - 7.1
   - 7.0
+  - 5.6
 
 # Compatibility policy:
 #
 # - WordPress: latest -1
 # - WooCommerce: latest -2
 env:
-  - WP_VERSION=5.2 WC_VERSION=3.7
-  - WP_VERSION=5.2 WC_VERSION=3.6
-  - WP_VERSION=5.1 WC_VERSION=3.7
-  - WP_VERSION=5.1 WC_VERSION=3.6
+  - WP_VERSION=latest WC_VERSION=3.7
+  - WP_VERSION=latest WC_VERSION=3.6
 
 matrix:
   fast_finish: true
@@ -56,7 +54,12 @@ before_script:
     if [[ ${GITHUB_AUTH_TOKEN} != '' ]]; then
       composer config -g github-oauth.github.com $GITHUB_AUTH_TOKEN
     fi
-  - bash tests/bin/install-wp-tests.sh woocommerce_test root '' localhost $WP_VERSION
+  - |
+    # Install WP Test suite, install PHPUnit globally:
+    if [[ ! -z "$WP_VERSION" ]]; then
+      bash tests/bin/install.sh woocommerce_test root '' localhost $WP_VERSION
+      composer global require "phpunit/phpunit=5.7.*|7.5.*"
+    fi
   - bash tests/bin/set-woocommerce-version.sh $WC_VERSION
   - |
     if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
