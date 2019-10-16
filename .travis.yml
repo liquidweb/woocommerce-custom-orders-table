@@ -20,12 +20,11 @@ php:
 #
 # - WordPress: latest -1
 # - WooCommerce: latest -2
-#
-# Note: Since WordPress 5.0+ requires WooCommerce 3.5.1+, we don't need to go back
-#       to WooCommerce 3.4.x. Once 3.7.x is released,
 env:
+  - WP_VERSION=5.2 WC_VERSION=3.7
   - WP_VERSION=5.2 WC_VERSION=3.6
   - WP_VERSION=5.2 WC_VERSION=3.5
+  - WP_VERSION=5.1 WC_VERSION=3.7
   - WP_VERSION=5.1 WC_VERSION=3.6
   - WP_VERSION=5.1 WC_VERSION=3.5
 
@@ -33,10 +32,10 @@ matrix:
   fast_finish: true
   include:
     - name: Coding Standards
-      php: 7.2
+      php: 7.3
       env: WP_VERSION=latest WC_VERSION=latest RUN_PHPCS=1
     - name: Code Coverage
-      php: 7.2
+      php: 7.3
       env: WP_VERSION=latest WC_VERSION=latest RUN_CODE_COVERAGE=1
     - name: Bleeding Edge
       php: nightly
@@ -44,11 +43,7 @@ matrix:
   allow_failures:
     - php: 7.4snapshot
     - name: Code Coverage
-      php: 7.2
-      env: WP_VERSION=latest WC_VERSION=latest RUN_CODE_COVERAGE=1
     - name: Bleeding Edge
-      php: nightly
-      env: WP_VERSION=trunk WC_VERSION=latest
 
 before_script:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
