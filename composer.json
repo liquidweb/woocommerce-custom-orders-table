@@ -19,7 +19,7 @@
         "source": "https://github.com/liquidweb/woocommerce-custom-orders-table"
     },
     "require": {
-        "composer/installers": "^1.6",
+        "composer/installers": "^1.6.0",
         "php": ">=5.6|>=7.0"
     },
     "require-dev": {
@@ -28,6 +28,8 @@
         "phpcompatibility/php-compatibility": "^9.0",
         "phpunit/phpunit": "^7.5",
         "woocommerce/woocommerce": "dev-master",
+        "woocommerce/woocommerce-blocks": "*",
+        "woocommerce/woocommerce-rest-api": "*",
         "woocommerce/woocommerce-sniffs": "^0.0.7",
         "wp-cli/wp-cli": "^2.0",
         "wp-coding-standards/wpcs": "^2.1"
