@@ -64,7 +64,7 @@
     "prefer-stable": true,
     "config": {
         "platform": {
-            "php": "7.2"
+            "php": "7.3"
         },
         "preferred-install": {
             "woocommerce/woocommerce": "source",

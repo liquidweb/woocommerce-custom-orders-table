@@ -61,12 +61,7 @@ before_script:
       composer global require "phpunit/phpunit=5.7.*|7.5.*"
     fi
   - bash tests/bin/set-woocommerce-version.sh $WC_VERSION
-  - |
-    if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
-      composer update --prefer-source --prefer-lowest --no-interaction --no-ansi
-    else
-      composer install --prefer-source --no-interaction --no-ansi
-    fi
+  - composer install --prefer-source --prefer-lowest --no-interaction --no-ansi
 
 script:
   - |
