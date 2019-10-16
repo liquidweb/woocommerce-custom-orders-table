@@ -252,12 +252,12 @@ class WooCommerce_Custom_Orders_Table_Filters {
 			'UPDATE ' . esc_sql( $table ) . "
 			SET billing_index = CONCAT_WS( ' ', billing_first_name, billing_last_name, billing_company, billing_company, billing_address_1, billing_address_2, billing_city, billing_state, billing_postcode, billing_country, billing_email, billing_phone )
 			WHERE billing_index IS NULL OR billing_index = ''"
-		); // WPCS: DB call ok.
+		);
 		$wpdb->query(
 			'UPDATE ' . esc_sql( $table ) . "
 			SET shipping_index = CONCAT_WS( ' ', shipping_first_name, shipping_last_name, shipping_company, shipping_company, shipping_address_1, shipping_address_2, shipping_city, shipping_state, shipping_postcode, shipping_country )
 			WHERE shipping_index IS NULL OR shipping_index = ''"
-		); // WPCS: DB call ok.
+		);
 	}
 
 	/**

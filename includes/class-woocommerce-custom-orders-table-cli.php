@@ -47,6 +47,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		$order_table = wc_custom_order_table()->get_table_name();
 		$order_types = wc_get_order_types( 'reports' );
 		$order_count = $wpdb->get_var(
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$wpdb->prepare(
 				"SELECT COUNT(*)
 			FROM {$wpdb->posts} p
@@ -55,7 +56,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			AND o.order_id IS NULL',
 				$order_types
 			)
-		); // WPCS: Unprepared SQL ok, DB call ok.
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);
 
 		WP_CLI::log(
 			sprintf(
@@ -121,7 +123,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			LIMIT %d',
 			array_merge( $order_types, array( $assoc_args['batch-size'] ) )
 		);
-		$order_data  = $wpdb->get_col( $order_query ); // WPCS: Unprepared SQL ok, DB call ok.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$order_data  = $wpdb->get_col( $order_query );
 		$batch_count = 1;
 
 		while ( array_diff( $order_data, $this->skipped_ids ) ) {
@@ -181,7 +184,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			}
 
 			// Load up the next batch.
-			$next_batch = array_filter( $wpdb->get_col( $order_query ) ); // WPCS: Unprepared SQL ok, DB call ok.
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$next_batch = array_filter( $wpdb->get_col( $order_query ) );
 
 			if ( $next_batch === $order_data ) {
 				return WP_CLI::error( __( 'Infinite loop detected, aborting.', 'woocommerce-custom-orders-table' ) );
@@ -251,7 +255,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			)
 		);
 		$order_table = wc_custom_order_table()->get_table_name();
-		$order_count = $wpdb->get_var( 'SELECT COUNT(order_id) FROM ' . esc_sql( $order_table ) ); // WPCS: DB call ok.
+		$order_count = $wpdb->get_var( 'SELECT COUNT(order_id) FROM ' . esc_sql( $order_table ) );
 		$order_query = new QueryIterator( 'SELECT order_id FROM ' . esc_sql( $order_table ), $assoc_args['batch-size'] );
 		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
 		$processed   = 0;

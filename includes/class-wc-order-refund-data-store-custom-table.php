@@ -56,7 +56,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 				$refund->get_id()
 			),
 			ARRAY_A
-		); // WPCS: DB call OK.
+		);
 
 		// Expand anything that might need assistance.
 		if ( isset( $data['prices_include_tax'] ) ) {
@@ -96,7 +96,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 
 		// Insert or update the database record.
 		if ( ! wc_custom_order_table()->row_exists( $refund_data['order_id'] ) ) {
-			$inserted = $wpdb->insert( $table, $refund_data ); // WPCS: DB call OK.
+			$inserted = $wpdb->insert( $table, $refund_data );
 
 			if ( 1 !== $inserted ) {
 				return;
