@@ -28,9 +28,9 @@
         "phpcompatibility/php-compatibility": "^9.0",
         "phpunit/phpunit": "^7.5",
         "woocommerce/woocommerce": "dev-master",
-        "woocommerce/woocommerce-sniffs": "^0.0.6",
+        "woocommerce/woocommerce-sniffs": "^0.0.7",
         "wp-cli/wp-cli": "^2.0",
-        "wp-coding-standards/wpcs": "^1.2"
+        "wp-coding-standards/wpcs": "^2.1"
     },
     "autoload-dev": {
         "classmap": [
