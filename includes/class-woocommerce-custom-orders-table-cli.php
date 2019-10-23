@@ -136,7 +136,6 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		$order_data  = $wpdb->get_col( $order_query ); // WPCS: Unprepared SQL ok, DB call ok.
 		$batch_count = 1;
 
-		$test = 0;
 		while ( array_diff( $order_data, $this->skipped_ids ) ) {
 
 			// debug msg only relevant for batch
@@ -195,10 +194,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 				}
 
 				$progress->tick();
-				$test ++;
-				if ( $test > 100 ) {
-					die( 'test over' );
-				}
+
 			}
 
 			// Load up the next batch.
