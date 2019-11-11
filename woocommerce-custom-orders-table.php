@@ -16,6 +16,8 @@
  * @author  Liquid Web
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /* Define constants to use throughout the plugin. */
 define( 'WC_CUSTOM_ORDER_TABLE_URL', plugin_dir_url( __FILE__ ) );
 define( 'WC_CUSTOM_ORDER_TABLE_PATH', plugin_dir_path( __FILE__ ) );
