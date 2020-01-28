@@ -74,7 +74,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 * ## OPTIONS
 	 *
 	 * [--batch-size=<batch-size>]
-	 * : The number of orders to process in each batch.
+	 * : The number of orders to process in each batch. Passing a value of 0 will disable batching.
 	 * ---
 	 * default: 100
 	 * ---
@@ -242,14 +242,15 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 * ## OPTIONS
 	 *
 	 * [--batch-size=<batch-size>]
-	 * : The number of orders to process in each batch.
+	 * : The number of orders to process in each batch. Passing a value of 0 will disable batching.
 	 * ---
 	 * default: 100
 	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wc orders-table backfill --batch-size=100 --batch=3
+	 *     # Copy all order data into the post meta table, 100 posts at a time.
+	 *     wp wc orders-table backfill --batch-size=100
 	 *
 	 * @global $wpdb
 	 *
@@ -267,6 +268,12 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		);
 		$order_table = wc_custom_order_table()->get_table_name();
 		$order_count = $wpdb->get_var( 'SELECT COUNT(order_id) FROM ' . esc_sql( $order_table ) ); // WPCS: DB call ok.
+
+		// If batching has been disabled, set the batch size to the total order count (e.g. one batch).
+		if ( 0 === $assoc_args['batch-size'] ) {
+			$assoc_args['batch-size'] = $order_count;
+		}
+
 		$order_query = new QueryIterator( 'SELECT order_id FROM ' . esc_sql( $order_table ), $assoc_args['batch-size'] );
 		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
 		$processed   = 0;
