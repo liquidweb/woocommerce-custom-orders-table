@@ -37,9 +37,9 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 *
 	 *     wp wc orders-table count
 	 *
-	 * @return int The number of orders to be migrated.
 	 * @global $wpdb
 	 *
+	 * @return int The number of orders to be migrated.
 	 */
 	public function count() {
 		global $wpdb;
@@ -49,17 +49,17 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		$order_count = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*)
-			FROM {$wpdb->posts} p
-			LEFT JOIN {$order_table} o ON p.ID = o.order_id
-			WHERE p.post_type IN (" . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
-			AND o.order_id IS NULL',
+				FROM {$wpdb->posts} p
+				LEFT JOIN {$order_table} o ON p.ID = o.order_id
+				WHERE p.post_type IN (" . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
+				AND o.order_id IS NULL',
 				$order_types
 			)
 		); // WPCS: Unprepared SQL ok, DB call ok.
 
 		WP_CLI::log(
 			sprintf(
-			/* Translators: %1$d is the number of orders to be migrated. */
+				/* Translators: %1$d is the number of orders to be migrated. */
 				_n( 'There is %1$d order to be migrated.', 'There are %1$d orders to be migrated.', $order_count, 'woocommerce-custom-orders-table' ),
 				$order_count
 			)
@@ -87,11 +87,10 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 *
 	 *     wp wc orders-table migrate --batch-size=100 --save-post-meta
 	 *
-	 * @param array $args Positional arguments passed to the command.
-	 * @param array $assoc_args Associative arguments (options) passed to the command.
-	 *
 	 * @global $wpdb
 	 *
+	 * @param array $args       Positional arguments passed to the command.
+	 * @param array $assoc_args Associative arguments (options) passed to the command.
 	 */
 	public function migrate( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
@@ -127,9 +126,9 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		if ( $assoc_args['batch-size'] === 0 ) {
 			$order_query = $wpdb->prepare(
 				"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN " . esc_sql( $order_table ) . ' o ON p.ID = o.order_id
-			WHERE p.post_type IN (' . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
-			AND o.order_id IS NULL
-			ORDER BY p.post_date DESC, p.ID DESC',
+				WHERE p.post_type IN (' . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
+				AND o.order_id IS NULL
+				ORDER BY p.post_date DESC, p.ID DESC',
 				$order_types
 			);
 		}
@@ -142,7 +141,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			if ( $assoc_args['batch-size'] !== 0 ) {
 				WP_CLI::debug(
 					sprintf(
-					/* Translators: %1$d is the batch number, %2$d is the batch size. */
+						/* Translators: %1$d is the batch number, %2$d is the batch size. */
 						__( 'Beginning batch #%1$d (%2$d orders/batch).', 'woocommerce-custom-orders-table' ),
 						$batch_count,
 						$assoc_args['batch-size']
@@ -160,7 +159,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 					WP_CLI::warning(
 						sprintf(
-						/* Translators: %1$d is the order ID. */
+							/* Translators: %1$d is the order ID. */
 							__( 'Unable to retrieve order with ID %1$d, skipping', 'woocommerce-custom-orders-table' ),
 							$order_id
 						)
@@ -174,18 +173,18 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 						WP_CLI::warning(
 							sprintf(
-							/* Translators: %1$d is the order ID, %2$s is the error message. */
+								/* Translators: %1$d is the order ID, %2$s is the error message. */
 								__( 'A database error occurred while migrating order %1$d, skipping: %2$s.', 'woocommerce-custom-orders-table' ),
 								$order_id,
 								$result->get_error_message()
 							)
 						);
 					} else {
-						$processed ++;
+						$processed++;
 
 						WP_CLI::debug(
 							sprintf(
-							/* Translators: %1$d is the migrated order ID. */
+								/* Translators: %1$d is the migrated order ID. */
 								__( 'Order ID %1$d has been migrated.', 'woocommerce-custom-orders-table' ),
 								$order_id
 							)
@@ -194,7 +193,6 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 				}
 
 				$progress->tick();
-
 			}
 
 			// Load up the next batch.
@@ -218,7 +216,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		if ( empty( $this->skipped_ids ) ) {
 			return WP_CLI::success(
 				sprintf(
-				/* Translators: %1$d is the number of migrated orders. */
+					/* Translators: %1$d is the number of migrated orders. */
 					_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'woocommerce-custom-orders-table' ),
 					$processed
 				)
@@ -226,7 +224,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		} else {
 			WP_CLI::warning(
 				sprintf(
-				/* Translators: %1$d is the number of orders migrated, %2$d is the number of skipped records. */
+					/* Translators: %1$d is the number of orders migrated, %2$d is the number of skipped records. */
 					_n( '%1$d order was migrated, with %2$d skipped.', '%1$d orders were migrated, with %2$d skipped.', $processed, 'woocommerce-custom-orders-table' ),
 					$processed,
 					count( $this->skipped_ids )
@@ -253,11 +251,10 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 *
 	 *     wp wc orders-table backfill --batch-size=100 --batch=3
 	 *
-	 * @param array $args Positional arguments passed to the command.
-	 * @param array $assoc_args Associative arguments (options) passed to the command.
-	 *
 	 * @global $wpdb
 	 *
+	 * @param array $args       Positional arguments passed to the command.
+	 * @param array $assoc_args Associative arguments (options) passed to the command.
 	 */
 	public function backfill( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
@@ -281,7 +278,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 				WooCommerce_Custom_Orders_Table::migrate_to_post_meta( $order );
 			}
 
-			$processed ++;
+			$processed++;
 			$progress->tick();
 			$order_query->next();
 		}
@@ -295,7 +292,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 		WP_CLI::success(
 			sprintf(
-			/* Translators: %1$d is the number of migrated orders. */
+				/* Translators: %1$d is the number of migrated orders. */
 				_n( '%1$d order was migrated.', '%1$d orders were migrated.', $processed, 'woocommerce-custom-orders-table' ),
 				$processed
 			)
@@ -305,10 +302,9 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	/**
 	 * Callback function for the "woocommerce_caught_exception" action.
 	 *
-	 * @param Exception $exception The Exception object.
-	 *
 	 * @throws Exception Re-throw the previously-caught Exception.
 	 *
+	 * @param Exception $exception The Exception object.
 	 */
 	public static function handle_exceptions( $exception ) {
 		throw $exception;
@@ -329,7 +325,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			$order = false;
 			WP_CLI::warning(
 				sprintf(
-				/* Translators: %1$d is the order ID, %2$s is the exception message. */
+					/* Translators: %1$d is the order ID, %2$s is the exception message. */
 					__( 'Encountered an error retrieving order #%1$d: %2$s', 'woocommerce-custom-orders-table' ),
 					$order_id,
 					$e->getMessage()
