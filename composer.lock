@@ -2215,12 +2215,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/woocommerce.git",
-                "reference": "47d6311d1e32c16bb74d59e5c965989664cd5a66"
+                "reference": "d64cc69cd7d9b72ef32ecc6d7f5c624847bdf37e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/47d6311d1e32c16bb74d59e5c965989664cd5a66",
-                "reference": "47d6311d1e32c16bb74d59e5c965989664cd5a66",
+                "url": "https://api.github.com/repos/woocommerce/woocommerce/zipball/d64cc69cd7d9b72ef32ecc6d7f5c624847bdf37e",
+                "reference": "d64cc69cd7d9b72ef32ecc6d7f5c624847bdf37e",
                 "shasum": ""
             },
             "require": {
@@ -2266,7 +2266,7 @@
             ],
             "description": "An eCommerce toolkit that helps you sell anything. Beautifully.",
             "homepage": "https://woocommerce.com/",
-            "time": "2020-01-27T21:04:47+00:00"
+            "time": "2020-01-28T16:12:41+00:00"
         },
         {
             "name": "woocommerce/woocommerce-blocks",
