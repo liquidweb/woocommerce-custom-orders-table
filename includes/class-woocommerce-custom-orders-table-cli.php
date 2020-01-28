@@ -202,7 +202,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 				return WP_CLI::error( __( 'Infinite loop detected, aborting.', 'woocommerce-custom-orders-table' ) );
 			} else {
 				$order_data = $next_batch;
-				$batch_count ++;
+				$batch_count++;
 			}
 		}
 
