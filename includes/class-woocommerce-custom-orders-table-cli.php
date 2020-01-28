@@ -122,8 +122,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			array_merge( $order_types, array( $assoc_args['batch-size'] ) )
 		);
 
-		// no batch? then use this query instead
-		if ( $assoc_args['batch-size'] === 0 ) {
+		// A simplified query when we don't need batches.
+		if ( 0 === $assoc_args['batch-size'] ) {
 			$order_query = $wpdb->prepare(
 				"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN " . esc_sql( $order_table ) . ' o ON p.ID = o.order_id
 				WHERE p.post_type IN (' . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
@@ -137,8 +137,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 		while ( array_diff( $order_data, $this->skipped_ids ) ) {
 
-			// debug msg only relevant for batch
-			if ( $assoc_args['batch-size'] !== 0 ) {
+			// Debug message for batched migrations.
+			if ( 0 !== $assoc_args['batch-size'] ) {
 				WP_CLI::debug(
 					sprintf(
 						/* Translators: %1$d is the batch number, %2$d is the batch size. */
