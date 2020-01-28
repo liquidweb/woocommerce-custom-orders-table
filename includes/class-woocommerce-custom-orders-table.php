@@ -186,7 +186,9 @@ class WooCommerce_Custom_Orders_Table {
 						break;
 
 					default:
-						$order->{"set_{$column}"}( $meta );
+						if ( method_exists( $order, "set_{$column}" ) ) {
+							$order->{"set_{$column}"}( $meta );
+						}
 						break;
 				}
 			}
