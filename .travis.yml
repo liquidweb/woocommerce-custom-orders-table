@@ -1,7 +1,8 @@
 language: php
+dist: xenial
 
-notifications:
-  email: false
+services:
+    - mysql
 
 cache:
   directories:
