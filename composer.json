@@ -54,11 +54,19 @@
         "pre-update-cmd": [
             "WooCommerce\\GitHooks\\Hooks::preHooks"
         ],
+        "test": [
+            "phpunit --testsuite=plugin --testdox"
+        ],
+        "test:all": [
+            "phpunit --testdox"
+        ],
         "test-coverage": [
             "phpunit --testsuite=plugin --coverage-html=tests/coverage"
         ]
     },
     "scripts-descriptions": {
+        "test": "Run the plugin test suite",
+        "test:all": "Run all test suites.",
         "test-coverage": "Generate test coverage for the plugin"
     },
     "prefer-stable": true,
