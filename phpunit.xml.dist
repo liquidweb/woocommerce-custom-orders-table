@@ -19,25 +19,11 @@
 			<directory suffix=".php">./vendor/woocommerce/woocommerce/tests/unit-tests</directory>
 
 			<!--
-				Exclude tests from the core test suite that won't pass without crazy work-arounds.
-
-				In this case, WC_Tests_REST_System_Status::test_execute_system_tool_add_order_indexes()
-				will fail, because the test is specific to order indexes being explicitly stored in
-				postmeta (there are no CRUD operations for billing/shipping_index within WooCommerce).
-
-				@link https://github.com/woocommerce/woocommerce/pull/18493
+				Exclude tests from the core test suite that won't pass without major work-arounds.
 			-->
-			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/api/system-status.php</exclude>
-			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/api/v2/system-status.php</exclude>
 
-			<!--
-				Combinations of PHP < 7.2 and WooCommerce < 3.4 are failing due to the
-				WC_Tests_Product_CSV_Importer::test_import() test, which relies on an external HTTP
-				request that's failing.
-
-				@link https://github.com/woocommerce/woocommerce/commit/0e785d46146c04f05d4ed5bc06e9ea2d575553b0
-			-->
-			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/importer/product.php</exclude>
+			<!-- @link https://github.com/woocommerce/woocommerce/commit/793dba81f1daca2a631fa1565158ba95987a16ba -->
+			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/util/api-functions.php</exclude>
 		</testsuite>
 	</testsuites>
 	<filter>
