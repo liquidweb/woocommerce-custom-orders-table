@@ -10,8 +10,7 @@ WC_VERSION=${1-latest}
 
 if [[ $WC_VERSION != 'latest' ]]; then
 	echo "Using WooCommerce version ${WC_VERSION}:"
-	composer require --dev --prefer-source --no-suggest --update-with-all-dependencies "woocommerce/woocommerce:${WC_VERSION}"
+	composer require --dev --prefer-source --no-suggest --update-with-all-dependencies "woocommerce/woocommerce:^${WC_VERSION}"
 else
 	echo "Using WooCommerce at master."
-	composer require --dev --no-suggest woocommerce/woocommerce:dev-master
 fi
