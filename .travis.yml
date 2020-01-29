@@ -63,8 +63,11 @@ before_script:
     if [[ ${GITHUB_AUTH_TOKEN} != '' ]]; then
       composer config -g github-oauth.github.com $GITHUB_AUTH_TOKEN
     fi
-  - bash tests/bin/install-wp-tests.sh woocommerce_test root '' localhost $WP_VERSION
-  - bash tests/bin/set-woocommerce-version.sh $WC_VERSION
+  - | # Install WordPress + WooCommerce unless we're just checking coding standards.
+    if [[ -z ${RUN_PHPCS} ]]; then
+        bash tests/bin/install-wp-tests.sh woocommerce_test root '' localhost $WP_VERSION
+        bash tests/bin/set-woocommerce-version.sh $WC_VERSION
+    fi
   - |
     if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
       composer update --prefer-source --prefer-lowest --no-interaction --no-ansi
@@ -76,12 +79,10 @@ script:
   - |
     if [[ ${RUN_CODE_COVERAGE} ]]; then
       phpdbg -qrr -d memory_limit=-1 ./vendor/bin/phpunit -c phpunit.xml.dist --coverage-clover=build/logs/clover.xml --exclude-group=timeout
+    elif [[ ${RUN_PHPCS} ]]; then
+        ./vendor/bin/phpcs
     else
       ./vendor/bin/phpunit
-    fi
-  - |
-    if [[ ${RUN_PHPCS} == 1 ]]; then
-      ./vendor/bin/phpcs
     fi
 
 after_success:
