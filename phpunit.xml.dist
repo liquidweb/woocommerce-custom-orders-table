@@ -35,4 +35,7 @@
 			<file>woocommerce-custom-orders-table.php</file>
 		</whitelist>
 	</filter>
+	<php>
+		<env name="WC_VERSION" value="latest" />
+	</php>
 </phpunit>

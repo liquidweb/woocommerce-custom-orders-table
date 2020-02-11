@@ -9,12 +9,45 @@
  * @author  Liquid Web
  */
 
-$_tests_dir = getenv( 'WP_TESTS_DIR' ) ? getenv( 'WP_TESTS_DIR' ) : rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
-$_bootstrap = dirname( __DIR__ ) . '/vendor/woocommerce/woocommerce/tests/bootstrap.php';
+$_tests_dir = getenv( 'WP_TESTS_DIR' ) ?: rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
 
-// Verify that Composer dependencies have been installed.
+// Determine which version of WooCommerce we're testing against.
+$wc_version  = getenv('WC_VERSION') ?: 'latest';
+$target_dir  = dirname( __DIR__ ) . '/vendor/woocommerce/woocommerce-src-';
+$target_dir .= preg_match( '/\d+\.\d+/', $wc_version, $match ) ? $match[0] : 'master';
+
+// Attempt to install the given version of WooCommerce if it doesn't already exist.
+if ( ! is_dir( $target_dir ) ) {
+	try {
+		exec(
+			sprintf(
+				'%1$s/bin/install-woocommerce.sh %2$s',
+				__DIR__,
+				escapeshellarg( $wc_version )
+			),
+			$output,
+			$exit
+		);
+
+		if (0 !== $exit) {
+			throw new \RuntimeException( sprintf( 'Received a non-zero exit code: %1$d', $exit ) );
+		}
+	} catch ( \Throwable $e ) {
+		printf( "\033[0;31mUnable to install WooCommerce@%s\033[0;0m" . PHP_EOL, $wc_version );
+		printf( 'Please run `sh tests/bin/install-woocommerce.sh %1$s` manually.' . PHP_EOL, $wc_version );
+
+		exit( 1 );
+	}
+}
+
+// Locate the WooCommerce test bootstrap file for this release.
+$_bootstrap = $target_dir . '/tests/bootstrap.php';
+
 if ( ! file_exists( $_bootstrap ) ) {
-	echo "\033[0;31mUnable to find the WooCommerce test bootstrap file. Have you run `composer install`?\033[0;m" . PHP_EOL;
+	printf(
+		"\033[0;31mUnable to find the the test bootstrap file for WooCommerce@%1$s, aborting.\033[0;m\n",
+		$wc_version
+	);
 	exit( 1 );
 }
 
