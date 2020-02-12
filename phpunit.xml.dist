@@ -14,19 +14,31 @@
 			<exclude>tests/test-sample.php</exclude>
 		</testsuite>
 
-		<!-- WooCommerce core test suite. -->
+		<!--
+			WooCommerce core test suite.
+
+			Note that the tests/bootstrap.php file contains some logic that will attempt to update
+			the "core" test suite at runtime, based on the value of the WC_VERSION environment
+			variable. Instances of "%WC_VERSION%" will be replaced with the current version being
+			tested, or "master" if WC_VERSION=latest.
+		-->
 		<testsuite name="core">
-			<directory suffix=".php">./vendor/woocommerce/woocommerce/tests/unit-tests</directory>
+			<directory suffix=".php">./vendor/woocommerce/woocommerce-src-%WC_VERSION%/tests/unit-tests</directory>
 
 			<!--
 				Exclude tests from the core test suite that won't pass without major work-arounds.
+
+				If they only need to be skipped for certain versions, specify the version rather
+				than using the %WC_VERSION% placeholder.
 			-->
 
 			<!-- @link https://github.com/woocommerce/woocommerce/pull/25403 -->
-			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/util/api-functions.php</exclude>
+			<exclude>./vendor/woocommerce/woocommerce-src-3.8/tests/unit-tests/util/api-functions.php</exclude>
+			<exclude>./vendor/woocommerce/woocommerce-src-3.7/tests/unit-tests/util/api-functions.php</exclude>
 
 			<!-- @link https://github.com/woocommerce/woocommerce/pull/25378 -->
-			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/geolocation/class-wc-tests-geolite-integration.php</exclude>
+			<exclude>./vendor/woocommerce/woocommerce-src-3.8/tests/unit-tests/geolocation/class-wc-tests-geolite-integration.php</exclude>
+			<exclude>./vendor/woocommerce/woocommerce-src-3.7/tests/unit-tests/geolocation/class-wc-tests-geolite-integration.php</exclude>
 		</testsuite>
 	</testsuites>
 	<filter>

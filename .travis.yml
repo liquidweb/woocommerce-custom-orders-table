@@ -37,7 +37,7 @@ matrix:
       php: 7.3
       env: WP_VERSION=latest WC_VERSION=latest RUN_CODE_COVERAGE=1
     - name: Bleeding Edge
-      php: nightly
+      php: 7.4
       env: WP_VERSION=trunk WC_VERSION=latest
   exclude:
     - php: 7.4

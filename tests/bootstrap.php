@@ -9,12 +9,14 @@
  * @author  Liquid Web
  */
 
+use PHPUnit\Util\Configuration;
+
 $_tests_dir = getenv( 'WP_TESTS_DIR' ) ?: rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
 
 // Determine which version of WooCommerce we're testing against.
-$wc_version  = getenv('WC_VERSION') ?: 'latest';
-$target_dir  = dirname( __DIR__ ) . '/vendor/woocommerce/woocommerce-src-';
-$target_dir .= preg_match( '/\d+\.\d+/', $wc_version, $match ) ? $match[0] : 'master';
+$wc_version    = getenv('WC_VERSION') ?: 'latest';
+$target_suffix = preg_match( '/\d+\.\d+/', $wc_version, $match ) ? $match[0] : 'master';
+$target_dir    = dirname( __DIR__ ) . '/vendor/woocommerce/woocommerce-src-' . $target_suffix;
 
 // Attempt to install the given version of WooCommerce if it doesn't already exist.
 if ( ! is_dir( $target_dir ) ) {
@@ -50,6 +52,34 @@ if ( ! file_exists( $_bootstrap ) ) {
 	);
 	exit( 1 );
 }
+
+/*
+ * Since PHPUnit won't let us dynamically define test suites based on $wc_version, use reflection
+ * to inject them into the parsed representation of the XML.
+ */
+$config_xml_path    = dirname( __DIR__ ) . '/phpunit.xml.dist';
+$instances_property = new \ReflectionProperty(Configuration::class, 'instances');
+$instances_property->setAccessible( true );
+$xpath_property     = new \ReflectionProperty(Configuration::class, 'xpath');
+$xpath_property->setAccessible( true );
+
+// Retrieve the parsed config from phpunit.xml.dist.
+$config = $instances_property->getValue();
+$xargs  = $xpath_property->getValue( $config[ $config_xml_path ] );
+
+// Update the *FIRST* <directory> value inline for the "core" test suite.
+$core = $xargs->query('testsuites/testsuite[@name="core"]');
+
+if ( ! empty( $core ) ) {
+	// Replace any %WC_VERSION% placeholders in paths.
+	foreach ( $core->item( 0 )->childNodes as $node ) {
+		$node->textContent = str_replace( '%WC_VERSION%', $target_suffix, $node->textContent );
+	}
+} else {
+	echo 'Unable to override the "core" testsuite within PHPUnit, using default.';
+}
+
+unset( $config_xml_path, $instances_property, $xpath_property, $config, $xargs, $core );
 
 // Finally, Start up the WP testing environment.
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
