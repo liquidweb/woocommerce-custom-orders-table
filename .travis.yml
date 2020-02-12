@@ -1,16 +1,15 @@
 language: php
-sudo: false
-dist: trusty
+dist: xenial
 
-notifications:
-  email: false
+services:
+    - mysql
 
 cache:
   directories:
     - $HOME/.composer/cache
 
 php:
-  - 7.4snapshot
+  - 7.4
   - 7.3
   - 7.2
   - 7.1
@@ -20,35 +19,36 @@ php:
 #
 # - WordPress: latest -1
 # - WooCommerce: latest -2
-#
-# Note: Since WordPress 5.0+ requires WooCommerce 3.5.1+, we don't need to go back
-#       to WooCommerce 3.4.x. Once 3.7.x is released,
 env:
-  - WP_VERSION=5.2 WC_VERSION=3.6
-  - WP_VERSION=5.2 WC_VERSION=3.5
-  - WP_VERSION=5.1 WC_VERSION=3.6
-  - WP_VERSION=5.1 WC_VERSION=3.5
+  - WP_VERSION=5.3 WC_VERSION=3.9
+  - WP_VERSION=5.3 WC_VERSION=3.8
+  - WP_VERSION=5.3 WC_VERSION=3.7
+  - WP_VERSION=5.2 WC_VERSION=3.9
+  - WP_VERSION=5.2 WC_VERSION=3.8
+  - WP_VERSION=5.2 WC_VERSION=3.7
 
 matrix:
   fast_finish: true
   include:
     - name: Coding Standards
-      php: 7.2
+      php: 7.3
       env: WP_VERSION=latest WC_VERSION=latest RUN_PHPCS=1
     - name: Code Coverage
-      php: 7.2
+      php: 7.3
       env: WP_VERSION=latest WC_VERSION=latest RUN_CODE_COVERAGE=1
     - name: Bleeding Edge
-      php: nightly
+      php: 7.4
       env: WP_VERSION=trunk WC_VERSION=latest
+  exclude:
+    - php: 7.4
+      env: WP_VERSION=5.2 WC_VERSION=3.9
+    - php: 7.4
+      env: WP_VERSION=5.2 WC_VERSION=3.8
+    - php: 7.4
+      env: WP_VERSION=5.2 WC_VERSION=3.7
   allow_failures:
-    - php: 7.4snapshot
     - name: Code Coverage
-      php: 7.2
-      env: WP_VERSION=latest WC_VERSION=latest RUN_CODE_COVERAGE=1
     - name: Bleeding Edge
-      php: nightly
-      env: WP_VERSION=trunk WC_VERSION=latest
 
 before_script:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
@@ -63,8 +63,11 @@ before_script:
     if [[ ${GITHUB_AUTH_TOKEN} != '' ]]; then
       composer config -g github-oauth.github.com $GITHUB_AUTH_TOKEN
     fi
-  - bash tests/bin/install-wp-tests.sh woocommerce_test root '' localhost $WP_VERSION
-  - bash tests/bin/set-woocommerce-version.sh $WC_VERSION
+  - | # Install WordPress + WooCommerce unless we're just checking coding standards.
+    if [[ -z ${RUN_PHPCS} ]]; then
+        bash tests/bin/install-wp-tests.sh woocommerce_test root '' localhost $WP_VERSION
+        bash tests/bin/install-woocommerce.sh $WC_VERSION
+    fi
   - |
     if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
       composer update --prefer-source --prefer-lowest --no-interaction --no-ansi
@@ -76,12 +79,10 @@ script:
   - |
     if [[ ${RUN_CODE_COVERAGE} ]]; then
       phpdbg -qrr -d memory_limit=-1 ./vendor/bin/phpunit -c phpunit.xml.dist --coverage-clover=build/logs/clover.xml --exclude-group=timeout
+    elif [[ ${RUN_PHPCS} ]]; then
+        ./vendor/bin/phpcs
     else
       ./vendor/bin/phpunit
-    fi
-  - |
-    if [[ ${RUN_PHPCS} == 1 ]]; then
-      ./vendor/bin/phpcs
     fi
 
 after_success:
