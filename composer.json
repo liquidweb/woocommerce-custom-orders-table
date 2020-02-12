@@ -26,6 +26,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^0.5",
         "phpcompatibility/php-compatibility": "^9.0",
         "phpunit/phpunit": "^6.5",
+        "woocommerce/woocommerce-git-hooks": "*",
         "woocommerce/woocommerce-sniffs": "^0.0.9",
         "wp-cli/wp-cli": "^2.0",
         "wp-coding-standards/wpcs": "^2.2.0"
@@ -39,6 +40,18 @@
         ]
     },
      "scripts": {
+        "post-install-cmd": [
+            "WooCommerce\\GitHooks\\Hooks::postHooks"
+        ],
+        "post-update-cmd": [
+            "WooCommerce\\GitHooks\\Hooks::postHooks"
+        ],
+        "pre-install-cmd": [
+            "WooCommerce\\GitHooks\\Hooks::preHooks"
+        ],
+        "pre-update-cmd": [
+            "WooCommerce\\GitHooks\\Hooks::preHooks"
+        ],
         "test": [
             "phpunit --testsuite=plugin --testdox"
         ],
