@@ -136,7 +136,6 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			);
 		}
 		$order_data  = $wpdb->get_col( $order_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
 		$batch_count = 1;
 
 		while ( array_diff( $order_data, $this->skipped_ids ) ) {
