@@ -14,30 +14,31 @@
 			<exclude>tests/test-sample.php</exclude>
 		</testsuite>
 
-		<!-- WooCommerce core test suite. -->
+		<!--
+			WooCommerce core test suite.
+
+			Note that the tests/bootstrap.php file contains some logic that will attempt to update
+			the "core" test suite at runtime, based on the value of the WC_VERSION environment
+			variable. Instances of "%WC_VERSION%" will be replaced with the current version being
+			tested, or "master" if WC_VERSION=latest.
+		-->
 		<testsuite name="core">
-			<directory suffix=".php">./vendor/woocommerce/woocommerce/tests/unit-tests</directory>
+			<directory suffix=".php">./vendor/woocommerce/woocommerce-src-%WC_VERSION%/tests/unit-tests</directory>
 
 			<!--
-				Exclude tests from the core test suite that won't pass without crazy work-arounds.
+				Exclude tests from the core test suite that won't pass without major work-arounds.
 
-				In this case, WC_Tests_REST_System_Status::test_execute_system_tool_add_order_indexes()
-				will fail, because the test is specific to order indexes being explicitly stored in
-				postmeta (there are no CRUD operations for billing/shipping_index within WooCommerce).
-
-				@link https://github.com/woocommerce/woocommerce/pull/18493
+				If they only need to be skipped for certain versions, specify the version rather
+				than using the %WC_VERSION% placeholder.
 			-->
-			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/api/system-status.php</exclude>
-			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/api/v2/system-status.php</exclude>
 
-			<!--
-				Combinations of PHP < 7.2 and WooCommerce < 3.4 are failing due to the
-				WC_Tests_Product_CSV_Importer::test_import() test, which relies on an external HTTP
-				request that's failing.
+			<!-- @link https://github.com/woocommerce/woocommerce/pull/25403 -->
+			<exclude>./vendor/woocommerce/woocommerce-src-3.8/tests/unit-tests/util/api-functions.php</exclude>
+			<exclude>./vendor/woocommerce/woocommerce-src-3.7/tests/unit-tests/util/api-functions.php</exclude>
 
-				@link https://github.com/woocommerce/woocommerce/commit/0e785d46146c04f05d4ed5bc06e9ea2d575553b0
-			-->
-			<exclude>./vendor/woocommerce/woocommerce/tests/unit-tests/importer/product.php</exclude>
+			<!-- @link https://github.com/woocommerce/woocommerce/pull/25378 -->
+			<exclude>./vendor/woocommerce/woocommerce-src-3.8/tests/unit-tests/geolocation/class-wc-tests-geolite-integration.php</exclude>
+			<exclude>./vendor/woocommerce/woocommerce-src-3.7/tests/unit-tests/geolocation/class-wc-tests-geolite-integration.php</exclude>
 		</testsuite>
 	</testsuites>
 	<filter>
@@ -46,4 +47,7 @@
 			<file>woocommerce-custom-orders-table.php</file>
 		</whitelist>
 	</filter>
+	<php>
+		<env name="WC_VERSION" value="latest" />
+	</php>
 </phpunit>

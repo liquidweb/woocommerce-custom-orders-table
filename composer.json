@@ -19,23 +19,21 @@
         "source": "https://github.com/liquidweb/woocommerce-custom-orders-table"
     },
     "require": {
-        "composer/installers": "~1.0"
+        "composer/installers": "^1.6",
+        "php": ">=5.6|>=7.0"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.5",
-        "php": "^7.0",
         "phpcompatibility/php-compatibility": "^9.0",
         "phpunit/phpunit": "^6.5",
-        "woocommerce/woocommerce": "dev-master",
         "woocommerce/woocommerce-git-hooks": "*",
-        "woocommerce/woocommerce-sniffs": "^0.0.6",
+        "woocommerce/woocommerce-sniffs": "^0.0.9",
         "wp-cli/wp-cli": "^2.0",
-        "wp-coding-standards/wpcs": "^1.2"
+        "wp-coding-standards/wpcs": "^2.2.0"
     },
     "autoload-dev": {
         "classmap": [
-            "tests/test-tools",
-            "vendor/woocommerce/woocommerce/tests/framework"
+            "tests/test-tools"
         ],
         "files": [
             "tests/test-tools/utils.php"
@@ -54,29 +52,27 @@
         "pre-update-cmd": [
             "WooCommerce\\GitHooks\\Hooks::preHooks"
         ],
+        "test": [
+            "phpunit --testsuite=plugin --testdox"
+        ],
+        "test:all": [
+            "phpunit --testdox"
+        ],
         "test-coverage": [
             "phpunit --testsuite=plugin --coverage-html=tests/coverage"
         ]
     },
     "scripts-descriptions": {
+        "test": "Run the plugin test suite",
+        "test:all": "Run all test suites.",
         "test-coverage": "Generate test coverage for the plugin"
     },
     "prefer-stable": true,
     "config": {
         "platform": {
-            "php": "7.2"
+            "php": "7.3"
         },
-        "preferred-install": {
-            "woocommerce/woocommerce": "source",
-            "*": "dist"
-        },
+        "preferred-install": "dist",
         "sort-packages": true
-    },
-    "extra": {
-        "installer-paths": {
-            "vendor/{$vendor}/{$name}": [
-                "woocommerce/woocommerce"
-            ]
-        }
     }
 }

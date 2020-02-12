@@ -46,6 +46,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 
 		$order_table = wc_custom_order_table()->get_table_name();
 		$order_types = wc_get_order_types( 'reports' );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$order_count = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*)
@@ -55,7 +57,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			AND o.order_id IS NULL',
 				$order_types
 			)
-		); // WPCS: Unprepared SQL ok, DB call ok.
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		WP_CLI::log(
 			sprintf(
@@ -121,7 +124,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			LIMIT %d',
 			array_merge( $order_types, array( $assoc_args['batch-size'] ) )
 		);
-		$order_data  = $wpdb->get_col( $order_query ); // WPCS: Unprepared SQL ok, DB call ok.
+		$order_data  = $wpdb->get_col( $order_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$batch_count = 1;
 
 		while ( array_diff( $order_data, $this->skipped_ids ) ) {
@@ -181,7 +184,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			}
 
 			// Load up the next batch.
-			$next_batch = array_filter( $wpdb->get_col( $order_query ) ); // WPCS: Unprepared SQL ok, DB call ok.
+			$next_batch = array_filter( $wpdb->get_col( $order_query ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 			if ( $next_batch === $order_data ) {
 				return WP_CLI::error( __( 'Infinite loop detected, aborting.', 'woocommerce-custom-orders-table' ) );
