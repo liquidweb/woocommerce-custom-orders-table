@@ -342,6 +342,21 @@ class CLITest extends TestCase {
 		}
 	}
 
+	public function test_backfill_can_have_a_batch_size_of_zero() {
+		$order_ids = $this->generate_orders( 5 );
+
+		$this->cli->backfill( [], [
+			'batch-size' => 0,
+		] );
+
+		foreach ( $order_ids as $order_id ) {
+			$this->assertNotEmpty(
+				get_post_meta( $order_id, '_billing_email', true ),
+				"The billing email for order {$order_id} was not saved to post meta."
+			);
+		}
+	}
+
 	public function test_backfill_when_an_order_has_been_deleted() {
 		$order1 = WC_Helper_Order::create_order();
 		$order2 = WC_Helper_Order::create_order();

@@ -51,10 +51,10 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		$order_count = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*)
-			FROM {$wpdb->posts} p
-			LEFT JOIN {$order_table} o ON p.ID = o.order_id
-			WHERE p.post_type IN (" . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
-			AND o.order_id IS NULL',
+				FROM {$wpdb->posts} p
+				LEFT JOIN {$order_table} o ON p.ID = o.order_id
+				WHERE p.post_type IN (" . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
+				AND o.order_id IS NULL',
 				$order_types
 			)
 		);
@@ -77,7 +77,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 * ## OPTIONS
 	 *
 	 * [--batch-size=<batch-size>]
-	 * : The number of orders to process in each batch.
+	 * : The number of orders to process in each batch. Passing a value of 0 will disable batching.
 	 * ---
 	 * default: 100
 	 * ---
@@ -124,18 +124,33 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			LIMIT %d',
 			array_merge( $order_types, array( $assoc_args['batch-size'] ) )
 		);
+
+		// A simplified query when we don't need batches.
+		if ( 0 === $assoc_args['batch-size'] ) {
+			$order_query = $wpdb->prepare(
+				"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN " . esc_sql( $order_table ) . ' o ON p.ID = o.order_id
+				WHERE p.post_type IN (' . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
+				AND o.order_id IS NULL
+				ORDER BY p.post_date DESC, p.ID DESC',
+				$order_types
+			);
+		}
 		$order_data  = $wpdb->get_col( $order_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$batch_count = 1;
 
 		while ( array_diff( $order_data, $this->skipped_ids ) ) {
-			WP_CLI::debug(
-				sprintf(
-					/* Translators: %1$d is the batch number, %2$d is the batch size. */
-					__( 'Beginning batch #%1$d (%2$d orders/batch).', 'woocommerce-custom-orders-table' ),
-					$batch_count,
-					$assoc_args['batch-size']
-				)
-			);
+
+			// Debug message for batched migrations.
+			if ( 0 !== $assoc_args['batch-size'] ) {
+				WP_CLI::debug(
+					sprintf(
+						/* Translators: %1$d is the batch number, %2$d is the batch size. */
+						__( 'Beginning batch #%1$d (%2$d orders/batch).', 'woocommerce-custom-orders-table' ),
+						$batch_count,
+						$assoc_args['batch-size']
+					)
+				);
+			}
 
 			// Iterate over each order in this batch.
 			foreach ( $order_data as $order_id ) {
@@ -230,14 +245,15 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	 * ## OPTIONS
 	 *
 	 * [--batch-size=<batch-size>]
-	 * : The number of orders to process in each batch.
+	 * : The number of orders to process in each batch. Passing a value of 0 will disable batching.
 	 * ---
 	 * default: 100
 	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wc orders-table backfill --batch-size=100 --batch=3
+	 *     # Copy all order data into the post meta table, 100 posts at a time.
+	 *     wp wc orders-table backfill --batch-size=100
 	 *
 	 * @global $wpdb
 	 *
@@ -255,6 +271,12 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		);
 		$order_table = wc_custom_order_table()->get_table_name();
 		$order_count = $wpdb->get_var( 'SELECT COUNT(order_id) FROM ' . esc_sql( $order_table ) ); // WPCS: DB call ok.
+
+		// If batching has been disabled, set the batch size to the total order count (e.g. one batch).
+		if ( 0 === $assoc_args['batch-size'] ) {
+			$assoc_args['batch-size'] = $order_count;
+		}
+
 		$order_query = new QueryIterator( 'SELECT order_id FROM ' . esc_sql( $order_table ), $assoc_args['batch-size'] );
 		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
 		$processed   = 0;

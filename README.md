@@ -52,6 +52,7 @@ Orders are queried in batches (determined via the `--batch-size` option) in orde
 <dl>
 	<dt>--batch-size=&lt;size&gt;</dt>
 	<dd>The number of orders to process in each batch. Default is 100 orders per batch.</dd>
+	<dd>Passing `--batch-size=0` will disable batching.</dd>
 	<dt>--save-post-meta</dt>
 	<dd>Preserve the original post meta after a successful migration. Default behavior is to clean up post meta.</dd>
 </dl>
@@ -72,6 +73,7 @@ This command does the opposite of `migrate`, looping through the orders table an
 <dl>
 	<dt>--batch-size=&lt;size&gt;</dt>
 	<dd>The number of orders to process in each batch. Default is 100 orders per batch.</dd>
+	<dd>Passing `--batch-size=0` will disable batching.</dd>
 </dl>
 
 ## Contributing
