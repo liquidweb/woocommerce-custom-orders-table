@@ -44,21 +44,8 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	public function count() {
 		global $wpdb;
 
-		$order_table = wc_custom_order_table()->get_table_name();
-		$order_types = wc_get_order_types( 'reports' );
-
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$order_count = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*)
-				FROM {$wpdb->posts} p
-				LEFT JOIN {$order_table} o ON p.ID = o.order_id
-				WHERE p.post_type IN (" . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
-				AND o.order_id IS NULL',
-				$order_types
-			)
-		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$order_count = $wpdb->get_var( $this->get_migration_query( 'COUNT(*)', 0 ) );
 
 		WP_CLI::log(
 			sprintf(
@@ -116,29 +103,12 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		$order_types = wc_get_order_types( 'reports' );
 		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
 		$processed   = 0;
-		$order_query = $wpdb->prepare(
-			"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN " . esc_sql( $order_table ) . ' o ON p.ID = o.order_id
-			WHERE p.post_type IN (' . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
-			AND o.order_id IS NULL
-			ORDER BY p.post_date DESC, p.ID DESC
-			LIMIT %d',
-			array_merge( $order_types, array( $assoc_args['batch-size'] ) )
-		);
-
-		// A simplified query when we don't need batches.
-		if ( 0 === $assoc_args['batch-size'] ) {
-			$order_query = $wpdb->prepare(
-				"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN " . esc_sql( $order_table ) . ' o ON p.ID = o.order_id
-				WHERE p.post_type IN (' . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
-				AND o.order_id IS NULL
-				ORDER BY p.post_date DESC, p.ID DESC',
-				$order_types
-			);
-		}
-		$order_data  = $wpdb->get_col( $order_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$batch_count = 1;
 
-		while ( array_diff( $order_data, $this->skipped_ids ) ) {
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$order_data = $wpdb->get_col( $this->get_migration_query( 'p.ID', $assoc_args['batch-size'] ) );
+
+		while ( ! empty( $order_data ) ) {
 
 			// Debug message for batched migrations.
 			if ( 0 !== $assoc_args['batch-size'] ) {
@@ -198,8 +168,12 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 				$progress->tick();
 			}
 
-			// Load up the next batch.
-			$next_batch = array_filter( $wpdb->get_col( $order_query ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$next_batch = array_filter(
+				$wpdb->get_col(
+					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					$this->get_migration_query( 'p.ID', $assoc_args['batch-size'], count( $this->skipped_ids ) )
+				)
+			);
 
 			if ( $next_batch === $order_data ) {
 				return WP_CLI::error( __( 'Infinite loop detected, aborting.', 'woocommerce-custom-orders-table' ) );
@@ -344,5 +318,41 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		}
 
 		return $order;
+	}
+
+	/**
+	 * Build a SQL query to get posts that require migration.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param string $select The contents of the SELECT clause.
+	 * @param int    $limit  The maximum number of results to return, or '0' to not limit the number
+	 *                       of results.
+	 * @param int    $offset Optional. The offset value. Default is 0.
+	 *
+	 * @return string The prepared SQL query.
+	 */
+	protected function get_migration_query( $select, $limit, $offset = 0 ) {
+		global $wpdb;
+
+		$order_table = wc_custom_order_table()->get_table_name();
+		$order_types = wc_get_order_types( 'reports' );
+		$query       = "
+			SELECT {$select}
+			FROM {$wpdb->posts} p
+			LEFT JOIN {$order_table} o ON p.ID = o.order_id
+			WHERE p.post_type IN (" . implode( ', ', array_fill( 0, count( $order_types ), '%s' ) ) . ')
+			AND o.order_id IS NULL
+		';
+		$parameters  = $order_types;
+
+		if ( $limit ) {
+			$query       .= 'LIMIT %d, %d';
+			$parameters[] = $offset;
+			$parameters[] = $limit;
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $wpdb->prepare( $query, $parameters );
 	}
 }
