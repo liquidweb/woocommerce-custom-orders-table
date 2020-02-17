@@ -8,7 +8,12 @@
 
 class BootstrapTest extends TestCase {
 
-	public function test_plugin_only_loads_after_woocommerce() {
+	/**
+	 * @test
+	 *
+	 * @global $wc_custom_order_table
+	 */
+	public function the_plugin_should_be_loaded_after_WooCommerce() {
 		global $wc_custom_order_table;
 
 		// Test bootstrapping may have initialized it for us.
@@ -26,14 +31,9 @@ class BootstrapTest extends TestCase {
 	}
 
 	/**
-	 * @testWith ["WC_CUSTOM_ORDER_TABLE_URL"]
-	 *           ["WC_CUSTOM_ORDER_TABLE_PATH"]
+	 * @test
 	 */
-	public function test_constants_are_defined( $constant ) {
-		$this->assertTrue( defined( $constant ) );
-	}
-
-	public function test_autoloader_registered() {
+	public function it_should_register_an_SPL_autoloader() {
 		$this->assertContains( 'wc_custom_order_table_autoload', spl_autoload_functions() );
 	}
 }
