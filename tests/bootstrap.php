@@ -84,7 +84,6 @@ unset( $config_xml_path, $instances_property, $xpath_property, $config, $xargs, 
 // Finally, Start up the WP testing environment.
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 require_once $_bootstrap;
-require_once __DIR__ . '/compat.php';
 require_once __DIR__ . '/testcase.php';
 require_once dirname( __DIR__ ) . '/woocommerce-custom-orders-table.php';
 
