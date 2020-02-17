@@ -6,6 +6,9 @@
  * @author  Liquid Web
  */
 
+/**
+ * @group CLI
+ */
 class CLITest extends TestCase {
 
 	/**
@@ -104,7 +107,7 @@ class CLITest extends TestCase {
 			'batch-size' => 2,
 		) );
 
-		$this->assertContains( 'LIMIT 2', $wpdb->last_query, 'The batch size should be used to limit query results.' );
+		$this->assertContains( 'LIMIT 0, 2', $wpdb->last_query, 'The batch size should be used to limit query results.' );
 		$this->assertEquals(
 			5,
 			$this->count_orders_in_table_with_ids( $order_ids ),
@@ -207,6 +210,51 @@ class CLITest extends TestCase {
 
 		$this->assertNull( $this->get_order_row( $order->get_id() ) );
 		$this->assertEquals( 1, WP_CLI::$__counts['warning'], 'Expected to see a warning if no orders were migrated.' );
+	}
+
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/148
+	 */
+	public function test_migrate_excludes_skipped_ids_from_the_query_loop() {
+		global $wpdb;
+
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 4 );
+		$this->toggle_use_custom_table( true );
+
+		// Log queries without turning on SAVE_QUERIES.
+		$orders_table = wc_custom_order_table()->get_table_name();
+		$pattern      = "SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN {$orders_table}";
+		$query_log    = [];
+
+		add_filter( 'woocommerce_order_class', function ( $classname, $order_type, $order_id ) use ( $order_ids ) {
+			return (int) $order_id === $order_ids[0] ? 'SomeNonExistentClassName' : $classname;
+		}, 10, 3 );
+
+		add_filter( 'query', function ( $query ) use ( &$query_log, $pattern ) {
+
+			// Only track queries if it includes the posts/orders join.
+			if ( false !== strpos( preg_replace( '/\s+/', ' ', $query ), $pattern ) ) {
+				$query_log[] = $query;
+			}
+
+			return $query;
+		} );
+
+		$this->cli->migrate( array(), array(
+			'batch-size' => 2,
+		) );
+
+		/*
+		 * We should expect to see only three queries here:
+		 *
+		 * 1. Get the first 2 orders.
+		 * 2. Get the second two, but exclude skipped IDs.
+		 * 3. Verify that we're wrapping up once we've exhausted the results.
+		 */
+		$this->assertCount( 3, $query_log );
+		$this->assertContains( 'LIMIT 1, 2', $query_log[1] );
+		$this->assertSame( $query_log[1], $query_log[2] );
 	}
 
 	/**
@@ -320,7 +368,7 @@ class CLITest extends TestCase {
 
 		$this->assertEquals(
 			2,
-			$this->count_orders_in_table_with_ids( array( $order2->get_id(), $order3->get_id() ) ),
+			$this->count_orders_in_table_with_ids( array( $order1->get_id(), $order2->get_id(), $order3->get_id() ) ),
 			'Expected to only see two orders in the custom table.'
 		);
 
@@ -382,6 +430,21 @@ class CLITest extends TestCase {
 		$this->cli->backfill();
 
 		$this->assertEquals( 1, WP_CLI::$__counts['warning'], 'Expected to see a warning if no orders require migration.' );
+	}
+
+	public function test_backfill_can_have_a_batch_size_of_zero() {
+		$order_ids = $this->generate_orders( 5 );
+
+		$this->cli->backfill( [], [
+			'batch-size' => 0,
+		] );
+
+		foreach ( $order_ids as $order_id ) {
+			$this->assertNotEmpty(
+				get_post_meta( $order_id, '_billing_email', true ),
+				"The billing email for order {$order_id} was not saved to post meta."
+			);
+		}
 	}
 
 	public function test_backfill_when_an_order_has_been_deleted() {

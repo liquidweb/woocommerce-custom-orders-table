@@ -38,15 +38,18 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 
 		$table      = wc_custom_order_table()->get_table_name();
 		$statuses   = wc_get_order_statuses();
-		$last_order = $wpdb->get_var( $wpdb->prepare( "
-			SELECT posts.ID FROM $wpdb->posts AS posts
-			LEFT JOIN " . esc_sql( $table ) . " AS meta on posts.ID = meta.order_id
-			WHERE meta.customer_id = %d
-			AND   posts.post_type  = 'shop_order'
-			AND   posts.post_status IN (" . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . ')
-			ORDER BY posts.ID DESC LIMIT 1',
-			array_merge( array( $customer->get_id() ), array_keys( $statuses ) )
-		) ); // WPCS: DB call OK.
+		$last_order = $wpdb->get_var(
+			$wpdb->prepare(
+				"
+				SELECT posts.ID FROM $wpdb->posts AS posts
+				LEFT JOIN " . esc_sql( $table ) . " AS meta on posts.ID = meta.order_id
+				WHERE meta.customer_id = %d
+				AND   posts.post_type  = 'shop_order'
+				AND   posts.post_status IN (" . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . ')
+				ORDER BY posts.ID DESC LIMIT 1',
+				array_merge( array( $customer->get_id() ), array_keys( $statuses ) )
+			)
+		);
 
 		return $last_order ? wc_get_order( (int) $last_order ) : false;
 	}
@@ -68,14 +71,17 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 		if ( '' === $count ) {
 			$table    = wc_custom_order_table()->get_table_name();
 			$statuses = wc_get_order_statuses();
-			$count    = $wpdb->get_var( $wpdb->prepare( "
-				SELECT COUNT(*) FROM $wpdb->posts as posts
-				LEFT JOIN " . esc_sql( $table ) . " AS meta ON posts.ID = meta.order_id
-				WHERE meta.customer_id = %d
-				AND   posts.post_type  = 'shop_order'
-				AND   posts.post_status IN (" . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . ')',
-				array_merge( array( $customer->get_id() ), array_keys( $statuses ) )
-			) ); // WPCS: DB call OK.
+			$count    = $wpdb->get_var(
+				$wpdb->prepare(
+					"
+					SELECT COUNT(*) FROM $wpdb->posts as posts
+					LEFT JOIN " . esc_sql( $table ) . " AS meta ON posts.ID = meta.order_id
+					WHERE meta.customer_id = %d
+					AND   posts.post_type  = 'shop_order'
+					AND   posts.post_status IN (" . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . ')',
+					array_merge( array( $customer->get_id() ), array_keys( $statuses ) )
+				)
+			);
 			update_user_meta( $customer->get_id(), '_order_count', $count );
 		}
 
@@ -108,7 +114,8 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 		if ( '' === $spent ) {
 			$table    = wc_custom_order_table()->get_table_name();
 			$statuses = array_map( 'self::prefix_wc_status', wc_get_is_paid_statuses() );
-			$sql      = $wpdb->prepare( "
+			$sql      = $wpdb->prepare(
+				"
 				SELECT SUM(meta.total) FROM $wpdb->posts as posts
 				LEFT JOIN " . esc_sql( $table ) . " AS meta ON posts.ID = meta.order_id
 				WHERE   meta.customer_id  = %d
@@ -124,12 +131,12 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 			 * @param WC_Customer $customer The customer being queried.
 			 */
 			$sql   = apply_filters( 'woocommerce_customer_get_total_spent_query', $sql, $customer );
-			$spent = (float) $wpdb->get_var( $sql ); // WPCS: Unprepared SQL OK, DB call OK.
+			$spent = (float) $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 			update_user_meta( $customer->get_id(), '_money_spent', $spent );
 		}
 
-		return wc_format_decimal( $spent, 2 );
+		return $spent;
 	}
 
 	/**
@@ -175,20 +182,23 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 			}
 
 			$table  = wc_custom_order_table()->get_table_name();
-			$result = $wpdb->get_col( $wpdb->prepare( "
-				SELECT im.meta_value FROM {$wpdb->posts} AS p
-				INNER JOIN " . esc_sql( $table ) . " AS pm ON p.ID = pm.order_id
-				INNER JOIN {$wpdb->prefix}woocommerce_order_items AS i ON p.ID = i.order_id
-				INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta AS im ON i.order_item_id = im.order_item_id
-				WHERE p.post_status IN (" . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . ')
-				AND (
-					pm.billing_email IN (' . implode( ', ', array_fill( 0, count( $customer_data ), '%s' ) ) . ')
-					OR pm.customer_id IN (' . implode( ', ', array_fill( 0, count( $customer_data ), '%s' ) ) . ")
+			$result = $wpdb->get_col(
+				$wpdb->prepare(
+					"
+					SELECT im.meta_value FROM {$wpdb->posts} AS p
+					INNER JOIN " . esc_sql( $table ) . " AS pm ON p.ID = pm.order_id
+					INNER JOIN {$wpdb->prefix}woocommerce_order_items AS i ON p.ID = i.order_id
+					INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta AS im ON i.order_item_id = im.order_item_id
+					WHERE p.post_status IN (" . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . ')
+					AND (
+						pm.billing_email IN (' . implode( ', ', array_fill( 0, count( $customer_data ), '%s' ) ) . ')
+						OR pm.customer_id IN (' . implode( ', ', array_fill( 0, count( $customer_data ), '%s' ) ) . ")
+					)
+					AND im.meta_key IN ( '_product_id', '_variation_id' )
+					AND im.meta_value != 0",
+					array_merge( $statuses, $customer_data, $customer_data )
 				)
-				AND im.meta_key IN ( '_product_id', '_variation_id' )
-				AND im.meta_value != 0",
-				array_merge( $statuses, $customer_data, $customer_data )
-			) ); // WPCS: DB call OK.
+			);
 			$result = array_map( 'absint', $result );
 
 			set_transient( $transient_name, $result, DAY_IN_SECONDS * 30 );
@@ -209,7 +219,7 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 			wc_custom_order_table()->get_table_name(),
 			array( 'customer_id' => 0 ),
 			array( 'customer_id' => $user_id )
-		); // WPCS: DB call OK.
+		);
 	}
 
 	/**
