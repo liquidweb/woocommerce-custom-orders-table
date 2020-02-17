@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## Added
+
+* Enable the migration WP-CLI commands to accept `--batch-size=0`, which disables batching ([#152], props @AlchemyUnited, @mfs-mindsize).
+
+## Fixed
+
+* Change the plugin's display name from "WooCommerce - Custom Orders Table" to "WooCommerce Custom Orders Table" ([#138], props @jb510).
+* Add a `method_exists()` check to the wildcard `set_{$column}` method ([#139], props @blohbaugh).
+* Rewrite the way that WooCommerce core is installed in test environments ([#154]).
+* Use offsets to avoid infinite loops during migration ([#157], props @mfs-mindsize).
+
 ## [Version 1.0.0 (Release Candidate 3)] - 2019-07-24
 
 * Ensure the orders query is adjusted as late as possible ([#126]).
@@ -116,3 +129,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [#124]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/124
 [#126]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/126
 [#127]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/127
+[#138]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/138
+[#139]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/139
+[#152]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/152
+[#154]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/154
+[#157]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/157
