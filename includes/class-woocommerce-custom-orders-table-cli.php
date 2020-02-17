@@ -164,11 +164,13 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 						);
 					}
 
-					WP_CLI::debug( sprintf(
-						/* Translators: %1$d is the migrated order ID. */
-						__( 'Order ID %1$d has been migrated.', 'woocommerce-custom-orders-table' ),
-						$order_id
-					) );
+					WP_CLI::debug(
+						sprintf(
+							/* Translators: %1$d is the migrated order ID. */
+							__( 'Order ID %1$d has been migrated.', 'woocommerce-custom-orders-table' ),
+							$order_id
+						)
+					);
 				}
 
 				$progress->tick();

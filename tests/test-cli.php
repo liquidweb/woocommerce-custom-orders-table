@@ -209,7 +209,10 @@ class CLITest extends TestCase {
 		$this->cli->migrate();
 
 		$this->assertNull( $this->get_order_row( $order->get_id() ) );
-		$this->assertEquals( 1, WP_CLI::$__counts['warning'], 'Expected to see a warning if no orders were migrated.' );
+		$this->assertContains( array(
+			'level'   => 'warning',
+			'message' => 'No orders were migrated.',
+		), WP_CLI::$__logger );
 	}
 
 	/**
