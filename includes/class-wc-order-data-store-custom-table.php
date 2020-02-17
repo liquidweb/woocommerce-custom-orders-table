@@ -189,7 +189,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		}
 
 		// Insert or update the database record.
-		if ( ! wc_custom_order_table()->row_exists( $order_data['order_id'] ) ) {
+		if ( ! $this->row_exists( $order_data['order_id'] ) ) {
 			$inserted = $wpdb->insert( $table, $order_data ); // WPCS: DB call OK.
 
 			if ( 1 !== $inserted ) {
@@ -444,5 +444,25 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 				update_post_meta( $order->get_id(), $meta_key, $data[ $column ] );
 			}
 		}
+	}
+
+	/**
+	 * Determine if the given order already exists in the custom table.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param int $order_id The order ID.
+	 *
+	 * @return bool True if a row for $order_id is already present, false otherwise.
+	 */
+	public function row_exists( $order_id ) {
+		global $wpdb;
+
+		return (bool) $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(order_id) FROM ' . esc_sql( wc_custom_order_table()->get_orders_table_name() ) . ' WHERE order_id = %d',
+				$order_id
+			)
+		);
 	}
 }

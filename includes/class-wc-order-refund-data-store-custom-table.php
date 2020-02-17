@@ -52,7 +52,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 
 		$data = (array) $wpdb->get_row(
 			$wpdb->prepare(
-				'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_orders_table_name() ) . ' WHERE order_id = %d LIMIT 1',
+				'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_refunds_table_name() ) . ' WHERE refund_id = %d LIMIT 1',
 				$refund->get_id()
 			),
 			ARRAY_A
@@ -77,9 +77,9 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	protected function update_post_meta( &$refund ) {
 		global $wpdb;
 
-		$table       = wc_custom_order_table()->get_orders_table_name();
+		$table       = wc_custom_order_table()->get_refunds_table_name();
 		$refund_data = array(
-			'order_id'           => $refund->get_id(),
+			'refund_id'          => $refund->get_id(),
 			'discount_total'     => $refund->get_discount_total( 'edit' ),
 			'discount_tax'       => $refund->get_discount_tax( 'edit' ),
 			'shipping_total'     => $refund->get_shipping_total( 'edit' ),
@@ -95,7 +95,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 		);
 
 		// Insert or update the database record.
-		if ( ! wc_custom_order_table()->row_exists( $refund_data['order_id'] ) ) {
+		if ( ! $this->row_exists( $refund_data['refund_id'] ) ) {
 			$inserted = $wpdb->insert( $table, $refund_data ); // WPCS: DB call OK.
 
 			if ( 1 !== $inserted ) {
@@ -110,9 +110,9 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 			}
 
 			$wpdb->update(
-				wc_custom_order_table()->get_orders_table_name(),
+				$table,
 				$refund_data,
-				array( 'order_id' => (int) $refund->get_id() )
+				array( 'refund_id' => (int) $refund->get_id() )
 			);
 		}
 
@@ -147,5 +147,25 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 				delete_post_meta( $refund->get_id(), $meta_key );
 			}
 		}
+	}
+
+	/**
+	 * Determine if the given refund already exists in the custom table.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param int $refund_id The refund ID.
+	 *
+	 * @return bool True if a row for $refund_id is already present, false otherwise.
+	 */
+	public function row_exists( $refund_id ) {
+		global $wpdb;
+
+		return (bool) $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(refund_id) FROM ' . esc_sql( wc_custom_order_table()->get_refunds_table_name() ) . ' WHERE refund_id = %d',
+				$refund_id
+			)
+		);
 	}
 }

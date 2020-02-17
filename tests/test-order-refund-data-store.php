@@ -6,6 +6,9 @@
  * @author  Liquid Web
  */
 
+/**
+ * @group Refunds
+ */
 class OrderRefundDataStoreTest extends TestCase {
 
 	protected $user;

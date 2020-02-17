@@ -51,6 +51,7 @@ class WooCommerce_Custom_Orders_Table_Install {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		$orders_table  = wc_custom_order_table()->get_orders_table_name();
+		$refunds_table = wc_custom_order_table()->get_refunds_table_name();
 		$collate       = $wpdb->get_charset_collate();
 		$tables        = "
 			CREATE TABLE {$orders_table} (
@@ -97,12 +98,28 @@ class WooCommerce_Custom_Orders_Table_Install {
 				date_completed varchar(20) DEFAULT NULL COMMENT 'Date the order was completed',
 				date_paid varchar(20) DEFAULT NULL COMMENT 'Date the order was paid',
 				cart_hash varchar(32) DEFAULT NULL COMMENT 'Hash of cart items to ensure orders are not modified',
-				amount varchar(100) DEFAULT NULL COMMENT 'The refund amount',
-				refunded_by BIGINT UNSIGNED DEFAULT NULL COMMENT 'The ID of the user who issued the refund',
-				reason text DEFAULT NULL COMMENT 'The reason for the refund being issued',
 			PRIMARY KEY  (order_id),
 			UNIQUE KEY `order_key` (`order_key`),
 			KEY `customer_id` (`customer_id`),
+			KEY `order_total` (`total`)
+			) $collate;
+
+			CREATE TABLE {$refunds_table} (
+				refund_id BIGINT UNSIGNED NOT NULL COMMENT 'Refund post ID',
+				discount_total varchar(100) NOT NULL DEFAULT 0 COMMENT 'Discount total',
+				discount_tax varchar(100) NOT NULL DEFAULT 0 COMMENT 'Discount tax',
+				shipping_total varchar(100) NOT NULL DEFAULT 0 COMMENT 'Shipping total',
+				shipping_tax varchar(100) NOT NULL DEFAULT 0 COMMENT 'Shipping tax',
+				cart_tax varchar(100) NOT NULL DEFAULT 0 COMMENT 'Cart tax',
+				total varchar(100) NOT NULL DEFAULT 0 COMMENT 'Order total',
+				version varchar(16) NOT NULL COMMENT 'Version of WooCommerce when the order was made',
+				currency char(3) NOT NULL COMMENT 'Currency the order was created with',
+				prices_include_tax varchar(3) NOT NULL COMMENT 'Did the prices include tax during checkout?',
+				amount varchar(100) DEFAULT NULL COMMENT 'The refund amount',
+				reason text DEFAULT NULL COMMENT 'The reason for the refund being issued',
+				refunded_by BIGINT UNSIGNED DEFAULT NULL COMMENT 'The ID of the user who issued the refund',
+				refunded_payment TINYINT UNSIGNED DEFAULT 0 COMMENT 'Has the payment been refunded via API?',
+			PRIMARY KEY  (refund_id),
 			KEY `order_total` (`total`)
 			) $collate;
 		";
