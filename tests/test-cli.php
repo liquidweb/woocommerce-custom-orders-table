@@ -161,7 +161,7 @@ class CLITest extends TestCase {
 		add_action( 'woocommerce_order_object_updated_props', function ( $order ) {
 			global $wpdb;
 
-			$wpdb->delete( wc_custom_order_table()->get_table_name(), array(
+			$wpdb->delete( wc_custom_order_table()->get_orders_table_name(), array(
 				'order_id' => $order->get_id(),
 			) );
 		} );
@@ -226,7 +226,7 @@ class CLITest extends TestCase {
 		$this->toggle_use_custom_table( true );
 
 		// Log queries without turning on SAVE_QUERIES.
-		$orders_table = wc_custom_order_table()->get_table_name();
+		$orders_table = wc_custom_order_table()->get_orders_table_name();
 		$pattern      = "SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN {$orders_table}";
 		$query_log    = [];
 

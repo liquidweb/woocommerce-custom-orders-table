@@ -30,7 +30,7 @@ class TestCase extends WC_Unit_Test_Case {
 		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		$wpdb->suppress_errors( false );
-		$wpdb->query( 'DELETE FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) );
+		$wpdb->query( 'DELETE FROM ' . esc_sql( wc_custom_order_table()->get_orders_table_name() ) );
 	}
 
 	/**
@@ -84,7 +84,7 @@ class TestCase extends WC_Unit_Test_Case {
 		}
 
 		return (int) $wpdb->get_var( $wpdb->prepare(
-			'SELECT COUNT(order_id) FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . '
+			'SELECT COUNT(order_id) FROM ' . esc_sql( wc_custom_order_table()->get_orders_table_name() ) . '
 			WHERE order_id IN (' . implode( ', ', array_fill( 0, count( (array) $order_ids ), '%d' ) ) . ')',
 		$order_ids ) );
 	}
@@ -102,7 +102,7 @@ class TestCase extends WC_Unit_Test_Case {
 		global $wpdb;
 
 		return $wpdb->get_row( $wpdb->prepare(
-			'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE order_id = %d',
+			'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_orders_table_name() ) . ' WHERE order_id = %d',
 			$order_id
 		), ARRAY_A );
 	}

@@ -18,7 +18,13 @@ class InstallationTest extends TestCase {
 
 		parent::setUp();
 
-		$wpdb->query( 'DROP TABLE IF EXISTS ' . esc_sql( wc_custom_order_table()->get_table_name() ) );
+		$wpdb->query( $wpdb->prepare(
+			'DROP TABLE IF EXISTS %s, %s',
+			array(
+				wc_custom_order_table()->get_orders_table_name(),
+				wc_custom_order_table()->get_refunds_table_name(),
+			)
+		) );
 		delete_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY );
 	}
 
@@ -31,12 +37,19 @@ class InstallationTest extends TestCase {
 		);
 	}
 
-	public function test_can_install_table() {
+	/**
+	 * @test
+	 */
+	public function custom_tables_should_be_created_upon_activation() {
 		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		$this->assertTrue(
 			$this->orders_table_exists(),
-			'Upon activation, the table should be created.'
+			'Upon activation, the orders table should be created.'
+		);
+		$this->assertTrue(
+			$this->orders_table_exists(),
+			'Upon activation, the orders table should be created.'
 		);
 		$this->assertNotEmpty(
 			get_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY ),
@@ -100,7 +113,7 @@ class InstallationTest extends TestCase {
 
 		WooCommerce_Custom_Orders_Table_Install::activate();
 
-		$table   = wc_custom_order_table()->get_table_name();
+		$table   = wc_custom_order_table()->get_orders_table_name();
 		$indexes = $wpdb->get_results( "SHOW INDEX FROM $table", ARRAY_A );
 		$search  = array(
 			'Non_unique'  => $non_unique,
@@ -228,7 +241,7 @@ class InstallationTest extends TestCase {
 		$this->assertSame(
 			$expected,
 			$wpdb->get_row( $wpdb->prepare(
-				'SHOW COLUMNS FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE Field = %s',
+				'SHOW COLUMNS FROM ' . esc_sql( wc_custom_order_table()->get_orders_table_name() ) . ' WHERE Field = %s',
 				$column
 			) )->Type,
 			$message
@@ -245,7 +258,21 @@ class InstallationTest extends TestCase {
 
 		return (bool) $wpdb->get_var( $wpdb->prepare(
 			'SELECT COUNT(*) FROM information_schema.tables WHERE table_name = %s LIMIT 1',
-			wc_custom_order_table()->get_table_name()
+			wc_custom_order_table()->get_orders_table_name()
+		) );
+	}
+
+	/**
+	 * Determine if the custom refunds table exists.
+	 *
+	 * @global $wpdb
+	 */
+	protected function refunds_table_exists() {
+		global $wpdb;
+
+		return (bool) $wpdb->get_var( $wpdb->prepare(
+			'SELECT COUNT(*) FROM information_schema.tables WHERE table_name = %s LIMIT 1',
+			wc_custom_order_table()->get_refunds_table_name()
 		) );
 	}
 }

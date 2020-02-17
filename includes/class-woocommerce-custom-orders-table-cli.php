@@ -99,7 +99,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 				'save-post-meta' => false,
 			)
 		);
-		$order_table = wc_custom_order_table()->get_table_name();
+		$order_table = wc_custom_order_table()->get_orders_table_name();
 		$order_types = wc_get_order_types( 'reports' );
 		$progress    = WP_CLI\Utils\make_progress_bar( 'Order Data Migration', $order_count );
 		$processed   = 0;
@@ -251,7 +251,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 				'batch-size' => 100,
 			)
 		);
-		$order_table = wc_custom_order_table()->get_table_name();
+		$order_table = wc_custom_order_table()->get_orders_table_name();
 		$order_count = $wpdb->get_var( 'SELECT COUNT(order_id) FROM ' . esc_sql( $order_table ) ); // WPCS: DB call ok.
 
 		// If batching has been disabled, set the batch size to the total order count (e.g. one batch).
@@ -343,7 +343,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	protected function get_migration_query( $select, $limit, $offset = 0 ) {
 		global $wpdb;
 
-		$order_table = wc_custom_order_table()->get_table_name();
+		$order_table = wc_custom_order_table()->get_orders_table_name();
 		$order_types = wc_get_order_types( 'reports' );
 		$query       = "
 			SELECT {$select}

@@ -41,7 +41,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		// Delete the database row if force_delete is true.
 		if ( isset( $args['force_delete'] ) && $args['force_delete'] ) {
 			$wpdb->delete(
-				wc_custom_order_table()->get_table_name(),
+				wc_custom_order_table()->get_orders_table_name(),
 				array(
 					'order_id' => $order_id,
 				)
@@ -90,7 +90,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function get_order_data_from_table( $order ) {
 		global $wpdb;
 
-		$table = wc_custom_order_table()->get_table_name();
+		$table = wc_custom_order_table()->get_orders_table_name();
 		$data  = (array) $wpdb->get_row(
 			$wpdb->prepare(
 				'SELECT * FROM ' . esc_sql( $table ) . ' WHERE order_id = %d LIMIT 1',
@@ -128,7 +128,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	protected function update_post_meta( &$order ) {
 		global $wpdb;
 
-		$table      = wc_custom_order_table()->get_table_name();
+		$table      = wc_custom_order_table()->get_orders_table_name();
 		$changes    = array();
 		$order_key  = $order->get_order_key( 'edit' );
 		$order_data = array(
@@ -253,7 +253,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		$total = $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT SUM(o.amount) FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . " AS o
+				'SELECT SUM(o.amount) FROM ' . esc_sql( wc_custom_order_table()->get_orders_table_name() ) . " AS o
 				INNER JOIN $wpdb->posts AS p ON ( p.post_type = 'shop_order_refund' AND p.post_parent = %d )
 				WHERE o.order_id = p.ID",
 				$order->get_id()
@@ -273,7 +273,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function get_order_id_by_order_key( $order_key ) {
 		global $wpdb;
 
-		$table = wc_custom_order_table()->get_table_name();
+		$table = wc_custom_order_table()->get_orders_table_name();
 
 		return $wpdb->get_var(
 			$wpdb->prepare(
@@ -325,7 +325,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			$mapping   = WooCommerce_Custom_Orders_Table::get_postmeta_mapping();
 			$in_table  = array_intersect( $search_fields, $mapping );
 			$meta_keys = array_diff( $search_fields, $in_table );
-			$table     = wc_custom_order_table()->get_table_name();
+			$table     = wc_custom_order_table()->get_orders_table_name();
 
 			// Find results based on search fields that map to table columns.
 			if ( ! empty( $in_table ) ) {

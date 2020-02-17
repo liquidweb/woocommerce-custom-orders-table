@@ -124,7 +124,7 @@ class FiltersTest extends TestCase {
 	}
 
 	public function filter_order_report_provider() {
-		$table = wc_custom_order_table()->get_table_name();
+		$table = wc_custom_order_table()->get_orders_table_name();
 
 		return array(
 			'Order report with post data' => array(
@@ -321,7 +321,7 @@ class FiltersTest extends TestCase {
 
 		$order = WC_Helper_Order::create_order();
 
-		$wpdb->update( wc_custom_order_table()->get_table_name(), array(
+		$wpdb->update( wc_custom_order_table()->get_orders_table_name(), array(
 			'billing_index'  => null,
 			'shipping_index' => null,
 		), array(

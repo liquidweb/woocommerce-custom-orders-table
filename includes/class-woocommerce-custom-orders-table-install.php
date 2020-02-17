@@ -50,10 +50,10 @@ class WooCommerce_Custom_Orders_Table_Install {
 		// Load wp-admin/includes/upgrade.php, which defines dbDelta().
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-		$table   = wc_custom_order_table()->get_table_name();
-		$collate = $wpdb->get_charset_collate();
-		$tables  = "
-			CREATE TABLE {$table} (
+		$orders_table  = wc_custom_order_table()->get_orders_table_name();
+		$collate       = $wpdb->get_charset_collate();
+		$tables        = "
+			CREATE TABLE {$orders_table} (
 				order_id BIGINT UNSIGNED NOT NULL COMMENT 'Order post ID',
 				order_key varchar(100) DEFAULT NULL COMMENT 'Unique order key',
 				customer_id BIGINT UNSIGNED NOT NULL COMMENT 'Customer ID. Will be 0 for guests.',

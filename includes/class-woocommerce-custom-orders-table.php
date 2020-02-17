@@ -12,11 +12,18 @@
 class WooCommerce_Custom_Orders_Table {
 
 	/**
-	 * The database table name.
+	 * The orders database table name.
 	 *
 	 * @var string
 	 */
-	protected $table_name = null;
+	protected $orders_table_name = null;
+
+	/**
+	 * The refunds database table name.
+	 *
+	 * @var string
+	 */
+	protected $refunds_table_name = null;
 
 	/**
 	 * Steps to run on plugin initialization.
@@ -26,7 +33,8 @@ class WooCommerce_Custom_Orders_Table {
 	public function setup() {
 		global $wpdb;
 
-		$this->table_name = $wpdb->prefix . 'woocommerce_orders';
+		$this->orders_table_name  = $wpdb->prefix . 'woocommerce_orders';
+		$this->refunds_table_name = $wpdb->prefix . 'woocommerce_refunds';
 
 		// Use the plugin's custom data stores for customers and orders.
 		add_filter( 'woocommerce_customer_data_store', __CLASS__ . '::customer_data_store' );
@@ -43,7 +51,7 @@ class WooCommerce_Custom_Orders_Table {
 		add_action( 'woocommerce_update_new_customer_past_order', 'WooCommerce_Custom_Orders_Table_Filters::update_past_customer_order', 10, 2 );
 
 		// Register the table within WooCommerce.
-		add_filter( 'woocommerce_install_get_tables', array( $this, 'register_table_name' ) );
+		add_filter( 'woocommerce_install_get_tables', array( $this, 'register_table_names' ) );
 
 		// If we're in a WP-CLI context, load the WP-CLI command.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -56,13 +64,27 @@ class WooCommerce_Custom_Orders_Table {
 	 *
 	 * @return string The database table name.
 	 */
-	public function get_table_name() {
+	public function get_orders_table_name() {
 		/**
 		 * Filter the WooCommerce orders table name.
 		 *
 		 * @param string $table The WooCommerce orders table name.
 		 */
-		return apply_filters( 'wc_customer_order_table_name', $this->table_name );
+		return apply_filters( 'wc_custom_orders_table_name', $this->orders_table_name );
+	}
+
+	/**
+	 * Retrieve the WooCommerce refunds table name.
+	 *
+	 * @return string The database table name.
+	 */
+	public function get_refunds_table_name() {
+		/**
+		 * Filter the WooCommerce orders table name.
+		 *
+		 * @param string $table The WooCommerce orders table name.
+		 */
+		return apply_filters( 'wc_custom_refunds_table_name', $this->refunds_table_name );
 	}
 
 	/**
@@ -79,7 +101,7 @@ class WooCommerce_Custom_Orders_Table {
 
 		return (bool) $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT COUNT(order_id) FROM ' . esc_sql( $this->get_table_name() ) . ' WHERE order_id = %d',
+				'SELECT COUNT(order_id) FROM ' . esc_sql( $this->get_orders_table_name() ) . ' WHERE order_id = %d',
 				$order_id
 			)
 		);
@@ -198,17 +220,25 @@ class WooCommerce_Custom_Orders_Table {
 	}
 
 	/**
-	 * Register the table name within WooCommerce.
+	 * Register the table names within WooCommerce.
 	 *
 	 * @param array $tables An array of known WooCommerce tables.
 	 *
 	 * @return array The filtered $tables array.
 	 */
-	public function register_table_name( $tables ) {
-		$table = $this->get_table_name();
+	public function register_table_names( $tables ) {
+		$orders_table  = $this->get_orders_table_name();
+		$refunds_table = $this->get_refunds_table_name();
+		$sort          = false;
 
-		if ( ! in_array( $table, $tables, true ) ) {
-			$tables[] = $table;
+		foreach ( array( $orders_table, $refunds_table ) as $table ) {
+			if ( ! in_array( $table, $tables, true ) ) {
+				$tables[] = $table;
+				$sort     = true;
+			}
+		}
+
+		if ( $sort ) {
 			sort( $tables );
 		}
 
@@ -246,7 +276,7 @@ class WooCommerce_Custom_Orders_Table {
 		// Remove the row from the custom table.
 		if ( true === $delete ) {
 			$wpdb->delete(
-				wc_custom_order_table()->get_table_name(),
+				wc_custom_order_table()->get_orders_table_name(),
 				array( 'order_id' => $order->get_id() ),
 				array( '%d' )
 			);

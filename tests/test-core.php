@@ -6,6 +6,9 @@
  * @author  Liquid Web
  */
 
+/**
+ * @group Core
+ */
 class CoreTest extends TestCase {
 
 	public function test_order_row_exists() {
@@ -31,6 +34,59 @@ class CoreTest extends TestCase {
 			$order->get_billing_email(),
 			'Don\'t let an invalid email address cause a migration failure.'
 		);
+	}
+
+	/**
+	 * @test
+	 * @testdox get_orders_table_name() can be filtered
+	 */
+	public function get_orders_table_name_can_be_filtered() {
+		$table = 'some_custom_table_name_' . uniqid();
+
+		add_filter( 'wc_custom_orders_table_name', function () use ( $table ) {
+			return $table;
+		} );
+
+		$this->assertSame( $table, wc_custom_order_table()->get_orders_table_name() );
+	}
+
+	/**
+	 * @test
+	 * @testdox get_refunds_table_name() can be filtered
+	 */
+	public function get_refunds_table_name_can_be_filtered() {
+		$table = 'some_custom_table_name_' . uniqid();
+
+		add_filter( 'wc_custom_refunds_table_name', function () use ( $table ) {
+			return $table;
+		} );
+
+		$this->assertSame( $table, wc_custom_order_table()->get_refunds_table_name() );
+	}
+
+	/**
+	 * @test
+	 */
+	public function custom_tables_are_registered_within_WooCommerce() {
+		wc_custom_order_table()->setup();
+
+		$known_tables = WC_Install::get_tables();
+
+		$this->assertContains( wc_custom_order_table()->get_orders_table_name(), $known_tables );
+		$this->assertContains( wc_custom_order_table()->get_refunds_table_name(), $known_tables );
+	}
+
+	/**
+	 * @test
+	 * @testdox The results of register_table_names() should be sorted
+	 */
+	public function the_results_of_register_table_names_should_be_sorted() {
+		wc_custom_order_table()->setup();
+
+		$unsorted = $sorted = WC_Install::get_tables();
+		sort( $sorted );
+
+		$this->assertSame( $sorted, $unsorted );
 	}
 
 	public function test_migrate_to_post_meta() {

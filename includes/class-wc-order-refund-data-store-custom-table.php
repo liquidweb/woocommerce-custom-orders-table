@@ -52,7 +52,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 
 		$data = (array) $wpdb->get_row(
 			$wpdb->prepare(
-				'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_table_name() ) . ' WHERE order_id = %d LIMIT 1',
+				'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_orders_table_name() ) . ' WHERE order_id = %d LIMIT 1',
 				$refund->get_id()
 			),
 			ARRAY_A
@@ -77,7 +77,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	protected function update_post_meta( &$refund ) {
 		global $wpdb;
 
-		$table       = wc_custom_order_table()->get_table_name();
+		$table       = wc_custom_order_table()->get_orders_table_name();
 		$refund_data = array(
 			'order_id'           => $refund->get_id(),
 			'discount_total'     => $refund->get_discount_total( 'edit' ),
@@ -110,7 +110,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 			}
 
 			$wpdb->update(
-				wc_custom_order_table()->get_table_name(),
+				wc_custom_order_table()->get_orders_table_name(),
 				$refund_data,
 				array( 'order_id' => (int) $refund->get_id() )
 			);

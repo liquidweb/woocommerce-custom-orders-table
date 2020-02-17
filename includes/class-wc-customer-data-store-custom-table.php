@@ -36,7 +36,7 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 	public function get_last_order( &$customer ) {
 		global $wpdb;
 
-		$table      = wc_custom_order_table()->get_table_name();
+		$table      = wc_custom_order_table()->get_orders_table_name();
 		$statuses   = wc_get_order_statuses();
 		$last_order = $wpdb->get_var(
 			$wpdb->prepare(
@@ -69,7 +69,7 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 		$count = get_user_meta( $customer->get_id(), '_order_count', true );
 
 		if ( '' === $count ) {
-			$table    = wc_custom_order_table()->get_table_name();
+			$table    = wc_custom_order_table()->get_orders_table_name();
 			$statuses = wc_get_order_statuses();
 			$count    = $wpdb->get_var(
 				$wpdb->prepare(
@@ -112,7 +112,7 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 
 		// If there's no saved value, attempt to calculate one.
 		if ( '' === $spent ) {
-			$table    = wc_custom_order_table()->get_table_name();
+			$table    = wc_custom_order_table()->get_orders_table_name();
 			$statuses = array_map( 'self::prefix_wc_status', wc_get_is_paid_statuses() );
 			$sql      = $wpdb->prepare(
 				"
@@ -181,7 +181,7 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 				return false;
 			}
 
-			$table  = wc_custom_order_table()->get_table_name();
+			$table  = wc_custom_order_table()->get_orders_table_name();
 			$result = $wpdb->get_col(
 				$wpdb->prepare(
 					"
@@ -216,7 +216,7 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 		global $wpdb;
 
 		$wpdb->update(
-			wc_custom_order_table()->get_table_name(),
+			wc_custom_order_table()->get_orders_table_name(),
 			array( 'customer_id' => 0 ),
 			array( 'customer_id' => $user_id )
 		);
