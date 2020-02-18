@@ -9,6 +9,9 @@
 namespace LiquidWeb\WooCommerceCustomOrdersTable\Concerns;
 
 use WC_Abstract_Order;
+use WC_Data_Exception;
+use WooCommerce_Custom_Orders_Table;
+use WP_Error;
 
 trait UsesCustomTable {
 
@@ -68,6 +71,41 @@ trait UsesCustomTable {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Populate custom table with data from postmeta, for migrations.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param WC_Abstract_Order $order  The order object, passed by reference.
+	 * @param bool              $delete Optional. Whether or not the post meta should be deleted.
+	 *                                  Default is false.
+	 *
+	 * @return WP_Error|null A WP_Error object if there was a problem populating the order, or null
+	 *                       if there were no issues.
+	 */
+	public function populate_from_meta( WC_Abstract_Order &$order, $delete = false ) {
+		global $wpdb;
+
+		try {
+			$table_data = $this->get_order_data_from_table( $order );
+			$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
+
+			$this->update_post_meta( $order );
+		} catch ( WC_Data_Exception $e ) {
+			return new WP_Error( 'woocommerce-custom-order-table-migration', $e->getMessage() );
+		}
+
+		if ( $wpdb->last_error ) {
+			return new WP_Error( 'woocommerce-custom-order-table-migration', $wpdb->last_error );
+		}
+
+		if ( true === $delete ) {
+			foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
+				delete_post_meta( $order->get_id(), $meta_key );
+			}
+		}
 	}
 
 	/**

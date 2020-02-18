@@ -372,41 +372,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	}
 
 	/**
-	 * Populate custom table with data from postmeta, for migrations.
-	 *
-	 * @global $wpdb
-	 *
-	 * @param WC_Order $order  The order object, passed by reference.
-	 * @param bool     $delete Optional. Whether or not the post meta should be deleted. Default
-	 *                         is false.
-	 *
-	 * @return WP_Error|null A WP_Error object if there was a problem populating the order, or null
-	 *                       if there were no issues.
-	 */
-	public function populate_from_meta( &$order, $delete = false ) {
-		global $wpdb;
-
-		try {
-			$table_data = $this->get_order_data_from_table( $order );
-			$order      = WooCommerce_Custom_Orders_Table::populate_order_from_post_meta( $order );
-
-			$this->update_post_meta( $order );
-		} catch ( WC_Data_Exception $e ) {
-			return new WP_Error( 'woocommerce-custom-order-table-migration', $e->getMessage() );
-		}
-
-		if ( $wpdb->last_error ) {
-			return new WP_Error( 'woocommerce-custom-order-table-migration', $wpdb->last_error );
-		}
-
-		if ( true === $delete ) {
-			foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
-				delete_post_meta( $order->get_id(), $meta_key );
-			}
-		}
-	}
-
-	/**
 	 * Populate order postmeta from a custom table, for rolling back.
 	 *
 	 * @param WC_Order $order The order object, passed by reference.
