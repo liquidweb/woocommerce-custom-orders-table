@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
 <ruleset name="WordPress Coding Standards for Plugins">
-	<description>Generally-applicable sniffs for WordPress plugins</description>
+	<description>Rules for the WooCommerce Custom Orders Table plugin.</description>
+
+	<!-- Check all PHP files in directory tree by default. -->
+	<arg name="extensions" value="php" />
+	<arg value="ps"/>
+	<file>./includes</file>
+	<file>woocommerce-custom-orders-table.php</file>
 
 	<!-- The plugin should be compatible with PHP 5.6 and newer. -->
 	<config name="testVersion" value="5.6-"/>
@@ -8,29 +14,15 @@
 	<rule ref="WooCommerce-Core">
 		<!-- Let the plugin files have @author tags. -->
 		<exclude name="Core.Commenting.CommentTags.AuthorTag" />
+
+		<!-- WooCommerce packages use PSR-4 autoloading, so don't worry about WP conventions. -->
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
 	</rule>
 
+	<!-- Set the expected text domain. -->
 	<rule ref="WordPress.WP.I18n">
-		<!-- Set the expected text domain. -->
 		<properties>
 			<property name="text_domain" type="array" value="woocommerce-custom-orders-table" />
 		</properties>
 	</rule>
-
-	<rule ref="PHPCompatibility">
-		<exclude name="PHPCompatibility.PHP.NewKeywords.t_namespaceFound" />
-		<exclude-pattern>includes/class-woocommerce-custom-orders-table-cli.php</exclude-pattern>
-	</rule>
-
-	<!-- Check all PHP files in directory tree by default. -->
-	<arg name="extensions" value="php"/>
-	<file>./includes</file>
-	<file>./tests</file>
-	<file>woocommerce-custom-orders-table.php</file>
-
-	<!-- Show progress and sniff codes in all reports -->
-	<arg value="ps"/>
-
-	<!-- Exclude the tests/ directory. -->
-	<exclude-pattern>*/tests/*</exclude-pattern>
 </ruleset>
