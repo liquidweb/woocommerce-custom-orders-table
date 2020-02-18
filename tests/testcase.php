@@ -108,6 +108,24 @@ class TestCase extends WC_Unit_Test_Case {
 	}
 
 	/**
+	 * Retrieve a single row from the refunds table.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param int $refund_id The refund ID to retrieve.
+	 *
+	 * @return array|null The contents of the database row or null if the given row doesn't exist.
+	 */
+	protected function get_refund_row( $refund_id ) {
+		global $wpdb;
+
+		return $wpdb->get_row( $wpdb->prepare(
+			'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_refunds_table_name() ) . ' WHERE refund_id = %d',
+			$refund_id
+		), ARRAY_A );
+	}
+
+	/**
 	 * Emulate deactivating, then subsequently reactivating the plugin.
 	 */
 	protected static function reactivate_plugin() {

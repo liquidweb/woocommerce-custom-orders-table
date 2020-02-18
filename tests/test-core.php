@@ -11,13 +11,6 @@
  */
 class CoreTest extends TestCase {
 
-	public function test_order_row_exists() {
-		$order = WC_Helper_Order::create_order();
-
-		$this->assertTrue( $order->get_data_store()->row_exists( $order->get_id() ) );
-		$this->assertFalse( $order->get_data_store()->row_exists( $order->get_id() + 1 ) );
-	}
-
 	/**
 	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/98
 	 */

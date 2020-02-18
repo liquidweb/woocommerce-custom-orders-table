@@ -324,6 +324,17 @@ class OrderDataStoreTest extends TestCase {
 	}
 
 	/**
+	 * @test
+	 * @testdox row_exists() should verify that the given primary key exists
+	 */
+	public function row_exists_should_verify_that_the_given_primary_key_exists() {
+		$order = WC_Helper_Order::create_order();
+
+		$this->assertTrue( $order->get_data_store()->row_exists( $order->get_id() ) );
+		$this->assertFalse( $order->get_data_store()->row_exists( $order->get_id() + 1 ) );
+	}
+
+	/**
 	 * Hooked method that simply throws a WC_Data_Exception exception.
 	 *
 	 * @throws WC_Data_Exception
