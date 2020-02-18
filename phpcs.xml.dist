@@ -2,8 +2,8 @@
 <ruleset name="WordPress Coding Standards for Plugins">
 	<description>Generally-applicable sniffs for WordPress plugins</description>
 
-	<!-- The plugin should be compatible with PHP 5.2 and newer. -->
-	<config name="testVersion" value="5.2-"/>
+	<!-- The plugin should be compatible with PHP 5.6 and newer. -->
+	<config name="testVersion" value="5.6-"/>
 
 	<rule ref="WooCommerce-Core">
 		<!-- Let the plugin files have @author tags. -->

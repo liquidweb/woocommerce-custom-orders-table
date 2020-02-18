@@ -19,6 +19,7 @@ $ wp
 
 * The "wc_customer_order_table_name" filter has been renamed to "wc_custom_orders_table_name" ([#159]).
 * `wc_custom_order_table()->get_table_name()` has been renamed to `wc_custom_order_table()->get_orders_table_name()`.
+* Based on [our compatibility policy](CONTRIBUTING.md#compatibility-policy), this plugin now requires WooCommerce 3.7 or higher. As such, PHP 5.6 or newer is also required.
 
 ## Added
 
