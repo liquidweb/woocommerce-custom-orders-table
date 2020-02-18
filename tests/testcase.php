@@ -90,7 +90,7 @@ class TestCase extends WC_Unit_Test_Case {
 	}
 
 	/**
-	 * Retrieve a single row from the Orders table.
+	 * Retrieve a single row from the orders table.
 	 *
 	 * @global $wpdb
 	 *

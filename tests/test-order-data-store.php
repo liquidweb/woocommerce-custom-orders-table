@@ -6,6 +6,10 @@
  * @author  Liquid Web
  */
 
+/**
+ * @group DataStores
+ * @group Orders
+ */
 class OrderDataStoreTest extends TestCase {
 
 	public function test_loading_a_product_can_automatically_populate_from_meta() {
