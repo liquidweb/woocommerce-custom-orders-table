@@ -6,6 +6,8 @@
  * @author  Liquid Web
  */
 
+use LiquidWeb\WooCommerceCustomOrdersTable\Concerns\UsesCustomTable;
+
 /**
  * Extend the WC_Order_Data_Store_CPT class, overloading methods that require database access in
  * order to use the new table.
@@ -13,6 +15,7 @@
  * Orders are still treated as posts within WordPress, but the meta is stored in a separate table.
  */
 class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
+	use UsesCustomTable;
 
 	/**
 	 * Hook into WooCommerce database queries related to orders.
@@ -21,6 +24,15 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// When creating a WooCommerce order data store request, filter the MySQL query.
 		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_database_queries', PHP_INT_MAX, 2 );
+	}
+
+	/**
+	 * Retrieve the name of the custom table for this data store.
+	 *
+	 * @return string The custom table used by this data store.
+	 */
+	protected function get_custom_table_name() {
+		return wc_custom_order_table()->get_orders_table_name();
 	}
 
 	/**
@@ -46,35 +58,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 					'order_id' => $order_id,
 				)
 			);
-		}
-	}
-
-	/**
-	 * Read order data from the custom orders table.
-	 *
-	 * If the order does not yet exist, the plugin will attempt to migrate it automatically. This
-	 * behavior can be modified via the "wc_custom_order_table_automatic_migration" filter.
-	 *
-	 * @param WC_Order $order       The order object, passed by reference.
-	 * @param object   $post_object The post object.
-	 */
-	protected function read_order_data( &$order, $post_object ) {
-		$data = $this->get_order_data_from_table( $order );
-
-		if ( ! empty( $data ) ) {
-			$order->set_props( $data );
-		} else {
-			/**
-			 * Toggle the ability for WooCommerce Custom Orders Table to automatically migrate orders.
-			 *
-			 * @param bool $migrate Whether or not orders should automatically be migrated once they
-			 *                      have been loaded.
-			 */
-			$migrate = apply_filters( 'wc_custom_order_table_automatic_migration', true );
-
-			if ( $migrate ) {
-				$this->populate_from_meta( $order );
-			}
 		}
 	}
 

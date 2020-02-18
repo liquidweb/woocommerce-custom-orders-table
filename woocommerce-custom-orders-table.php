@@ -32,13 +32,20 @@ define( 'WC_CUSTOM_ORDER_TABLE_PATH', plugin_dir_path( __FILE__ ) );
  * @return void
  */
 function wc_custom_order_table_autoload( $class ) {
-	// Bail early if the class/trait/interface is not in the root namespace.
-	if ( strpos( $class, '\\' ) !== false ) {
-		return;
+
+	/**
+	 * Eventually, we'll be moving towards a proper, PSR-4 autoloading scheme.
+	 *
+	 * @link https://github.com/woocommerce/woocommerce-example-package
+	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/153
+	 */
+	if ( strpos( $class, '\\' ) === false ) {
+		$filename = strtolower( 'class-' . str_replace( '_', '-', $class ) . '.php' );
+	} else {
+		$class    = str_replace( 'LiquidWeb\\WooCommerceCustomOrdersTable\\', '', $class );
+		$filename = str_replace( '\\', '/', $class ) . '.php';
 	}
 
-	// Assemble file path and name according to WordPress code style.
-	$filename = strtolower( 'class-' . str_replace( '_', '-', $class ) . '.php' );
 	$filepath = WC_CUSTOM_ORDER_TABLE_PATH . 'includes/' . $filename;
 
 	// Bail if the file name we generated does not exist.

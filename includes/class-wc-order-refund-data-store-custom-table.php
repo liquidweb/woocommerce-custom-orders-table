@@ -6,6 +6,8 @@
  * @author  Liquid Web
  */
 
+use LiquidWeb\WooCommerceCustomOrdersTable\Concerns\UsesCustomTable;
+
 /**
  * Extend the WC_Order_Refund_Data_Store_CPT class, overloading methods that require database access in
  * order to use the new table.
@@ -13,57 +15,15 @@
  * This operates in a way similar to WC_Order_Data_Store_Custom_Table, but is for *refunds*.
  */
 class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store_CPT {
+	use UsesCustomTable;
 
 	/**
-	 * Read refund data from the custom orders table.
+	 * Retrieve the name of the custom table for this data store.
 	 *
-	 * If the refund does not yet exist, the plugin will attempt to migrate it automatically. This
-	 * behavior can be modified via the "wc_custom_order_table_automatic_migration" filter.
-	 *
-	 * @param WC_Order_Refund $refund      The refund object, passed by reference.
-	 * @param object          $post_object The post object.
+	 * @return string The custom table used by this data store.
 	 */
-	protected function read_order_data( &$refund, $post_object ) {
-		$data = $this->get_order_data_from_table( $refund );
-
-		if ( ! empty( $data ) ) {
-			$refund->set_props( $data );
-		} else {
-			/** This filter is defined in class-wc-order-data-store-custom-table.php. */
-			$migrate = apply_filters( 'wc_custom_order_table_automatic_migration', true );
-
-			if ( $migrate ) {
-				$this->populate_from_meta( $refund );
-			}
-		}
-	}
-
-	/**
-	 * Retrieve a single refund from the database.
-	 *
-	 * @global $wpdb
-	 *
-	 * @param WC_Order_Refund $refund The refund object.
-	 *
-	 * @return array The refund row, as an associative array.
-	 */
-	public function get_order_data_from_table( $refund ) {
-		global $wpdb;
-
-		$data = (array) $wpdb->get_row(
-			$wpdb->prepare(
-				'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_refunds_table_name() ) . ' WHERE refund_id = %d LIMIT 1',
-				$refund->get_id()
-			),
-			ARRAY_A
-		); // WPCS: DB call OK.
-
-		// Expand anything that might need assistance.
-		if ( isset( $data['prices_include_tax'] ) ) {
-			$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
-		}
-
-		return $data;
+	protected function get_custom_table_name() {
+		return wc_custom_order_table()->get_refunds_table_name();
 	}
 
 	/**
