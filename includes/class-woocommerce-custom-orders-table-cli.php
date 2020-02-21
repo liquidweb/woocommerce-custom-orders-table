@@ -303,8 +303,11 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	public function migrate_refunds_to_custom_table() {
 		global $wpdb;
 
-		$orders_table = wc_custom_order_table()->get_orders_table_name();
-		$refund_query = new QueryIterator(
+		$orders_table  = WC_Order_Data_Store_Custom_Table::get_custom_table_name();
+		$refunds_table = WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name();
+		$mapping       = WC_Order_Refund_Data_Store_Custom_Table::map_columns_to_post_meta_keys();
+		$processed     = 0;
+		$refund_query  = new QueryIterator(
 			'
 			SELECT * FROM ' . esc_sql( $orders_table ) . '
 			WHERE order_key IS NULL
@@ -312,10 +315,6 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 			',
 			100
 		);
-		$processed    = 0;
-		$data_store   = new WC_Order_Refund_Data_Store_Custom_Table();
-		$table_name   = wc_custom_order_table()->get_refunds_table_name();
-		$mapping      = WC_Order_Refund_Data_Store_Custom_Table::map_columns_to_post_meta_keys();
 
 		while ( $refund_query->valid() ) {
 			if ( $data_store->row_exists( $refund_query->current()->order_id ) ) {
@@ -338,7 +337,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 				)
 			);
 
-			$inserted = $wpdb->insert( $table_name, [
+			$inserted = $wpdb->insert( $refunds_table, [
 				'refund_id'          => $refund_query->current()->order_id,
 				'discount_total'     => $refund_query->current()->discount_total,
 				'discount_tax'       => $refund_query->current()->discount_tax,
@@ -376,7 +375,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 				/* Translators: %1$d is the number of refunds moved, %2$s is the refunds table name. */
 				__( '%1$d refund(s) have been moved into the %2$s table.', 'woocommerce-custom-orders-table' ),
 				$processed,
-				$table_name
+				$refunds_table
 			) );
 		}
 

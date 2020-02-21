@@ -50,8 +50,8 @@ class WooCommerce_Custom_Orders_Table_Install {
 		// Load wp-admin/includes/upgrade.php, which defines dbDelta().
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-		$orders_table  = wc_custom_order_table()->get_orders_table_name();
-		$refunds_table = wc_custom_order_table()->get_refunds_table_name();
+		$orders_table  = WC_Order_Data_Store_Custom_Table::get_custom_table_name();
+		$refunds_table = WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name();
 		$collate       = $wpdb->get_charset_collate();
 		$tables        = "
 			CREATE TABLE {$orders_table} (

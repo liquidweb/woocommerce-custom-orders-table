@@ -30,6 +30,20 @@ class OrderRefundDataStoreTest extends TestCase {
 
 	/**
 	 * @test
+	 * @testdox get_custom_table_name() can be filtered
+	 */
+	public function get_custom_table_name_can_be_filtered() {
+		$table = 'some_custom_table_name_' . uniqid();
+
+		add_filter( 'wc_custom_refunds_table_name', function () use ( $table ) {
+			return $table;
+		} );
+
+		$this->assertSame( $table, WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name() );
+	}
+
+	/**
+	 * @test
 	 */
 	public function it_should_store_refunds_in_the_refunds_table() {
 		$order  = WC_Helper_Order::create_order();

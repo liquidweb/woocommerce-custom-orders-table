@@ -120,7 +120,7 @@ class TestCase extends WC_Unit_Test_Case {
 		global $wpdb;
 
 		return $wpdb->get_row( $wpdb->prepare(
-			'SELECT * FROM ' . esc_sql( wc_custom_order_table()->get_refunds_table_name() ) . ' WHERE refund_id = %d',
+			'SELECT * FROM ' . esc_sql( WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name() ) . ' WHERE refund_id = %d',
 			$refund_id
 		), ARRAY_A );
 	}

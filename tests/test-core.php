@@ -31,42 +31,14 @@ class CoreTest extends TestCase {
 
 	/**
 	 * @test
-	 * @testdox get_orders_table_name() can be filtered
-	 */
-	public function get_orders_table_name_can_be_filtered() {
-		$table = 'some_custom_table_name_' . uniqid();
-
-		add_filter( 'wc_custom_orders_table_name', function () use ( $table ) {
-			return $table;
-		} );
-
-		$this->assertSame( $table, wc_custom_order_table()->get_orders_table_name() );
-	}
-
-	/**
-	 * @test
-	 * @testdox get_refunds_table_name() can be filtered
-	 */
-	public function get_refunds_table_name_can_be_filtered() {
-		$table = 'some_custom_table_name_' . uniqid();
-
-		add_filter( 'wc_custom_refunds_table_name', function () use ( $table ) {
-			return $table;
-		} );
-
-		$this->assertSame( $table, wc_custom_order_table()->get_refunds_table_name() );
-	}
-
-	/**
-	 * @test
 	 */
 	public function custom_tables_are_registered_within_WooCommerce() {
 		wc_custom_order_table()->setup();
 
 		$known_tables = WC_Install::get_tables();
 
-		$this->assertContains( wc_custom_order_table()->get_orders_table_name(), $known_tables );
-		$this->assertContains( wc_custom_order_table()->get_refunds_table_name(), $known_tables );
+		$this->assertContains( WC_Order_Data_Store_Custom_Table::get_custom_table_name(), $known_tables );
+		$this->assertContains( WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name(), $known_tables );
 	}
 
 	/**

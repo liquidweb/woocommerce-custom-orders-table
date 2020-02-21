@@ -23,8 +23,8 @@ class InstallationTest extends TestCase {
 
 		$wpdb->query( sprintf(
 			'DROP TABLE IF EXISTS %s, %s',
-			esc_sql( wc_custom_order_table()->get_orders_table_name() ),
-			esc_sql( wc_custom_order_table()->get_refunds_table_name() )
+			esc_sql( WC_Order_Data_Store_Custom_Table::get_custom_table_name() ),
+			esc_sql( WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name() )
 		) );
 		delete_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY );
 	}
@@ -49,7 +49,7 @@ class InstallationTest extends TestCase {
 		$this->assertTrue(
 			(bool) $wpdb->get_var( $wpdb->prepare(
 				'SELECT COUNT(*) FROM information_schema.tables WHERE table_name = %s LIMIT 1',
-				wc_custom_order_table()->get_refunds_table_name()
+				WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name()
 			) ),
 			'Upon activation, the refunds table should be created.'
 		);
@@ -121,7 +121,7 @@ class InstallationTest extends TestCase {
 	public function it_should_generate_indexes_for_the_orders_table() {
 		WooCommerce_Custom_Orders_Table_Install::activate();
 
-		$table = wc_custom_order_table()->get_orders_table_name();
+		$table = WC_Order_Data_Store_Custom_Table::get_custom_table_name();
 
 		$this->assert_table_has_index( $table, 'order_id', 'PRIMARY', true );
 		$this->assert_table_has_index( $table, 'order_key', 'order_key', true );
@@ -138,7 +138,7 @@ class InstallationTest extends TestCase {
 	public function it_should_generate_indexes_for_the_refunds_table() {
 		WooCommerce_Custom_Orders_Table_Install::activate();
 
-		$table = wc_custom_order_table()->get_refunds_table_name();
+		$table = WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name();
 
 		$this->assert_table_has_index( $table, 'refund_id', 'PRIMARY', true );
 		$this->assert_table_has_index( $table, 'total', 'order_total', false );
@@ -155,7 +155,7 @@ class InstallationTest extends TestCase {
 	 */
 	public function verify_char_column_length( $column, $length ) {
 		$this->assert_column_has_type(
-			wc_custom_order_table()->get_orders_table_name(),
+			WC_Order_Data_Store_Custom_Table::get_custom_table_name(),
 			$column,
 			sprintf( 'char(%d)', $length ),
 			sprintf( 'Column "%s" did not match the expected CHAR length of %d.', $column, $length )
@@ -207,7 +207,7 @@ class InstallationTest extends TestCase {
 	 */
 	public function verify_char_column_length_for_orders_table( $column, $length ) {
 		$this->assert_column_has_type(
-			wc_custom_order_table()->get_orders_table_name(),
+			WC_Order_Data_Store_Custom_Table::get_custom_table_name(),
 			$column,
 			sprintf( 'varchar(%d)', $length ),
 			sprintf( 'Column "%s" did not match the expected VARCHAR length of %d.', $column, $length )
@@ -231,7 +231,7 @@ class InstallationTest extends TestCase {
 	 */
 	public function verify_char_column_length_for_refunds_table( $column, $length ) {
 		$this->assert_column_has_type(
-			wc_custom_order_table()->get_refunds_table_name(),
+			WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name(),
 			$column,
 			sprintf( 'varchar(%d)', $length ),
 			sprintf( 'Column "%s" did not match the expected VARCHAR length of %d.', $column, $length )
@@ -247,7 +247,7 @@ class InstallationTest extends TestCase {
 	 */
 	public function the_user_agent_property_should_be_stored_in_a_text_column() {
 		$this->assert_column_has_type(
-			wc_custom_order_table()->get_orders_table_name(),
+			WC_Order_Data_Store_Custom_Table::get_custom_table_name(),
 			'customer_user_agent',
 			'text'
 		);

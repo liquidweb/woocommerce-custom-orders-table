@@ -255,9 +255,9 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		$total = $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT SUM(o.amount) FROM ' . esc_sql( wc_custom_order_table()->get_orders_table_name() ) . " AS o
+				'SELECT SUM(r.amount) FROM ' . esc_sql( WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name() ) . " AS r
 				INNER JOIN $wpdb->posts AS p ON ( p.post_type = 'shop_order_refund' AND p.post_parent = %d )
-				WHERE o.order_id = p.ID",
+				WHERE r.refund_id = p.ID",
 				$order->get_id()
 			)
 		);

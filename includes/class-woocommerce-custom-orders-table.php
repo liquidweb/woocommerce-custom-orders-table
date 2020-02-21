@@ -48,15 +48,6 @@ class WooCommerce_Custom_Orders_Table {
 	}
 
 	/**
-	 * Retrieve the WooCommerce refunds table name.
-	 *
-	 * @return string The database table name.
-	 */
-	public function get_refunds_table_name() {
-		return WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name();
-	}
-
-	/**
 	 * Retrieve the database table column => post_meta mapping.
 	 *
 	 * @return array An array of database columns and their corresponding post_meta keys.
@@ -178,8 +169,8 @@ class WooCommerce_Custom_Orders_Table {
 	 * @return array The filtered $tables array.
 	 */
 	public function register_table_names( $tables ) {
-		$orders_table  = $this->get_orders_table_name();
-		$refunds_table = $this->get_refunds_table_name();
+		$orders_table  = WC_Order_Data_Store_Custom_Table::get_custom_table_name();
+		$refunds_table = WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name();
 		$sort          = false;
 
 		foreach ( array( $orders_table, $refunds_table ) as $table ) {

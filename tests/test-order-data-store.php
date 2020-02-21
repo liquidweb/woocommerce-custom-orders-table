@@ -14,6 +14,20 @@ class OrderDataStoreTest extends TestCase {
 
 	/**
 	 * @test
+	 * @testdox get_custom_table_name() can be filtered
+	 */
+	public function get_custom_table_name_can_be_filtered() {
+		$table = 'some_custom_table_name_' . uniqid();
+
+		add_filter( 'wc_custom_orders_table_name', function () use ( $table ) {
+			return $table;
+		} );
+
+		$this->assertSame( $table, WC_Order_Data_Store_Custom_Table::get_custom_table_name() );
+	}
+
+	/**
+	 * @test
 	 */
 	public function it_should_store_orders_in_the_orders_table() {
 		$order = WC_Helper_Order::create_order();
