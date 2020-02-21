@@ -111,6 +111,35 @@ class OrderRefundDataStoreTest extends TestCase {
 	/**
 	 * @test
 	 */
+	public function it_should_preserve_the_refunds_table_row_when_a_refund_is_trashed() {
+		$order  = WC_Helper_Order::create_order();
+		$refund = wc_create_refund( array(
+			'order_id' => $order->get_id(),
+			'amount'   => 7,
+			'reason'   => 'For testing',
+		) );
+
+		$this->assertTrue( $refund->get_data_store()->row_exists( $refund->get_id() ) );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_should_remove_the_refunds_table_row_when_a_refund_is_permanently_deleted() {
+		$order  = WC_Helper_Order::create_order();
+		$refund = wc_create_refund( array(
+			'order_id' => $order->get_id(),
+			'amount'   => 7,
+			'reason'   => 'For testing',
+		) );
+
+		$this->assertFalse( $refund->get_data_store()->row_exists( $refund->get_id() ) );
+	}
+
+	/**
+	 * @test
+	 * @group Migrations
+	 */
 	public function it_should_attempt_to_migrate_missing_rows_from_post_meta() {
 		$this->toggle_use_custom_table( false );
 		$order  = WC_Helper_Order::create_order();
@@ -146,9 +175,11 @@ class OrderRefundDataStoreTest extends TestCase {
 		) );
 		$this->toggle_use_custom_table( true );
 
+		add_filter( 'wc_custom_order_table_automatic_migration', '__return_false' );
+
 		$refund = wc_get_order( $refund->get_id() );
 
-		$this->assertNull( $this->get_order_row( $refund->get_id() ) );
+		$this->assertNull( $this->get_refund_row( $refund->get_id() ) );
 		$this->assertEquals( 7, $refund->get_amount() );
 		$this->assertEquals( 'For testing', $refund->get_reason() );
 	}

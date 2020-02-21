@@ -12,167 +12,241 @@
  */
 class OrderDataStoreTest extends TestCase {
 
-	public function test_loading_a_product_can_automatically_populate_from_meta() {
-		$this->toggle_use_custom_table( false );
-		$order_id = WC_Helper_Order::create_order()->get_id();
-		$this->toggle_use_custom_table( true );
+	/**
+	 * @test
+	 */
+	public function it_should_store_orders_in_the_orders_table() {
+		$order = WC_Helper_Order::create_order();
+		$row   = $this->get_order_row( $order->get_id() );
 
-		$this->assertEquals( 0, $this->count_orders_in_table_with_ids( array( $order_id ) ) );
-
-		$order = wc_get_order( $order_id );
-
-		$this->assertEquals( 1, $this->count_orders_in_table_with_ids( array( $order->get_id() ) ) );
+		$this->assertNotNull( $row, 'Expected to see a row in the orders table.' );
 	}
 
 	/**
-	 * Same as test_loading_a_product_can_automatically_populate_from_meta(), but with the
-	 * auto-migration disabled via the 'wc_custom_order_table_automatic_migration' filter.
+	 * @test
+	 * @depends it_should_store_orders_in_the_orders_table
 	 */
-	public function test_wc_custom_order_table_automatic_migration_filter() {
+	public function it_should_retrieve_order_meta_data() {
+		$order = WC_Helper_Order::create_order();
+		$row   = $this->get_order_row( $order->get_id() );
+
+		// Refresh the order.
+		$order = wc_get_order( $order->get_id() );
+
+		$this->assertSame( $row['order_key'], $order->get_order_key() );
+		$this->assertEquals( $row['customer_id'], $order->get_customer_id() );
+		$this->assertSame( $row['billing_first_name'], $order->get_billing_first_name() );
+		$this->assertSame( $row['billing_last_name'], $order->get_billing_last_name() );
+		$this->assertSame( $row['billing_company'], $order->get_billing_company() );
+		$this->assertSame( $row['billing_address_1'], $order->get_billing_address_1() );
+		$this->assertSame( $row['billing_address_2'], $order->get_billing_address_2() );
+		$this->assertSame( $row['billing_city'], $order->get_billing_city() );
+		$this->assertSame( $row['billing_state'], $order->get_billing_state() );
+		$this->assertSame( $row['billing_postcode'], $order->get_billing_postcode() );
+		$this->assertSame( $row['billing_country'], $order->get_billing_country() );
+		$this->assertSame( $row['billing_email'], $order->get_billing_email() );
+		$this->assertSame( $row['billing_phone'], $order->get_billing_phone() );
+		$this->assertSame( $row['shipping_first_name'], $order->get_shipping_first_name() );
+		$this->assertSame( $row['shipping_last_name'], $order->get_shipping_last_name() );
+		$this->assertSame( $row['shipping_company'], $order->get_shipping_company() );
+		$this->assertSame( $row['shipping_address_1'], $order->get_shipping_address_1() );
+		$this->assertSame( $row['shipping_address_2'], $order->get_shipping_address_2() );
+		$this->assertSame( $row['shipping_city'], $order->get_shipping_city() );
+		$this->assertSame( $row['shipping_state'], $order->get_shipping_state() );
+		$this->assertSame( $row['shipping_postcode'], $order->get_shipping_postcode() );
+		$this->assertSame( $row['shipping_country'], $order->get_shipping_country() );
+		$this->assertSame( $row['payment_method'], $order->get_payment_method() );
+		$this->assertSame( $row['payment_method_title'], $order->get_payment_method_title() );
+		$this->assertEquals( $row['discount_total'], $order->get_discount_total() );
+		$this->assertEquals( $row['discount_tax'], $order->get_discount_tax() );
+		$this->assertEquals( $row['shipping_total'], $order->get_shipping_total() );
+		$this->assertEquals( $row['shipping_tax'], $order->get_shipping_tax() );
+		$this->assertEquals( $row['cart_tax'], $order->get_cart_tax() );
+		$this->assertEquals( $row['total'], $order->get_total() );
+		$this->assertEquals( $row['version'], $order->get_version() );
+		$this->assertSame( $row['currency'], $order->get_currency() );
+		$this->assertSame( wc_string_to_bool( $row['prices_include_tax'] ), $order->get_prices_include_tax() );
+		$this->assertEquals( $row['transaction_id'], $order->get_transaction_id() );
+		$this->assertSame( $row['customer_ip_address'], $order->get_customer_ip_address() );
+		$this->assertSame( $row['customer_user_agent'], $order->get_customer_user_agent() );
+		$this->assertSame( $row['created_via'], $order->get_created_via() );
+		$this->assertEquals( $row['date_completed'], $order->get_date_completed() );
+		$this->assertEquals( $row['date_paid'], $order->get_date_paid() );
+		$this->assertEquals( $row['cart_hash'], $order->get_cart_hash() );
+	}
+
+	/**
+	 * @test
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/49
+	 */
+	public function it_should_be_able_to_update_order_details() {
+		$order  = WC_Helper_Order::create_order();
+		$order->set_billing_first_name( 'James' );
+		$order->set_billing_last_name( 'Bond' );
+		$order->save();
+
+		$row = $this->get_order_row( $order->get_id() );
+
+		$this->assertSame( 'James', $row['billing_first_name'] );
+		$this->assertSame( 'Bond', $row['billing_last_name'] );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_should_attempt_to_migrate_missing_rows_from_post_meta() {
 		$this->toggle_use_custom_table( false );
-		$order_id = WC_Helper_Order::create_order()->get_id();
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		$this->assertNull( $this->get_order_row( $order->get_id() ) );
+		wc_get_order( $order->get_id() );
+		$this->assertNotNull( $this->get_order_row( $order->get_id() ) );
+	}
+
+	/**
+	 * @test
+	 * @testdox It should not attempt to migrate missing rows if the wc_custom_order_table_automatic_migration filter returns false
+	 * @depends it_should_attempt_to_migrate_missing_rows_from_post_meta
+	 * @group Migrations
+	 */
+	public function do_not_migrate_if_wc_custom_order_table_automatic_migration_is_false() {
+		$this->toggle_use_custom_table( false );
+		$order  = WC_Helper_Order::create_order();
 		$this->toggle_use_custom_table( true );
 
 		add_filter( 'wc_custom_order_table_automatic_migration', '__return_false' );
 
-		$order = wc_get_order( $order_id );
+		$order = wc_get_order( $order->get_id() );
 
-		$this->assertEmpty( $order->get_total() );
-		$this->assertEquals( 0, $this->count_orders_in_table_with_ids( array( $order_id ) ) );
-	}
-
-	public function test_delete() {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = WC_Helper_Order::create_order();
-
-		$instance->delete( $order, array( 'force_delete' => false ) );
-
-		$this->assertNotNull(
-			$this->get_order_row( $order->get_id() ),
-			'Unless force_delete is true, the table row should not be removed.'
-		);
-	}
-
-	public function test_delete_can_force_delete() {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$order    = WC_Helper_Order::create_order();
-		$order_id = $order->get_id();
-
-		$instance->delete( $order, array( 'force_delete' => true ) );
-
-		$this->assertNull( $this->get_order_row( $order_id ), 'When force deleting, the table row should be removed.' );
-	}
-
-	public function test_get_order_data_from_table() {
-		$order = WC_Helper_Order::create_order();
-		$data  = $order->get_data_store()->get_order_data_from_table( $order );
-
-		$this->assertEquals( $order->get_id(), $data['order_id'] );
-		$this->assertEquals( $order->get_billing_email(), $data['billing_email'] );
-		$this->assertEquals( $order->get_prices_include_tax(), $data['prices_include_tax'] );
-	}
-
-	public function test_get_order_data_from_table_when_order_is_still_in_post_meta() {
-		$this->toggle_use_custom_table( false );
-		$order = WC_Helper_Order::create_order();
-		$this->toggle_use_custom_table( true );
-
-		$this->assertEmpty( $order->get_data_store()->get_order_data_from_table( $order ) );
+		$this->assertNull( $this->get_order_row( $order->get_id() ) );
 	}
 
 	/**
+	 * @test
+	 * @group Migrations
+	 */
+	public function it_should_be_able_to_backfill_post_meta() {
+		$this->markTestIncomplete();
+	}
+
+	/**
+	 * @test
+	 * @testdox row_exists() should verify that the given primary key exists
+	 */
+	public function row_exists_should_verify_that_the_given_primary_key_exists() {
+		$order = WC_Helper_Order::create_order();
+
+		$this->assertTrue( $order->get_data_store()->row_exists( $order->get_id() ) );
+		$this->assertFalse( $order->get_data_store()->row_exists( $order->get_id() + 1 ) );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_should_preserve_the_orders_table_row_when_an_order_is_trashed() {
+		$order = WC_Helper_Order::create_order();
+		$order->delete( false );
+
+		$this->assertTrue( $order->get_data_store()->row_exists( $order->get_id() ) );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_should_remove_the_orders_table_row_when_an_order_is_permanently_deleted() {
+		$order = WC_Helper_Order::create_order();
+		$order->delete( true );
+
+		$this->assertFalse( $order->get_data_store()->row_exists( $order->get_id() ) );
+	}
+
+
+
+
+
+
+
+
+
+
+	/**
+	 * @test
 	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/68
 	 */
-	public function test_get_order_data_from_table_populates_customer_notes() {
+	public function customer_notes_should_be_appended_to_order_data() {
 		$order = WC_Helper_Order::create_order();
 		$order->set_customer_note( 'This is a new post excerpt.' );
 		$order->save();
 
 		$order = wc_get_order( $order );
 
-		$this->assertEquals( 'This is a new post excerpt.', $order->get_customer_note() );
-	}
-
-	public function test_update_post_meta_for_new_order() {
-		$order = new WC_Order( wp_insert_post( array(
-			'post_type' => 'product',
-		) ) );
-		$order->set_currency( 'USD' );
-		$order->set_prices_include_tax( false );
-		$order->set_customer_ip_address( '127.0.0.1' );
-		$order->set_customer_user_agent( 'PHPUnit' );
-
-		$this->invoke_update_post_meta( $order );
-
-		$row = $this->get_order_row( $order->get_id() );
-
-		$this->assertEquals( 'USD', $row['currency'] );
-		$this->assertEquals( '127.0.0.1', $row['customer_ip_address'] );
-		$this->assertEquals( 'PHPUnit', $row['customer_user_agent'] );
+		$this->assertSame( 'This is a new post excerpt.', $order->get_customer_note() );
 	}
 
 	/**
-	 * @link https://github.com/liquidweb/woocommerce-custom-orders-table/issues/49
+	 * @test
 	 */
-	public function test_update_post_meta_for_existing_order_id() {
-		$order = WC_Helper_Order::create_order();
-		$order->set_customer_user_agent( 'PHPUnit' );
-
-		$this->invoke_update_post_meta( $order );
-
-		$row = $this->get_order_row( $order->get_id() );
-
-		$this->assertEquals( 'PHPUnit', $row['customer_user_agent'] );
-	}
-
-	public function test_get_order_id_by_order_key() {
-		$order = WC_Helper_Order::create_order();
-		$instance = new WC_Order_Data_Store_Custom_Table();
-
-		$this->assertEquals( $order->get_id(), $instance->get_order_id_by_order_key( $order->get_order_key() ) );
-	}
-
-	public function test_search_orders_can_search_by_order_id() {
+	public function order_ids_can_be_found_based_on_their_order_keys() {
+		$order    = WC_Helper_Order::create_order();
 		$instance = new WC_Order_Data_Store_Custom_Table();
 
 		$this->assertEquals(
+			$order->get_id(),
+			$instance->get_order_id_by_order_key( $order->get_order_key() ),
+			'An order\'s key should be able to be used to find the corresponding order\'s ID.'
+		);
+	}
+
+	/**
+	 * @test
+	 * @testdox search_orders() can search by order ID
+	 * @group Search
+	 */
+	public function search_orders_can_search_by_order_id() {
+		$instance = new WC_Order_Data_Store_Custom_Table();
+
+		$this->assertSame(
 			array( 123 ),
 			$instance->search_orders( 123 ),
 			'When given a numeric value, search_orders() should include that order ID.'
 		);
 	}
 
-	public function test_search_orders_can_check_post_meta() {
+	/**
+	 * @test
+	 * @testdox search_orders() can also check against post meta
+	 * @group Search
+	 */
+	public function search_orders_can_check_post_meta() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
 		$order    = WC_Helper_Order::create_order();
 		$term     = uniqid( 'search term ' );
 
 		add_post_meta( $order->get_id(), 'some_custom_meta_key', $term );
 
-		add_filter( 'woocommerce_shop_order_search_fields', __CLASS__ . '::return_array_for_test_search_orders_can_check_post_meta' );
+		add_filter( 'woocommerce_shop_order_search_fields', function ( $fields ) {
+			return [
+				'some_custom_meta_key',
+			];
+		} );
 
 		$this->assertEquals(
-			array( $order->get_id() ),
+			[ $order->get_id() ],
 			$instance->search_orders( $term ),
 			'If post meta keys are specified, they should also be searched.'
 		);
-
-		remove_filter( 'woocommerce_shop_order_search_fields', __CLASS__ . '::return_array_for_test_search_orders_can_check_post_meta' );
-	}
-
-	/**
-	 * Filter callback for test_search_orders_can_check_post_meta().
-	 *
-	 * Can be dropped once PHP 5.3 isn't a requirement, as closures are far nicer.
-	 */
-	public static function return_array_for_test_search_orders_can_check_post_meta() {
-		return array( 'some_custom_meta_key' );
 	}
 
 	/**
 	 * Same as test_search_orders_can_check_post_meta(), but the filter is never added.
+	 *
+	 * @test
+	 * @testdox search_orders() only checks post meta if instructed to do so
+	 * @depends test_search_orders_can_check_post_meta
+	 * @group Search
 	 */
-	public function test_search_orders_only_checks_post_meta_if_specified() {
+	public function search_orders_only_checks_post_meta_if_specified() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
 		$order    = WC_Helper_Order::create_order();
 		$term     = uniqid( 'search term ' );
@@ -185,7 +259,12 @@ class OrderDataStoreTest extends TestCase {
 		);
 	}
 
-	public function test_search_orders_checks_table_for_product_item_matches() {
+	/**
+	 * @test
+	 * @testdox search_orders() checks product names
+	 * @group Search
+	 */
+	public function search_orders_checks_table_for_product_item_matches() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
 		$product  = WC_Helper_Product::create_simple_product();
 		$order    = WC_Helper_Order::create_order();
@@ -199,7 +278,13 @@ class OrderDataStoreTest extends TestCase {
 		);
 	}
 
-	public function test_search_orders_checks_table_for_product_item_matches_with_like_comparison() {
+	/**
+	 * @test
+	 * @testdox search_orders() checks product names using a LIKE comparison
+	 * @depends search_orders_checks_table_for_product_item_matches
+	 * @group Search
+	 */
+	public function search_orders_checks_table_for_product_item_matches_with_like_comparison() {
 		$instance = new WC_Order_Data_Store_Custom_Table();
 		$product  = WC_Helper_Product::create_simple_product();
 		$product->set_name( 'Foo Bar Baz' );
@@ -294,11 +379,11 @@ class OrderDataStoreTest extends TestCase {
 		// Refresh the instance.
 		$order = wc_get_order( $order->get_id() );
 
-		add_action( 'woocommerce_order_object_updated_props', array( $this, 'throw_wc_data_exception' ) );
+		add_action( 'woocommerce_order_object_updated_props', function () {
+			throw new WC_Data_Exception( 'test-data-exception', 'A sample WC_Data_Exception' );
+		} );
 
 		$this->assertInstanceOf( 'WP_Error', $order->get_data_store()->populate_from_meta( $order ) );
-
-		remove_action( 'woocommerce_order_object_updated_props', array( $this, 'throw_wc_data_exception' ) );
 	}
 
 	public function test_backfill_postmeta() {
@@ -325,37 +410,5 @@ class OrderDataStoreTest extends TestCase {
 		$order = wc_get_order( $order->get_id() );
 
 		$this->assertNull( $order->get_data_store()->backfill_postmeta( $order ) );
-	}
-
-	/**
-	 * @test
-	 * @testdox row_exists() should verify that the given primary key exists
-	 */
-	public function row_exists_should_verify_that_the_given_primary_key_exists() {
-		$order = WC_Helper_Order::create_order();
-
-		$this->assertTrue( $order->get_data_store()->row_exists( $order->get_id() ) );
-		$this->assertFalse( $order->get_data_store()->row_exists( $order->get_id() + 1 ) );
-	}
-
-	/**
-	 * Hooked method that simply throws a WC_Data_Exception exception.
-	 *
-	 * @throws WC_Data_Exception
-	 */
-	public function throw_wc_data_exception() {
-		throw new WC_Data_Exception( 'test-data-exception', 'A sample WC_Data_Exception' );
-	}
-
-	/**
-	 * Shortcut for setting up reflection methods + properties for update_post_meta().
-	 *
-	 * @param WC_Order $order The order object, passed by reference.
-	 */
-	protected function invoke_update_post_meta( &$order ) {
-		$instance = new WC_Order_Data_Store_Custom_Table();
-		$method   = new ReflectionMethod( $instance, 'update_post_meta' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $instance, array( &$order ) );
 	}
 }
