@@ -109,6 +109,29 @@ trait UsesCustomTable {
 	}
 
 	/**
+	 * Determine if the given primary key already exists in the custom table.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param int $primary_key The primary key.
+	 *
+	 * @return bool True if a row for $primary_key is already present, false otherwise.
+	 */
+	public function row_exists( $primary_key ) {
+		global $wpdb;
+
+		return (bool) $wpdb->get_var(
+			$wpdb->prepare(
+				'
+					SELECT COUNT(*) FROM ' . esc_sql( $this->get_custom_table_name() ) . '
+					WHERE ' . esc_sql( $this->custom_table_primary_key ) . ' = %d
+				',
+				$primary_key
+			)
+		);
+	}
+
+	/**
 	 * Retrieve the name of the custom table for this data store.
 	 *
 	 * @return string The custom table used by this data store.

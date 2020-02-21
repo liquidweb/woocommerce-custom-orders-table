@@ -18,6 +18,13 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	use UsesCustomTable;
 
 	/**
+	 * The primary key used in the custom table.
+	 *
+	 * @var string
+	 */
+	protected $custom_table_primary_key = 'refund_id';
+
+	/**
 	 * Retrieve the name of the custom table for this data store.
 	 *
 	 * @return string The custom table used by this data store.
@@ -77,25 +84,5 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 		}
 
 		do_action( 'woocommerce_order_refund_object_updated_props', $refund, $refund_data );
-	}
-
-	/**
-	 * Determine if the given refund already exists in the custom table.
-	 *
-	 * @global $wpdb
-	 *
-	 * @param int $refund_id The refund ID.
-	 *
-	 * @return bool True if a row for $refund_id is already present, false otherwise.
-	 */
-	public function row_exists( $refund_id ) {
-		global $wpdb;
-
-		return (bool) $wpdb->get_var(
-			$wpdb->prepare(
-				'SELECT COUNT(refund_id) FROM ' . esc_sql( wc_custom_order_table()->get_refunds_table_name() ) . ' WHERE refund_id = %d',
-				$refund_id
-			)
-		);
 	}
 }
