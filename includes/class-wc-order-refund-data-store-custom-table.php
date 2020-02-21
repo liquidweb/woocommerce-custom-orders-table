@@ -27,10 +27,19 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	/**
 	 * Retrieve the name of the custom table for this data store.
 	 *
+	 * @global $wpdb
+	 *
 	 * @return string The custom table used by this data store.
 	 */
 	public static function get_custom_table_name() {
-		return wc_custom_order_table()->get_refunds_table_name();
+		global $wpdb;
+
+		/**
+		 * Filter the WooCommerce orders table name.
+		 *
+		 * @param string $table The WooCommerce orders table name.
+		 */
+		return apply_filters( 'wc_custom_refunds_table_name', "{$wpdb->prefix}woocommerce_refunds" );
 	}
 
 	/**

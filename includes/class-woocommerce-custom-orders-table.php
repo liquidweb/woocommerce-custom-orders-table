@@ -12,30 +12,9 @@
 class WooCommerce_Custom_Orders_Table {
 
 	/**
-	 * The orders database table name.
-	 *
-	 * @var string
-	 */
-	protected $orders_table_name = null;
-
-	/**
-	 * The refunds database table name.
-	 *
-	 * @var string
-	 */
-	protected $refunds_table_name = null;
-
-	/**
 	 * Steps to run on plugin initialization.
-	 *
-	 * @global $wpdb
 	 */
 	public function setup() {
-		global $wpdb;
-
-		$this->orders_table_name  = $wpdb->prefix . 'woocommerce_orders';
-		$this->refunds_table_name = $wpdb->prefix . 'woocommerce_refunds';
-
 		// Use the plugin's custom data stores for customers and orders.
 		add_filter( 'woocommerce_customer_data_store', __CLASS__ . '::customer_data_store' );
 		add_filter( 'woocommerce_order_data_store', __CLASS__ . '::order_data_store' );
@@ -65,12 +44,7 @@ class WooCommerce_Custom_Orders_Table {
 	 * @return string The database table name.
 	 */
 	public function get_orders_table_name() {
-		/**
-		 * Filter the WooCommerce orders table name.
-		 *
-		 * @param string $table The WooCommerce orders table name.
-		 */
-		return apply_filters( 'wc_custom_orders_table_name', $this->orders_table_name );
+		return WC_Order_Data_Store_Custom_Table::get_custom_table_name();
 	}
 
 	/**
@@ -79,12 +53,7 @@ class WooCommerce_Custom_Orders_Table {
 	 * @return string The database table name.
 	 */
 	public function get_refunds_table_name() {
-		/**
-		 * Filter the WooCommerce orders table name.
-		 *
-		 * @param string $table The WooCommerce orders table name.
-		 */
-		return apply_filters( 'wc_custom_refunds_table_name', $this->refunds_table_name );
+		return WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name();
 	}
 
 	/**
