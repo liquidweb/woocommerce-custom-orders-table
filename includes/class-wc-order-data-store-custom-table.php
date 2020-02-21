@@ -315,7 +315,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 
 		// Search for order meta fields.
 		if ( ! empty( $search_fields ) ) {
-			$mapping   = WooCommerce_Custom_Orders_Table::get_postmeta_mapping();
+			$mapping   = self::map_columns_to_post_meta_keys();
 			$in_table  = array_intersect( $search_fields, $mapping );
 			$meta_keys = array_diff( $search_fields, $in_table );
 			$table     = wc_custom_order_table()->get_orders_table_name();
@@ -397,7 +397,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			$data['prices_include_tax'] = wc_bool_to_string( $data['prices_include_tax'] );
 		}
 
-		foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
+		foreach ( self::map_columns_to_post_meta_keys() as $column => $meta_key ) {
 			if ( isset( $data[ $column ] ) ) {
 				update_post_meta( $order->get_id(), $meta_key, $data[ $column ] );
 			}

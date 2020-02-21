@@ -114,7 +114,7 @@ trait UsesCustomTable {
 		}
 
 		if ( true === $delete ) {
-			foreach ( WooCommerce_Custom_Orders_Table::get_postmeta_mapping() as $column => $meta_key ) {
+			foreach ( self::map_columns_to_post_meta_keys() as $column => $meta_key ) {
 				delete_post_meta( $order->get_id(), $meta_key );
 			}
 		}

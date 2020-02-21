@@ -91,6 +91,8 @@ class WooCommerce_Custom_Orders_Table {
 	 * Retrieve the database table column => post_meta mapping.
 	 *
 	 * @return array An array of database columns and their corresponding post_meta keys.
+	 *
+	 * @todo Remove this in favor of UsesCustomTable::map_columns_to_post_meta_keys()
 	 */
 	public static function get_postmeta_mapping() {
 		return array(

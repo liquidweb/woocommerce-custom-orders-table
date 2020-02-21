@@ -53,7 +53,11 @@ class WooCommerce_Custom_Orders_Table_Filters {
 				}
 
 				if ( isset( $meta_query['key'] ) ) {
-					$column = array_search( $meta_query['key'], WooCommerce_Custom_Orders_Table::get_postmeta_mapping(), true );
+					$column = array_search(
+						$meta_query['key'],
+						WC_Order_Data_Store_Custom_Table::map_columns_to_post_meta_keys(),
+						true
+					);
 
 					if ( $column ) {
 						$query_args['wc_order_meta_query'][] = array_merge(
@@ -183,7 +187,7 @@ class WooCommerce_Custom_Orders_Table_Filters {
 		 *
 		 * These will take the form of 'meta_{key}.meta_value' => 'meta_{key}.{table_column}'.
 		 */
-		$mapping      = WooCommerce_Custom_Orders_Table::get_postmeta_mapping();
+		$mapping      = WC_Order_Data_Store_Custom_Table::map_columns_to_post_meta_keys();
 		$joins        = array(
 			'post_id'     => false,
 			'post_parent' => false,
