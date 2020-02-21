@@ -164,6 +164,13 @@ trait UsesCustomTable {
 	}
 
 	/**
+	 * Retrieve a mapping of database columns to default WooCommerce post-meta keys.
+	 *
+	 * @return array
+	 */
+	abstract public static function map_columns_to_post_meta_keys();
+
+	/**
 	 * Retrieve the name of the custom table for this data store.
 	 *
 	 * @return string The custom table used by this data store.

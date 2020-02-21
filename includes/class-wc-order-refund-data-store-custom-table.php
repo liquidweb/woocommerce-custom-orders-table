@@ -34,6 +34,31 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	}
 
 	/**
+	 * Retrieve a mapping of database columns to default WooCommerce post-meta keys.
+	 *
+	 * @return array
+	 */
+	public static function map_columns_to_post_meta_keys() {
+		return [
+			'discount_total'     => '_cart_discount',
+			'discount_tax'       => '_cart_discount_tax',
+			'shipping_total'     => '_order_shipping',
+			'shipping_tax'       => '_order_shipping_tax',
+			'cart_tax'           => '_order_tax',
+			'total'              => '_order_total',
+
+			'version'            => '_order_version',
+			'currency'           => '_order_currency',
+			'prices_include_tax' => '_prices_include_tax',
+
+			'amount'             => '_refund_amount',
+			'reason'             => '_refund_reason',
+			'refunded_by'        => '_refunded_by',
+			'refunded_payment'   => '_refunded_payment',
+		];
+	}
+
+	/**
 	 * Delete a refund from the database.
 	 *
 	 * @param WC_Order $refund The refund object, passed by reference.
