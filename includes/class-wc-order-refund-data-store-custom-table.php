@@ -44,7 +44,7 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	protected function update_post_meta( &$refund ) {
 		global $wpdb;
 
-		$table       = wc_custom_order_table()->get_refunds_table_name();
+		$table       = $this->get_custom_table_name();
 		$refund_data = array(
 			'refund_id'          => $refund->get_id(),
 			'discount_total'     => $refund->get_discount_total( 'edit' ),

@@ -118,7 +118,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	protected function update_post_meta( &$order ) {
 		global $wpdb;
 
-		$table      = wc_custom_order_table()->get_orders_table_name();
+		$table      = $this->get_custom_table_name();
 		$changes    = array();
 		$order_key  = $order->get_order_key( 'edit' );
 		$order_data = array(
