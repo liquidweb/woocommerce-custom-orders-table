@@ -45,27 +45,13 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	/**
 	 * Delete an order from the database.
 	 *
-	 * @global $wpdb
-	 *
 	 * @param WC_Order $order The order object, passed by reference.
 	 * @param array    $args  Additional arguments to pass to the delete method.
 	 */
 	public function delete( &$order, $args = array() ) {
-		global $wpdb;
-
-		$order_id = $order->get_id();
+		add_action( 'woocommerce_delete_order', [ $this, 'delete_row' ] );
 
 		parent::delete( $order, $args );
-
-		// Delete the database row if force_delete is true.
-		if ( isset( $args['force_delete'] ) && $args['force_delete'] ) {
-			$wpdb->delete(
-				wc_custom_order_table()->get_orders_table_name(),
-				array(
-					'order_id' => $order_id,
-				)
-			);
-		}
 	}
 
 	/**

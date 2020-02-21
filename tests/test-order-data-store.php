@@ -145,20 +145,24 @@ class OrderDataStoreTest extends TestCase {
 	 * @test
 	 */
 	public function it_should_preserve_the_orders_table_row_when_an_order_is_trashed() {
-		$order = WC_Helper_Order::create_order();
+		$order      = WC_Helper_Order::create_order();
+		$order_id   = $order->get_id();
+		$data_store = $order->get_data_store();
 		$order->delete( false );
 
-		$this->assertTrue( $order->get_data_store()->row_exists( $order->get_id() ) );
+		$this->assertTrue( $data_store->row_exists( $order_id ) );
 	}
 
 	/**
 	 * @test
 	 */
 	public function it_should_remove_the_orders_table_row_when_an_order_is_permanently_deleted() {
-		$order = WC_Helper_Order::create_order();
+		$order      = WC_Helper_Order::create_order();
+		$order_id   = $order->get_id();
+		$data_store = $order->get_data_store();
 		$order->delete( true );
 
-		$this->assertFalse( $order->get_data_store()->row_exists( $order->get_id() ) );
+		$this->assertFalse( $data_store->row_exists( $order_id ) );
 	}
 
 

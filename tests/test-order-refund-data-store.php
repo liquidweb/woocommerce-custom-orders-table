@@ -109,31 +109,22 @@ class OrderRefundDataStoreTest extends TestCase {
 	}
 
 	/**
-	 * @test
-	 */
-	public function it_should_preserve_the_refunds_table_row_when_a_refund_is_trashed() {
-		$order  = WC_Helper_Order::create_order();
-		$refund = wc_create_refund( array(
-			'order_id' => $order->get_id(),
-			'amount'   => 7,
-			'reason'   => 'For testing',
-		) );
-
-		$this->assertTrue( $refund->get_data_store()->row_exists( $refund->get_id() ) );
-	}
-
-	/**
+	 * Note: Refunds cannot be trashed, only deleted.
+	 *
 	 * @test
 	 */
 	public function it_should_remove_the_refunds_table_row_when_a_refund_is_permanently_deleted() {
-		$order  = WC_Helper_Order::create_order();
-		$refund = wc_create_refund( array(
+		$order      = WC_Helper_Order::create_order();
+		$refund     = wc_create_refund( array(
 			'order_id' => $order->get_id(),
 			'amount'   => 7,
 			'reason'   => 'For testing',
 		) );
+		$refund_id  = $refund->get_id();
+		$data_store = $refund->get_data_store();
+		$refund->delete();
 
-		$this->assertFalse( $refund->get_data_store()->row_exists( $refund->get_id() ) );
+		$this->assertFalse( $data_store->row_exists( $refund_id ) );
 	}
 
 	/**

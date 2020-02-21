@@ -144,6 +144,26 @@ trait UsesCustomTable {
 	}
 
 	/**
+	 * Delete the given row by ID.
+	 *
+	 * @global $wpdb
+	 *
+	 * @param int $primary_key The row to delete.
+	 *
+	 * @return bool True if the row was deleted, false otherwise.
+	 */
+	public function delete_row( $primary_key ) {
+		global $wpdb;
+
+		return (bool) $wpdb->delete(
+			$this->get_custom_table_name(),
+			[
+				$this->custom_table_primary_key => $primary_key,
+			]
+		);
+	}
+
+	/**
 	 * Retrieve the name of the custom table for this data store.
 	 *
 	 * @return string The custom table used by this data store.

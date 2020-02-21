@@ -34,6 +34,18 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	}
 
 	/**
+	 * Delete a refund from the database.
+	 *
+	 * @param WC_Order $refund The refund object, passed by reference.
+	 * @param array    $args  Additional arguments to pass to the delete method.
+	 */
+	public function delete( &$refund, $args = array() ) {
+		add_action( 'woocommerce_delete_order_refund', [ $this, 'delete_row' ] );
+
+		parent::delete( $refund, $args );
+	}
+
+	/**
 	 * Helper method that updates all the post meta for a refund based on it's settings in the
 	 * WC_Order_Refund class.
 	 *
