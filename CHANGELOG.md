@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 This release splits Orders and Refunds into separate tables ([#159]). If you have sites currently running an earlier version of WooCommerce Custom Orders Table, please run this WP-CLI command after upgrading:
 
 ```sh
-$ wp
+$ wp wc orders-table refunds-to-custom-table
 ```
 
 **Additional changes:**

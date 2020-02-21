@@ -165,15 +165,6 @@ class OrderDataStoreTest extends TestCase {
 		$this->assertFalse( $data_store->row_exists( $order_id ) );
 	}
 
-
-
-
-
-
-
-
-
-
 	/**
 	 * @test
 	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/68
