@@ -60,7 +60,7 @@ trait UsesCustomTable {
 		$data = (array) $wpdb->get_row(
 			$wpdb->prepare(
 				'
-				SELECT * FROM ' . esc_sql( $this->get_custom_table_name() ) . '
+				SELECT * FROM ' . esc_sql( self::get_custom_table_name() ) . '
 				WHERE ' . esc_sql( $this->custom_table_primary_key ) . ' = %d LIMIT 1
 				',
 				$order->get_id()
@@ -135,7 +135,7 @@ trait UsesCustomTable {
 		return (bool) $wpdb->get_var(
 			$wpdb->prepare(
 				'
-					SELECT COUNT(*) FROM ' . esc_sql( $this->get_custom_table_name() ) . '
+					SELECT COUNT(*) FROM ' . esc_sql( self::get_custom_table_name() ) . '
 					WHERE ' . esc_sql( $this->custom_table_primary_key ) . ' = %d
 				',
 				$primary_key
@@ -156,7 +156,7 @@ trait UsesCustomTable {
 		global $wpdb;
 
 		return (bool) $wpdb->delete(
-			$this->get_custom_table_name(),
+			self::get_custom_table_name(),
 			[
 				$this->custom_table_primary_key => $primary_key,
 			]
@@ -175,5 +175,5 @@ trait UsesCustomTable {
 	 *
 	 * @return string The custom table used by this data store.
 	 */
-	abstract protected function get_custom_table_name();
+	abstract public static function get_custom_table_name();
 }
