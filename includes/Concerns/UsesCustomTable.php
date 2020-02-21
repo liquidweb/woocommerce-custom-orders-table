@@ -46,29 +46,41 @@ trait UsesCustomTable {
 	}
 
 	/**
-	 * Retrieve a single refund from the database.
+	 * Retrieve a single order from the database.
 	 *
 	 * @global $wpdb
 	 *
-	 * @param WC_Order_Refund $refund The refund object.
+	 * @param WC_Abstract_Order $order The order object.
 	 *
-	 * @return array The refund row, as an associative array.
+	 * @return array The order row, as an associative array.
 	 */
-	public function get_order_data_from_table( $refund ) {
+	public function get_order_data_from_table( $order ) {
 		global $wpdb;
 
 		$data = (array) $wpdb->get_row(
 			$wpdb->prepare(
-				'SELECT * FROM ' . esc_sql( $this->get_custom_table_name() ) . ' WHERE refund_id = %d LIMIT 1',
-				$refund->get_id()
+				'
+				SELECT * FROM ' . esc_sql( $this->get_custom_table_name() ) . '
+				WHERE ' . esc_sql( $this->custom_table_primary_key ) . ' = %d LIMIT 1
+				',
+				$order->get_id()
 			),
 			ARRAY_A
-		); // WPCS: DB call OK.
+		);
+
+		// Return early if there's no matching row in the custom table.
+		if ( empty( $data ) ) {
+			return array();
+		}
 
 		// Expand anything that might need assistance.
 		if ( isset( $data['prices_include_tax'] ) ) {
 			$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
 		}
+
+		// @todo Apply custom data via filter.
+		$post                  = get_post( $order->get_id() );
+		$data['customer_note'] = $post->post_excerpt;
 
 		return $data;
 	}

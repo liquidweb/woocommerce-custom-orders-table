@@ -69,45 +69,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	}
 
 	/**
-	 * Retrieve a single order from the database.
-	 *
-	 * @global $wpdb
-	 *
-	 * @param WC_Order $order The order object.
-	 *
-	 * @return array The order row, as an associative array.
-	 */
-	public function get_order_data_from_table( $order ) {
-		global $wpdb;
-
-		$table = wc_custom_order_table()->get_orders_table_name();
-		$data  = (array) $wpdb->get_row(
-			$wpdb->prepare(
-				'SELECT * FROM ' . esc_sql( $table ) . ' WHERE order_id = %d LIMIT 1',
-				$order->get_id()
-			),
-			ARRAY_A
-		);
-
-		// Return early if there's no matching row in the orders table.
-		if ( empty( $data ) ) {
-			return array();
-		}
-
-		$post = get_post( $order->get_id() );
-
-		// Expand anything that might need assistance.
-		if ( isset( $data['prices_include_tax'] ) ) {
-			$data['prices_include_tax'] = wc_string_to_bool( $data['prices_include_tax'] );
-		}
-
-		// Append additional data.
-		$data['customer_note'] = $post->post_excerpt;
-
-		return $data;
-	}
-
-	/**
 	 * Helper method that updates all the post meta for an order based on its settings in the
 	 * WC_Order class.
 	 *
