@@ -266,11 +266,9 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	public function get_order_id_by_order_key( $order_key ) {
 		global $wpdb;
 
-		$table = wc_custom_order_table()->get_orders_table_name();
-
 		return $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT order_id FROM ' . esc_sql( $table ) . ' WHERE order_key = %s',
+				'SELECT order_id FROM ' . esc_sql( self::get_custom_table_name() ) . ' WHERE order_key = %s',
 				$order_key
 			)
 		);
@@ -318,7 +316,7 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 			$mapping   = self::map_columns_to_post_meta_keys();
 			$in_table  = array_intersect( $search_fields, $mapping );
 			$meta_keys = array_diff( $search_fields, $in_table );
-			$table     = wc_custom_order_table()->get_orders_table_name();
+			$table     = self::get_custom_table_name();
 
 			// Find results based on search fields that map to table columns.
 			if ( ! empty( $in_table ) ) {
