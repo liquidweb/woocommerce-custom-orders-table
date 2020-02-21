@@ -6,6 +6,9 @@
  * @author  Liquid Web
  */
 
+/**
+ * @group CLI
+ */
 class CLITest extends TestCase {
 
 	/**
@@ -22,6 +25,16 @@ class CLITest extends TestCase {
 		WP_CLI::reset();
 
 		$this->cli = new WooCommerce_Custom_Orders_Table_CLI();
+
+		// Reset the WP_CLI counts.
+		WP_CLI::$__logger = array();
+		WP_CLI::$__counts = array(
+			'debug'   => 0,
+			'info'    => 0,
+			'success' => 0,
+			'warning' => 0,
+			'error'   => 0,
+		);
 	}
 
 	public function test_count() {
@@ -94,7 +107,7 @@ class CLITest extends TestCase {
 			'batch-size' => 2,
 		) );
 
-		$this->assertContains( 'LIMIT 2', $wpdb->last_query, 'The batch size should be used to limit query results.' );
+		$this->assertContains( 'LIMIT 0, 2', $wpdb->last_query, 'The batch size should be used to limit query results.' );
 		$this->assertEquals(
 			5,
 			$this->count_orders_in_table_with_ids( $order_ids ),
@@ -104,6 +117,14 @@ class CLITest extends TestCase {
 		$this->cli->assertReceivedMessage( 'Beginning batch #1 (2 orders/batch).', 'debug' );
 		$this->cli->assertReceivedMessage( 'Beginning batch #2 (2 orders/batch).', 'debug' );
 		$this->cli->assertReceivedMessage( 'Beginning batch #3 (2 orders/batch).', 'debug' );
+	}
+
+	public function test_migrate_warns_if_no_orders_need_migrating() {
+		$this->assertEquals( 0, $this->cli->count(), 'Expected no orders to need migration.' );
+
+		$this->cli->migrate();
+
+		$this->assertEquals( 1, WP_CLI::$__counts['warning'], 'Expected to see a warning if no orders require migration.' );
 	}
 
 	/**
@@ -173,6 +194,70 @@ class CLITest extends TestCase {
 			$this->count_orders_in_table_with_ids( $order_ids ),
 			'Expected to only see two orders in the custom table.'
 		);
+	}
+
+	public function test_migrate_warns_if_no_orders_were_successfully_migrated() {
+		$this->toggle_use_custom_table( false );
+		$order = WC_Helper_Order::create_order();
+		$this->toggle_use_custom_table( true );
+
+		// For the first item, cause wc_get_order() to break due to a non-existent class.
+		add_filter( 'woocommerce_order_class', function ( $classname ) {
+			return 'SomeNonExistentClassName';
+		} );
+
+		$this->cli->migrate();
+
+		$this->assertNull( $this->get_order_row( $order->get_id() ) );
+		$this->assertContains( array(
+			'level'   => 'warning',
+			'message' => 'No orders were migrated.',
+		), WP_CLI::$__logger );
+	}
+
+	/**
+	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/148
+	 */
+	public function test_migrate_excludes_skipped_ids_from_the_query_loop() {
+		global $wpdb;
+
+		$this->toggle_use_custom_table( false );
+		$order_ids = $this->generate_orders( 4 );
+		$this->toggle_use_custom_table( true );
+
+		// Log queries without turning on SAVE_QUERIES.
+		$orders_table = wc_custom_order_table()->get_table_name();
+		$pattern      = "SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN {$orders_table}";
+		$query_log    = [];
+
+		add_filter( 'woocommerce_order_class', function ( $classname, $order_type, $order_id ) use ( $order_ids ) {
+			return (int) $order_id === $order_ids[0] ? 'SomeNonExistentClassName' : $classname;
+		}, 10, 3 );
+
+		add_filter( 'query', function ( $query ) use ( &$query_log, $pattern ) {
+
+			// Only track queries if it includes the posts/orders join.
+			if ( false !== strpos( preg_replace( '/\s+/', ' ', $query ), $pattern ) ) {
+				$query_log[] = $query;
+			}
+
+			return $query;
+		} );
+
+		$this->cli->migrate( array(), array(
+			'batch-size' => 2,
+		) );
+
+		/*
+		 * We should expect to see only three queries here:
+		 *
+		 * 1. Get the first 2 orders.
+		 * 2. Get the second two, but exclude skipped IDs.
+		 * 3. Verify that we're wrapping up once we've exhausted the results.
+		 */
+		$this->assertCount( 3, $query_log );
+		$this->assertContains( 'LIMIT 1, 2', $query_log[1] );
+		$this->assertSame( $query_log[1], $query_log[2] );
 	}
 
 	/**
@@ -286,7 +371,7 @@ class CLITest extends TestCase {
 
 		$this->assertEquals(
 			2,
-			$this->count_orders_in_table_with_ids( array( $order2->get_id(), $order3->get_id() ) ),
+			$this->count_orders_in_table_with_ids( array( $order1->get_id(), $order2->get_id(), $order3->get_id() ) ),
 			'Expected to only see two orders in the custom table.'
 		);
 
@@ -342,6 +427,14 @@ class CLITest extends TestCase {
 		}
 	}
 
+	public function test_backfill_warns_if_no_orders_need_migrating() {
+		$this->assertEquals( 0, $this->cli->count(), 'Expected no orders to need migration.' );
+
+		$this->cli->backfill();
+
+		$this->assertEquals( 1, WP_CLI::$__counts['warning'], 'Expected to see a warning if no orders require migration.' );
+	}
+
 	public function test_backfill_can_have_a_batch_size_of_zero() {
 		$order_ids = $this->generate_orders( 5 );
 
@@ -368,6 +461,28 @@ class CLITest extends TestCase {
 
 		$this->assertEmpty( get_post_meta( $order1->get_id(), '_billing_email', true ) );
 		$this->assertNotEmpty( get_post_meta( $order2->get_id(), '_billing_email', true ) );
+	}
+
+	public function test_backfill_if_no_orders_were_backfilled() {
+		$this->toggle_use_custom_table( false );
+		WC_Helper_Order::create_order();
+
+		$this->cli->backfill();
+
+		$this->assertEquals( 1, WP_CLI::$__counts['warning'], 'Expected to see a warning if no orders were backfilled.' );
+	}
+
+	public function test_handle_exceptions() {
+		$exception = new Exception( uniqid() );
+
+		try {
+			WooCommerce_Custom_Orders_Table_CLI::handle_exceptions( $exception );
+		} catch ( Exception $e ) {
+			$this->assertSame( $exception, $e );
+			return;
+		}
+
+		$this->fail( 'Did not receive the expected exception.' );
 	}
 
 	/**
