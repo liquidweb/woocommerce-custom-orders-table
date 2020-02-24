@@ -18,13 +18,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	use UsesCustomTable;
 
 	/**
-	 * The primary key used in the custom table.
-	 *
-	 * @var string
-	 */
-	protected $custom_table_primary_key = 'order_id';
-
-	/**
 	 * Hook into WooCommerce database queries related to orders.
 	 */
 	public function __construct() {
@@ -49,6 +42,15 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 		 * @param string $table The WooCommerce orders table name.
 		 */
 		return apply_filters( 'wc_custom_orders_table_name', "{$wpdb->prefix}woocommerce_orders" );
+	}
+
+	/**
+	 * Retrieve the column name that serves as the primary key in the custom table.
+	 *
+	 * @return string The primary key column name.
+	 */
+	public static function get_custom_table_primary_key() {
+		return 'order_id';
 	}
 
 	/**

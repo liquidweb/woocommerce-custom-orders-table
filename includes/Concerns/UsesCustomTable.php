@@ -61,7 +61,7 @@ trait UsesCustomTable {
 			$wpdb->prepare(
 				'
 				SELECT * FROM ' . esc_sql( self::get_custom_table_name() ) . '
-				WHERE ' . esc_sql( $this->custom_table_primary_key ) . ' = %d LIMIT 1
+				WHERE ' . esc_sql( self::get_custom_table_primary_key() ) . ' = %d LIMIT 1
 				',
 				$order->get_id()
 			),
@@ -136,7 +136,7 @@ trait UsesCustomTable {
 			$wpdb->prepare(
 				'
 					SELECT COUNT(*) FROM ' . esc_sql( self::get_custom_table_name() ) . '
-					WHERE ' . esc_sql( $this->custom_table_primary_key ) . ' = %d
+					WHERE ' . esc_sql( self::get_custom_table_primary_key() ) . ' = %d
 				',
 				$primary_key
 			)
@@ -158,7 +158,7 @@ trait UsesCustomTable {
 		return (bool) $wpdb->delete(
 			self::get_custom_table_name(),
 			[
-				$this->custom_table_primary_key => $primary_key,
+				self::get_custom_table_primary_key() => $primary_key,
 			]
 		);
 	}
@@ -176,4 +176,11 @@ trait UsesCustomTable {
 	 * @return string The custom table used by this data store.
 	 */
 	abstract public static function get_custom_table_name();
+
+	/**
+	 * Retrieve the column name that serves as the primary key in the custom table.
+	 *
+	 * @return string The primary key column name.
+	 */
+	abstract public static function get_custom_table_primary_key();
 }

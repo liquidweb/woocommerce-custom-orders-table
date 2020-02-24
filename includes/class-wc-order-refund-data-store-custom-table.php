@@ -18,13 +18,6 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 	use UsesCustomTable;
 
 	/**
-	 * The primary key used in the custom table.
-	 *
-	 * @var string
-	 */
-	protected $custom_table_primary_key = 'refund_id';
-
-	/**
 	 * Retrieve the name of the custom table for this data store.
 	 *
 	 * @global $wpdb
@@ -40,6 +33,15 @@ class WC_Order_Refund_Data_Store_Custom_Table extends WC_Order_Refund_Data_Store
 		 * @param string $table The WooCommerce orders table name.
 		 */
 		return apply_filters( 'wc_custom_refunds_table_name', "{$wpdb->prefix}woocommerce_refunds" );
+	}
+
+	/**
+	 * Retrieve the column name that serves as the primary key in the custom table.
+	 *
+	 * @return string The primary key column name.
+	 */
+	public static function get_custom_table_primary_key() {
+		return 'refund_id';
 	}
 
 	/**
