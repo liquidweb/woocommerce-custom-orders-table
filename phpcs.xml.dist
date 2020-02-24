@@ -16,7 +16,7 @@
 		<exclude name="Core.Commenting.CommentTags.AuthorTag" />
 
 		<!-- WooCommerce packages use PSR-4 autoloading, so don't worry about WP conventions. -->
-		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
+		<exclude name="WordPress.Files.FileName" />
 
 		<!-- Permit short-array syntax. -->
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />

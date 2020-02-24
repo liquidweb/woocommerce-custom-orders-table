@@ -7,6 +7,7 @@
  */
 
 use LiquidWeb\WooCommerceCustomOrdersTable\Concerns\UsesCustomTable;
+use LiquidWeb\WooCommerceCustomOrdersTable\Contracts\CustomTableDataStore;
 
 /**
  * Extend the WC_Order_Data_Store_CPT class, overloading methods that require database access in
@@ -14,7 +15,7 @@ use LiquidWeb\WooCommerceCustomOrdersTable\Concerns\UsesCustomTable;
  *
  * Orders are still treated as posts within WordPress, but the meta is stored in a separate table.
  */
-class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
+class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT implements CustomTableDataStore {
 	use UsesCustomTable;
 
 	/**
