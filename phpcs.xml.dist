@@ -20,6 +20,11 @@
 
 		<!-- Permit short-array syntax. -->
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
+
+		<!-- Prevent closures and array-based arguments from looking terrible. -->
+		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
+		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
+		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments" />
 	</rule>
 
 	<!-- Set the expected text domain. -->
@@ -27,5 +32,10 @@
 		<properties>
 			<property name="text_domain" type="array" value="woocommerce-custom-orders-table" />
 		</properties>
+	</rule>
+
+	<!-- Don't be as strict in tests/* -->
+	<rule ref="Generic.Commenting.DocComment.MissingShort">
+		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
 </ruleset>
