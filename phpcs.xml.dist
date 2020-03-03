@@ -2,12 +2,18 @@
 <ruleset name="WordPress Coding Standards for Plugins">
 	<description>Generally-applicable sniffs for WordPress plugins</description>
 
-	<!-- The plugin should be compatible with PHP 5.2 and newer. -->
-	<config name="testVersion" value="5.2-"/>
+	<!-- WooCommerce requires PHP 5.6 or newer. -->
+	<config name="testVersion" value="5.6-"/>
 
 	<rule ref="WooCommerce-Core">
 		<!-- Let the plugin files have @author tags. -->
 		<exclude name="Core.Commenting.CommentTags.AuthorTag" />
+
+		<!-- WooCommerce packages use PSR-4 autoloading, so don't worry about WP conventions. -->
+		<exclude name="WordPress.Files.FileName" />
+
+		<!-- Permit short-array syntax. -->
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
