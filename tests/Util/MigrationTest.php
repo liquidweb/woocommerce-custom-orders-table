@@ -19,17 +19,6 @@ class MigrationTest extends TestCase {
 
 	/**
 	 * @test
-	 */
-	public function the_constructor_should_verify_the_given_data_store_implements_CustomTableDataStore_interface() {
-		$this->assertFalse( is_subclass_of( WC_Order_Data_Store_CPT::class, CustomTableDataStore::class, true ) );
-
-		$this->expectException( MigrationMappingException::class );
-
-		new Migration( WC_Order_Data_Store_CPT::class );
-	}
-
-	/**
-	 * @test
 	 * @group Orders
 	 */
 	public function it_should_be_able_to_migrate_an_order_from_post_meta() {
@@ -37,7 +26,7 @@ class MigrationTest extends TestCase {
 		$order = WC_Helper_Order::create_order();
 		$this->toggle_use_custom_table( true );
 
-		$instance = new Migration( WC_Order_Data_Store_Custom_Table::class );
+		$instance = new Migration();
 
 		$this->assertTrue( $instance->migrate_to_custom_table( $order->get_id() ) );
 
@@ -110,9 +99,9 @@ class MigrationTest extends TestCase {
 		$this->assertTrue( $instance->migrate_to_custom_table( $refund->get_id() ) );
 
 		// Verify individual rows.
-		$row = $this->get_refund_row( $refund->get_id() );
+		$row = $this->get_order_row( $refund->get_id() );
 
-		$this->assertEquals( $row['refund_id'], $refund->get_id() );
+		$this->assertEquals( $row['order_id'], $refund->get_id() );
 		$this->assertEquals( $row['discount_total'], $refund->get_discount_total() );
 		$this->assertEquals( $row['discount_tax'], $refund->get_discount_tax() );
 		$this->assertEquals( $row['shipping_total'], $refund->get_shipping_total() );
@@ -141,8 +130,8 @@ class MigrationTest extends TestCase {
 
 		// Insert another row with this ID.
 		$wpdb->insert( WC_Order_Data_Store_Custom_Table::get_custom_table_name(), [
-			WC_Order_Data_Store_Custom_Table::get_custom_table_primary_key() => $order->get_id(),
-			'billing_first_name'                                             => uniqid(),
+			'order_id'           => $order->get_id(),
+			'billing_first_name' => uniqid(),
 		] );
 		$wpdb->hide_errors();
 		$wpdb->suppress_errors( true );
@@ -212,8 +201,8 @@ class MigrationTest extends TestCase {
 
 		// Trigger an insertion error.
 		$wpdb->insert( WC_Order_Data_Store_Custom_Table::get_custom_table_name(), [
-			WC_Order_Data_Store_Custom_Table::get_custom_table_primary_key() => $order->get_id(),
-			'billing_first_name'                                             => uniqid(),
+			'order_id'           => $order->get_id(),
+			'billing_first_name' => uniqid(),
 		] );
 		$wpdb->hide_errors();
 		$wpdb->suppress_errors( true );
@@ -299,9 +288,9 @@ class MigrationTest extends TestCase {
 		$this->assertTrue( $instance->restore_to_post_meta( $refund->get_id() ) );
 
 		$meta = get_post_meta( $refund->get_id() );
-		$row  = $this->get_refund_row( $order->get_id() );
+		$row  = $this->get_order_row( $order->get_id() );
 
-		$this->assertArrayNotHasKey( 'refund_id', $meta, 'The primary key does not belong in post meta.' );
+		$this->assertArrayNotHasKey( 'order_id', $meta, 'The primary key does not belong in post meta.' );
 		$this->assertEquals( $meta['_cart_discount'][0], $refund->get_discount_total() );
 		$this->assertEquals( $meta['_cart_discount_tax'][0], $refund->get_discount_tax() );
 		$this->assertEquals( $meta['_order_shipping'][0], $refund->get_shipping_total() );

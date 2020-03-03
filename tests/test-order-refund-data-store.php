@@ -30,22 +30,8 @@ class OrderRefundDataStoreTest extends TestCase {
 
 	/**
 	 * @test
-	 * @testdox get_custom_table_name() can be filtered
 	 */
-	public function get_custom_table_name_can_be_filtered() {
-		$table = 'some_custom_table_name_' . uniqid();
-
-		add_filter( 'wc_custom_refunds_table_name', function () use ( $table ) {
-			return $table;
-		} );
-
-		$this->assertSame( $table, WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name() );
-	}
-
-	/**
-	 * @test
-	 */
-	public function it_should_store_refunds_in_the_refunds_table() {
+	public function it_should_store_refunds_in_the_orders_table() {
 		$order  = WC_Helper_Order::create_order();
 		$refund = wc_create_refund( array(
 			'order_id' => $order->get_id(),
@@ -53,7 +39,7 @@ class OrderRefundDataStoreTest extends TestCase {
 			'reason'   => 'For testing',
 		) );
 
-		$row = $this->get_refund_row( $refund->get_id() );
+		$row = $this->get_order_row( $refund->get_id() );
 
 		$this->assertNotEmpty( $row, 'Expected to see a row in the refunds table.' );
 		$this->assertEquals( 5, $row['amount'] );
@@ -77,8 +63,8 @@ class OrderRefundDataStoreTest extends TestCase {
 			'reason'   => 'Also for testing',
 		) );
 
-		$this->assertNotNull( $this->get_refund_row( $refund1->get_id() ) );
-		$this->assertNotNull( $this->get_refund_row( $refund2->get_id() ) );
+		$this->assertNotNull( $this->get_order_row( $refund1->get_id() ) );
+		$this->assertNotNull( $this->get_order_row( $refund2->get_id() ) );
 	}
 
 	/**
@@ -116,7 +102,7 @@ class OrderRefundDataStoreTest extends TestCase {
 		$refund->set_reason( 'Some other reason' );
 		$refund->save();
 
-		$row = $this->get_refund_row( $refund->get_id() );
+		$row = $this->get_order_row( $refund->get_id() );
 
 		$this->assertEquals( 9, $row['amount'] );
 		$this->assertEquals( 'Some other reason', $row['reason'] );
@@ -127,7 +113,7 @@ class OrderRefundDataStoreTest extends TestCase {
 	 *
 	 * @test
 	 */
-	public function it_should_remove_the_refunds_table_row_when_a_refund_is_permanently_deleted() {
+	public function it_should_remove_the_orders_table_row_when_a_refund_is_permanently_deleted() {
 		$order      = WC_Helper_Order::create_order();
 		$refund     = wc_create_refund( array(
 			'order_id' => $order->get_id(),
@@ -156,7 +142,7 @@ class OrderRefundDataStoreTest extends TestCase {
 		$this->toggle_use_custom_table( true );
 
 		$refund = wc_get_order( $refund->get_id() );
-		$row    = $this->get_refund_row( $refund->get_id() );
+		$row    = $this->get_order_row( $refund->get_id() );
 
 		$this->assertEquals( 7, $row['amount'] );
 		$this->assertEquals( $row['amount'], $refund->get_amount() );
@@ -184,7 +170,7 @@ class OrderRefundDataStoreTest extends TestCase {
 
 		$refund = wc_get_order( $refund->get_id() );
 
-		$this->assertNull( $this->get_refund_row( $refund->get_id() ) );
+		$this->assertNull( $this->get_order_row( $refund->get_id() ) );
 		$this->assertEquals( 7, $refund->get_amount() );
 		$this->assertEquals( 'For testing', $refund->get_reason() );
 	}

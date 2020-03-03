@@ -7,7 +7,6 @@
  */
 
 use LiquidWeb\WooCommerceCustomOrdersTable\Concerns\UsesCustomTable;
-use LiquidWeb\WooCommerceCustomOrdersTable\Contracts\CustomTableDataStore;
 
 /**
  * Extend the WC_Order_Data_Store_CPT class, overloading methods that require database access in
@@ -15,7 +14,7 @@ use LiquidWeb\WooCommerceCustomOrdersTable\Contracts\CustomTableDataStore;
  *
  * Orders are still treated as posts within WordPress, but the meta is stored in a separate table.
  */
-class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT implements CustomTableDataStore {
+class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT {
 	use UsesCustomTable;
 
 	/**
@@ -25,89 +24,6 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT implement
 
 		// When creating a WooCommerce order data store request, filter the MySQL query.
 		add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', 'WooCommerce_Custom_Orders_Table_Filters::filter_database_queries', PHP_INT_MAX, 2 );
-	}
-
-	/**
-	 * Retrieve the name of the custom table for this data store.
-	 *
-	 * @global $wpdb
-	 *
-	 * @return string The custom table used by this data store.
-	 */
-	public static function get_custom_table_name() {
-		global $wpdb;
-
-		/**
-		 * Filter the WooCommerce orders table name.
-		 *
-		 * @param string $table The WooCommerce orders table name.
-		 */
-		return apply_filters( 'wc_custom_orders_table_name', "{$wpdb->prefix}woocommerce_orders" );
-	}
-
-	/**
-	 * Retrieve the column name that serves as the primary key in the custom table.
-	 *
-	 * @return string The primary key column name.
-	 */
-	public static function get_custom_table_primary_key() {
-		return 'order_id';
-	}
-
-	/**
-	 * Retrieve a mapping of database columns to default WooCommerce post-meta keys.
-	 *
-	 * @return array
-	 */
-	public static function map_columns_to_post_meta_keys() {
-		return [
-			'order_key'            => '_order_key',
-			'customer_id'          => '_customer_user',
-			'payment_method'       => '_payment_method',
-			'payment_method_title' => '_payment_method_title',
-			'transaction_id'       => '_transaction_id',
-			'customer_ip_address'  => '_customer_ip_address',
-			'customer_user_agent'  => '_customer_user_agent',
-			'created_via'          => '_created_via',
-			'date_completed'       => '_date_completed',
-			'date_paid'            => '_date_paid',
-			'cart_hash'            => '_cart_hash',
-
-			'billing_index'        => '_billing_address_index',
-			'billing_first_name'   => '_billing_first_name',
-			'billing_last_name'    => '_billing_last_name',
-			'billing_company'      => '_billing_company',
-			'billing_address_1'    => '_billing_address_1',
-			'billing_address_2'    => '_billing_address_2',
-			'billing_city'         => '_billing_city',
-			'billing_state'        => '_billing_state',
-			'billing_postcode'     => '_billing_postcode',
-			'billing_country'      => '_billing_country',
-			'billing_email'        => '_billing_email',
-			'billing_phone'        => '_billing_phone',
-
-			'shipping_index'       => '_shipping_address_index',
-			'shipping_first_name'  => '_shipping_first_name',
-			'shipping_last_name'   => '_shipping_last_name',
-			'shipping_company'     => '_shipping_company',
-			'shipping_address_1'   => '_shipping_address_1',
-			'shipping_address_2'   => '_shipping_address_2',
-			'shipping_city'        => '_shipping_city',
-			'shipping_state'       => '_shipping_state',
-			'shipping_postcode'    => '_shipping_postcode',
-			'shipping_country'     => '_shipping_country',
-
-			'discount_total'       => '_cart_discount',
-			'discount_tax'         => '_cart_discount_tax',
-			'shipping_total'       => '_order_shipping',
-			'shipping_tax'         => '_order_shipping_tax',
-			'cart_tax'             => '_order_tax',
-			'total'                => '_order_total',
-
-			'version'              => '_order_version',
-			'currency'             => '_order_currency',
-			'prices_include_tax'   => '_prices_include_tax',
-		];
 	}
 
 	/**
@@ -258,9 +174,9 @@ class WC_Order_Data_Store_Custom_Table extends WC_Order_Data_Store_CPT implement
 
 		$total = $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT SUM(r.amount) FROM ' . esc_sql( WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name() ) . " AS r
+				'SELECT SUM(r.amount) FROM ' . esc_sql( self::get_custom_table_name() ) . " AS r
 				INNER JOIN $wpdb->posts AS p ON ( p.post_type = 'shop_order_refund' AND p.post_parent = %d )
-				WHERE r.refund_id = p.ID",
+				WHERE r.order_id = p.ID",
 				$order->get_id()
 			)
 		);

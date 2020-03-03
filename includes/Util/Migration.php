@@ -8,9 +8,9 @@
 
 namespace LiquidWeb\WooCommerceCustomOrdersTable\Util;
 
-use LiquidWeb\WooCommerceCustomOrdersTable\Contracts\CustomTableDataStore;
 use LiquidWeb\WooCommerceCustomOrdersTable\Exceptions\MigrationException;
 use LiquidWeb\WooCommerceCustomOrdersTable\Exceptions\MigrationMappingException;
+use WC_Order_Data_Store_Custom_Table;
 
 /**
  * Migration utility for moving data between custom tables and post meta.
@@ -18,25 +18,11 @@ use LiquidWeb\WooCommerceCustomOrdersTable\Exceptions\MigrationMappingException;
 class Migration {
 
 	/**
-	 * The data store class name.
-	 *
-	 * @var string
-	 */
-	private $data_store;
-
-	/**
 	 * Table columns mapped to post meta keys.
 	 *
 	 * @var string[]
 	 */
 	private $mappings;
-
-	/**
-	 * The primary key for the given data store's table.
-	 *
-	 * @var string
-	 */
-	private $primary_key;
 
 	/**
 	 * The data store's table name.
@@ -47,28 +33,10 @@ class Migration {
 
 	/**
 	 * Class constructor.
-	 *
-	 * @throws \LiquidWeb\WooCommerceCustomOrdersTable\Exceptions\MigrationMappingException If $data_store
-	 *         doesn't implement the CustomTableDataStore interface.
-	 *
-	 * @param string $data_store The data store classname. This must implement the
-	 *                           CustomTableDataStore interface.
 	 */
-	public function __construct( $data_store ) {
-		if ( ! is_subclass_of( $data_store, CustomTableDataStore::class, true ) ) {
-			throw new MigrationMappingException(
-				sprintf(
-					/* Translators: %1$s is the data store class name. */
-					__( 'The provided data store must implement the %1$s interface.', 'woocommerce-custom-orders-table' ),
-					CustomTableDataStore::class
-				)
-			);
-		}
-
-		$this->data_store  = $data_store;
-		$this->mappings    = $data_store::map_columns_to_post_meta_keys();
-		$this->primary_key = $data_store::get_custom_table_primary_key();
-		$this->table       = $data_store::get_custom_table_name();
+	public function __construct() {
+		$this->mappings = WC_Order_Data_Store_Custom_Table::map_columns_to_post_meta_keys();
+		$this->table    = WC_Order_Data_Store_Custom_Table::get_custom_table_name();
 	}
 
 	/**
@@ -98,7 +66,7 @@ class Migration {
 		}
 
 		// Add the post ID to the primary key column.
-		$row[ $this->primary_key ] = $post_id;
+		$row['order_id'] = $post_id;
 
 		// Finally, insert the row into the table.
 		if ( ! $wpdb->insert( $this->table, $row ) ) {
@@ -144,7 +112,7 @@ class Migration {
 			$wpdb->prepare(
 				'
 				SELECT * FROM ' . esc_sql( $this->table ) . '
-				WHERE ' . esc_sql( $this->primary_key ) . ' = %d LIMIT 1
+				WHERE order_id = %d LIMIT 1
 				',
 				$post_id
 			),
@@ -152,7 +120,7 @@ class Migration {
 		);
 
 		// Don't worry about the primary key, that doesn't need to end up in meta.
-		unset( $row[ $this->primary_key ] );
+		unset( $row['order_id'] );
 
 		// Store the columns in post meta.
 		foreach ( $row as $column => $value ) {
@@ -231,7 +199,7 @@ class Migration {
 		global $wpdb;
 
 		return (bool) $wpdb->delete( $this->table, [
-			$this->primary_key => $post_id,
+			'order_id' => $post_id,
 		] );
 	}
 }

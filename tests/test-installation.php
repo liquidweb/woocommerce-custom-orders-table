@@ -21,11 +21,10 @@ class InstallationTest extends TestCase {
 
 		parent::setUp();
 
-		$wpdb->query( sprintf(
-			'DROP TABLE IF EXISTS %s, %s',
-			esc_sql( WC_Order_Data_Store_Custom_Table::get_custom_table_name() ),
-			esc_sql( WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name() )
-		) );
+		$wpdb->query(
+			'DROP TABLE IF EXISTS '
+			. esc_sql( WC_Order_Data_Store_Custom_Table::get_custom_table_name() )
+		);
 		delete_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY );
 	}
 
@@ -34,7 +33,7 @@ class InstallationTest extends TestCase {
 	 *
 	 * @global $wpdb
 	 */
-	public function custom_tables_should_be_created_upon_activation() {
+	public function the_custom_table_should_be_created_upon_activation() {
 		global $wpdb;
 
 		WooCommerce_Custom_Orders_Table_Install::activate();
@@ -45,13 +44,6 @@ class InstallationTest extends TestCase {
 				wc_custom_order_table()->get_orders_table_name()
 			) ),
 			'Upon activation, the orders table should be created.'
-		);
-		$this->assertTrue(
-			(bool) $wpdb->get_var( $wpdb->prepare(
-				'SELECT COUNT(*) FROM information_schema.tables WHERE table_name = %s LIMIT 1',
-				WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name()
-			) ),
-			'Upon activation, the refunds table should be created.'
 		);
 		$this->assertNotEmpty(
 			get_option( WooCommerce_Custom_Orders_Table_Install::SCHEMA_VERSION_KEY ),
@@ -116,9 +108,8 @@ class InstallationTest extends TestCase {
 	 * @test
 	 * @group Columns
 	 * @group Indexes
-	 * @group Orders
 	 */
-	public function it_should_generate_indexes_for_the_orders_table() {
+	public function it_should_generate_indexes_on_the_table() {
 		WooCommerce_Custom_Orders_Table_Install::activate();
 
 		$table = WC_Order_Data_Store_Custom_Table::get_custom_table_name();
@@ -131,26 +122,10 @@ class InstallationTest extends TestCase {
 
 	/**
 	 * @test
-	 * @group Columns
-	 * @group Indexes
-	 * @group Refunds
-	 */
-	public function it_should_generate_indexes_for_the_refunds_table() {
-		WooCommerce_Custom_Orders_Table_Install::activate();
-
-		$table = WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name();
-
-		$this->assert_table_has_index( $table, 'refund_id', 'PRIMARY', true );
-		$this->assert_table_has_index( $table, 'total', 'order_total', false );
-	}
-
-	/**
-	 * @test
 	 * @testWith ["billing_country", 2]
 	 *           ["shipping_country", 2]
 	 *           ["currency", 3]
 	 * @group Columns
-	 * @group Orders
 	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
 	 */
 	public function verify_char_column_length( $column, $length ) {
@@ -201,11 +176,11 @@ class InstallationTest extends TestCase {
 	 *           ["date_completed", 20]
 	 *           ["date_paid", 20]
 	 *           ["cart_hash", 32]
+	 *           ["amount", 100]
 	 * @group Columns
-	 * @group Orders
 	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
 	 */
-	public function verify_char_column_length_for_orders_table( $column, $length ) {
+	public function verify_char_column_lengths( $column, $length ) {
 		$this->assert_column_has_type(
 			WC_Order_Data_Store_Custom_Table::get_custom_table_name(),
 			$column,
@@ -216,33 +191,8 @@ class InstallationTest extends TestCase {
 
 	/**
 	 * @test
-	 * @testWith ["discount_total", 100]
-	 *           ["discount_tax", 100]
-	 *           ["shipping_total", 100]
-	 *           ["shipping_tax", 100]
-	 *           ["cart_tax", 100]
-	 *           ["total", 100]
-	 *           ["version", 16]
-	 *           ["prices_include_tax", 3]
-	 *           ["amount", 100]
-	 * @group Columns
-	 * @group Refunds
-	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/48
-	 */
-	public function verify_char_column_length_for_refunds_table( $column, $length ) {
-		$this->assert_column_has_type(
-			WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name(),
-			$column,
-			sprintf( 'varchar(%d)', $length ),
-			sprintf( 'Column "%s" did not match the expected VARCHAR length of %d.', $column, $length )
-		);
-	}
-
-	/**
-	 * @test
 	 * @testdox The User-Agent property should be stored in a text column
 	 * @group Columns
-	 * @group Orders
 	 * @ticket https://github.com/liquidweb/woocommerce-custom-orders-table/issues/89
 	 */
 	public function the_user_agent_property_should_be_stored_in_a_text_column() {

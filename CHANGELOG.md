@@ -9,14 +9,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Breaking Changes
 
-This release splits Orders and Refunds into separate tables ([#159]). If you have sites currently running an earlier version of WooCommerce Custom Orders Table, please run this WP-CLI command after upgrading:
-
-```sh
-$ wp wc orders-table refunds-to-custom-table
-```
-
-**Additional changes:**
-
 * The "wc_customer_order_table_name" filter has been renamed to "wc_custom_orders_table_name" ([#159]).
 * `wc_custom_order_table()->get_table_name()` has been renamed to `wc_custom_order_table()->get_orders_table_name()`.
 * Based on [our compatibility policy](CONTRIBUTING.md#compatibility-policy), this plugin now requires WooCommerce 3.7 or higher. As such, PHP 5.6 or newer is also required.

@@ -292,97 +292,6 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Migrate refunds from the orders table into the refunds table.
-	 *
-	 * This is only necessary if migrations occurred using version 1.0.0-rc3 or lower.
-	 *
-	 * @global $wpdb
-	 *
-	 * @subcommand refunds-to-custom-table
-	 */
-	public function migrate_refunds_to_custom_table() {
-		global $wpdb;
-
-		$orders_table  = WC_Order_Data_Store_Custom_Table::get_custom_table_name();
-		$refunds_table = WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name();
-		$mapping       = WC_Order_Refund_Data_Store_Custom_Table::map_columns_to_post_meta_keys();
-		$processed     = 0;
-		$refund_query  = new QueryIterator(
-			'
-			SELECT * FROM ' . esc_sql( $orders_table ) . '
-			WHERE order_key IS NULL
-			AND amount IS NOT NULL
-			',
-			100
-		);
-
-		while ( $refund_query->valid() ) {
-			if ( $data_store->row_exists( $refund_query->current()->order_id ) ) {
-				WP_CLI::debug(
-					sprintf(
-						/* Translators: %1$d is the refund ID. */
-						__( 'Refund ID #%1$d is already in the custom table, skipping.', 'woocommerce-custom-orders-table' ),
-						$refund_query->current()->order_id
-					)
-				);
-				$refund_query->next();
-				continue;
-			}
-
-			WP_CLI::log(
-				sprintf(
-					/* Translators: %1$d is the refund ID. */
-					__( 'Migrating refund #%1$d', 'woocommerce-custom-orders-table' ),
-					$refund_query->current()->order_id
-				)
-			);
-
-			$inserted = $wpdb->insert( $refunds_table, [
-				'refund_id'          => $refund_query->current()->order_id,
-				'discount_total'     => $refund_query->current()->discount_total,
-				'discount_tax'       => $refund_query->current()->discount_tax,
-				'shipping_total'     => $refund_query->current()->shipping_total,
-				'shipping_tax'       => $refund_query->current()->shipping_tax,
-				'cart_tax'           => $refund_query->current()->cart_tax,
-				'total'              => $refund_query->current()->total,
-				'version'            => $refund_query->current()->version,
-				'currency'           => $refund_query->current()->currency,
-				'prices_include_tax' => $refund_query->current()->prices_include_tax,
-				'amount'             => $refund_query->current()->amount,
-				'reason'             => $refund_query->current()->reason,
-				'refunded_by'        => $refund_query->current()->refunded_by,
-			] );
-
-			if ( 1 !== $inserted ) {
-				WP_CLI::warning( sprintf(
-					__( 'Unable to migrate refund ID #%1$d, skipping.', 'woocommerce-custom-orders-table' ),
-					$refund_query->current()->order_id
-				) );
-				$refund_query->next();
-				continue;
-			}
-
-			$wpdb->delete( $orders_table, [
-				'order_id' => $refund_query->current()->order_id,
-			] );
-
-			$processed++;
-			$refund_query->next();
-		}
-
-		if ( 0 < $processed ) {
-			return WP_CLI::success( sprintf(
-				/* Translators: %1$d is the number of refunds moved, %2$s is the refunds table name. */
-				__( '%1$d refund(s) have been moved into the %2$s table.', 'woocommerce-custom-orders-table' ),
-				$processed,
-				$refunds_table
-			) );
-		}
-
-		WP_CLI::warning( __( 'No refunds were migrated.', 'woocommerce-custom-orders-table' ) );
-	}
-
-	/**
 	 * Callback function for the "woocommerce_caught_exception" action.
 	 *
 	 * @throws Exception Re-throw the previously-caught Exception.
@@ -435,7 +344,7 @@ class WooCommerce_Custom_Orders_Table_CLI extends WP_CLI_Command {
 		global $wpdb;
 
 		$order_table = wc_custom_order_table()->get_orders_table_name();
-		$order_types = wc_get_order_types( 'reports' );
+		$order_types = wc_get_order_types();
 		$query       = "
 			SELECT {$select}
 			FROM {$wpdb->posts} p

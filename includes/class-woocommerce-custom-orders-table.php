@@ -171,18 +171,10 @@ class WooCommerce_Custom_Orders_Table {
 	 * @return array The filtered $tables array.
 	 */
 	public function register_table_names( $tables ) {
-		$orders_table  = WC_Order_Data_Store_Custom_Table::get_custom_table_name();
-		$refunds_table = WC_Order_Refund_Data_Store_Custom_Table::get_custom_table_name();
-		$sort          = false;
+		$orders_table = WC_Order_Data_Store_Custom_Table::get_custom_table_name();
 
-		foreach ( array( $orders_table, $refunds_table ) as $table ) {
-			if ( ! in_array( $table, $tables, true ) ) {
-				$tables[] = $table;
-				$sort     = true;
-			}
-		}
-
-		if ( $sort ) {
+		if ( ! in_array( $orders_table, $tables, true ) ) {
+			$tables[] = $orders_table;
 			sort( $tables );
 		}
 

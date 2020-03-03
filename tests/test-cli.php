@@ -149,7 +149,7 @@ class CLITest extends TestCase {
 
 		$this->assertNotNull( $this->get_order_row( $order_ids[0] ) );
 		$this->assertNotNull( $this->get_order_row( $order_ids[1] ) );
-		$this->assertNotNull( $this->get_refund_row( $refund->get_id() ) );
+		$this->assertNotNull( $this->get_order_row( $refund->get_id() ) );
 	}
 
 	/**
