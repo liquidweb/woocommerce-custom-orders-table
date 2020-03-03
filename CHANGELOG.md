@@ -31,6 +31,7 @@ $ wp wc orders-table refunds-to-custom-table
 * Add a `method_exists()` check to the wildcard `set_{$column}` method ([#139], props @blohbaugh).
 * Rewrite the way that WooCommerce core is installed in test environments ([#154]).
 * Use offsets to avoid infinite loops during migration ([#157], props @mfs-mindsize).
+* Only register the hooks for `WC_Customer_Data_Store_Custom_Table` once ([#164]).
 
 ## [Version 1.0.0 (Release Candidate 3)] - 2019-07-24
 
@@ -149,3 +150,4 @@ $ wp wc orders-table refunds-to-custom-table
 [#154]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/154
 [#157]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/157
 [#159]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/159
+[#164]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/164

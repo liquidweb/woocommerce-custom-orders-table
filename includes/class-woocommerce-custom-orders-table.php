@@ -29,6 +29,8 @@ class WooCommerce_Custom_Orders_Table {
 		// When associating previous orders with a customer based on email, update the record.
 		add_action( 'woocommerce_update_new_customer_past_order', 'WooCommerce_Custom_Orders_Table_Filters::update_past_customer_order', 10, 2 );
 
+		WC_Customer_Data_Store_Custom_Table::add_hooks();
+
 		// Register the table within WooCommerce.
 		add_filter( 'woocommerce_install_get_tables', array( $this, 'register_table_names' ) );
 
