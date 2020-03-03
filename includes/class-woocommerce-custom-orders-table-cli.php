@@ -6,7 +6,7 @@
  * @author  Liquid Web
  */
 
-use WP_CLI\Iterators\Query as QueryIterator;
+use LiquidWeb\WooCommerceCustomOrdersTable\Util\QueryIterator;
 
 /**
  * Manages the contents of the WooCommerce orders table.
