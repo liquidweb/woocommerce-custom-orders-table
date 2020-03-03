@@ -156,15 +156,22 @@ class Migration {
 
 		// Store the columns in post meta.
 		foreach ( $row as $column => $value ) {
+
+			// If we don't have a mapping, ensure we're not leaving a value in the ether.
 			if ( ! isset( $this->mappings[ $column ] ) ) {
-				throw new MigrationMappingException(
-					sprintf(
-						/* Translators: %1$s is the table name, %2$s is the column. */
-						__( 'No post meta key has been mapped to the `%1$s`.`%2$s`', 'woocommerce-custom-orders-table' ),
-						$this->table,
-						$column
-					)
-				);
+				if ( empty( $value ) ) {
+					unset( $row[ $column ] );
+					continue;
+				} else {
+					throw new MigrationMappingException(
+						sprintf(
+							/* Translators: %1$s is the table name, %2$s is the column. */
+							__( 'No post meta key has been mapped to the `%1$s`.`%2$s`', 'woocommerce-custom-orders-table' ),
+							$this->table,
+							$column
+						)
+					);
+				}
 			}
 
 			// Once the post meta row has been written, remove the column from $row.

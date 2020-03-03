@@ -321,10 +321,10 @@ class MigrationTest extends TestCase {
 	 * @test
 	 * @group Errors
 	 */
-	public function it_should_throw_a_MigrationMappingException_if_a_column_does_not_have_a_corresponding_post_meta_key() {
+	public function it_should_throw_a_MigrationMappingException_if_a_column_has_a_value_but_does_not_have_a_corresponding_post_meta_key() {
 		$order   = WC_Helper_Order::create_order();
 		$mapping = WC_Order_Data_Store_Custom_Table::map_columns_to_post_meta_keys();
-		unset( $mapping['order_key'] );
+		unset( $mapping['billing_first_name'] );
 
 		$instance = new Migration( WC_Order_Data_Store_Custom_Table::class );
 		$property = new \ReflectionProperty( $instance, 'mappings' );
@@ -334,6 +334,23 @@ class MigrationTest extends TestCase {
 		$this->expectException( MigrationMappingException::class );
 
 		$instance->restore_to_post_meta( $order->get_id() );
+	}
+
+	/**
+	 * @test
+	 * @group Errors
+	 */
+	public function it_should_ignore_missing_columns_if_there_is_no_value() {
+		$order   = WC_Helper_Order::create_order();
+		$mapping = WC_Order_Data_Store_Custom_Table::map_columns_to_post_meta_keys();
+		unset( $mapping['shipping_address_2'] );
+
+		$instance = new Migration( WC_Order_Data_Store_Custom_Table::class );
+		$property = new \ReflectionProperty( $instance, 'mappings' );
+		$property->setAccessible( true );
+		$property->setValue( $instance, $mapping );
+
+		$this->assertTrue( $instance->restore_to_post_meta( $order->get_id() ) );
 	}
 
 	/**
