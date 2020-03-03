@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 **Note:** Based on [our compatibility policy](CONTRIBUTING.md#compatibility-policy), this plugin now requires WooCommerce 3.7 or higher. As such, PHP 5.6 or newer is also required.
 
-## Added
+### Added
 
 * Enable the migration WP-CLI commands to accept `--batch-size=0`, which disables batching ([#152], props @AlchemyUnited, @mfs-mindsize).
 
-## Fixed
+### Fixed
 
 * Change the plugin's display name from "WooCommerce - Custom Orders Table" to "WooCommerce Custom Orders Table" ([#138], props @jb510).
 * Add a `method_exists()` check to the wildcard `set_{$column}` method ([#139], props @blohbaugh).
