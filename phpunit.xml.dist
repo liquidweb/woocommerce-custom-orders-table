@@ -11,6 +11,7 @@
 		<!-- Plugin-specific tests. -->
 		<testsuite name="plugin">
 			<directory prefix="test-" suffix=".php">./tests/</directory>
+			<directory suffix="Test.php">./tests/</directory>
 			<exclude>tests/test-sample.php</exclude>
 		</testsuite>
 

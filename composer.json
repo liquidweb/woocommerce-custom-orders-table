@@ -28,7 +28,6 @@
         "phpunit/phpunit": "^6.5",
         "woocommerce/woocommerce-git-hooks": "*",
         "woocommerce/woocommerce-sniffs": "^0.0.9",
-        "wp-cli/wp-cli": "^2.0",
         "wp-coding-standards/wpcs": "^2.2.0"
     },
     "autoload-dev": {
