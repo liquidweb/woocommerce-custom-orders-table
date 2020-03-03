@@ -13,17 +13,6 @@
 class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 
 	/**
-	 * Register callbacks when the data store is first instantiated.
-	 */
-	public function __construct() {
-		add_filter( 'woocommerce_pre_customer_bought_product', __CLASS__ . '::pre_customer_bought_product', 10, 4 );
-
-		// Handle deleting a customer from the database.
-		add_action( 'deleted_user', __CLASS__ . '::reset_order_customer_id_on_deleted_user' );
-		remove_action( 'deleted_user', 'wc_reset_order_customer_id_on_deleted_user' );
-	}
-
-	/**
 	 * Gets the customers last order.
 	 *
 	 * @global $wpdb
@@ -137,6 +126,17 @@ class WC_Customer_Data_Store_Custom_Table extends WC_Customer_Data_Store {
 		}
 
 		return $spent;
+	}
+
+	/**
+	 * Register callbacks when the data store is first instantiated.
+	 */
+	public static function add_hooks() {
+		add_filter( 'woocommerce_pre_customer_bought_product', __CLASS__ . '::pre_customer_bought_product', 10, 4 );
+
+		// Handle deleting a customer from the database.
+		add_action( 'deleted_user', __CLASS__ . '::reset_order_customer_id_on_deleted_user' );
+		remove_action( 'deleted_user', 'wc_reset_order_customer_id_on_deleted_user' );
 	}
 
 	/**

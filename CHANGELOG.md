@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Add a `method_exists()` check to the wildcard `set_{$column}` method ([#139], props @blohbaugh).
 * Rewrite the way that WooCommerce core is installed in test environments ([#154]).
 * Use offsets to avoid infinite loops during migration ([#157], props @mfs-mindsize).
+* Only register the hooks for `WC_Customer_Data_Store_Custom_Table` once ([#164]).
 
 ## [Version 1.0.0 (Release Candidate 3)] - 2019-07-24
 
@@ -131,3 +132,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [#124]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/124
 [#126]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/126
 [#127]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/127
+[#138]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/138
+[#139]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/139
+[#152]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/152
+[#154]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/154
+[#157]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/157
+[#164]: https://github.com/liquidweb/woocommerce-custom-orders-table/pull/164
