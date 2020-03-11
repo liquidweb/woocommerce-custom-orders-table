@@ -35,11 +35,9 @@
 
 			<!-- @link https://github.com/woocommerce/woocommerce/pull/25403 -->
 			<exclude>./vendor/woocommerce/woocommerce-src-3.8/tests/unit-tests/util/api-functions.php</exclude>
-			<exclude>./vendor/woocommerce/woocommerce-src-3.7/tests/unit-tests/util/api-functions.php</exclude>
 
 			<!-- @link https://github.com/woocommerce/woocommerce/pull/25378 -->
 			<exclude>./vendor/woocommerce/woocommerce-src-3.8/tests/unit-tests/geolocation/class-wc-tests-geolite-integration.php</exclude>
-			<exclude>./vendor/woocommerce/woocommerce-src-3.7/tests/unit-tests/geolocation/class-wc-tests-geolite-integration.php</exclude>
 		</testsuite>
 	</testsuites>
 	<filter>
