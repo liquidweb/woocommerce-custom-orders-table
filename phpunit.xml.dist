@@ -33,6 +33,9 @@
 				than using the %WC_VERSION% placeholder.
 			-->
 
+			<!-- @link https://github.com/woocommerce/woocommerce/pull/25883 -->
+			<exclude>./vendor/woocommerce/woocommerce-src-4.0/tests/unit-tests/util/install.php</exclude>
+
 			<!-- @link https://github.com/woocommerce/woocommerce/pull/25403 -->
 			<exclude>./vendor/woocommerce/woocommerce-src-3.8/tests/unit-tests/util/api-functions.php</exclude>
 
