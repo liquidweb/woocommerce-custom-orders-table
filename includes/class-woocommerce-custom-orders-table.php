@@ -42,6 +42,9 @@ class WooCommerce_Custom_Orders_Table {
 		// When associating previous orders with a customer based on email, update the record.
 		add_action( 'woocommerce_update_new_customer_past_order', 'WooCommerce_Custom_Orders_Table_Filters::update_past_customer_order', 10, 2 );
 
+		// When deleting orders as post type (p.e. bulk actions) we should hook to delete it form the custom table.
+		add_action( 'before_delete_post', 'WooCommerce_Custom_Orders_Table_Filters::delete_order' );
+
 		WC_Customer_Data_Store_Custom_Table::add_hooks();
 
 		// Register the table within WooCommerce.

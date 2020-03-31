@@ -271,4 +271,19 @@ class WooCommerce_Custom_Orders_Table_Filters {
 		$order->set_customer_id( $customer->ID );
 		$order->save();
 	}
+
+	public static function delete_order( $order_id ) {
+		global $wpdb;
+
+		if ( in_array( get_post_type( $order_id ), wc_get_order_types(), true ) ) {
+			// Not re-useing the code of 'delete' function of data store because it calls the parent function.
+			$wpdb->delete(
+					wc_custom_order_table()->get_table_name(),
+					array(
+						'order_id' => $order_id,
+						)
+					);
+		}
+	}
+
 }
