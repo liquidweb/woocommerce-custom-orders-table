@@ -15,7 +15,7 @@ This plugin improves WooCommerce performance by introducing a custom table to ho
 
 ## Current State of the plugin
 
-WooCommerce core is working custom order tables feature. [The plan for the WooCommerce custom order table](https://developer.woocommerce.com/2022/01/17/the-plan-for-the-woocommerce-custom-order-table/). More information can be found in this testing post. [Call for early testing – custom order table migrations](https://developer.woocommerce.com/2022/05/16/call-for-early-testing-custom-order-table-migrations/)
+WooCommerce core is working on a custom order tables feature. [The plan for the WooCommerce custom order table](https://developer.woocommerce.com/2022/01/17/the-plan-for-the-woocommerce-custom-order-table/). More information can be found in this testing post. [Call for early testing – custom order table migrations](https://developer.woocommerce.com/2022/05/16/call-for-early-testing-custom-order-table-migrations/)
 
 ### Background
 
