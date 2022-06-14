@@ -5,6 +5,10 @@
 
 This plugin improves WooCommerce performance by introducing a custom table to hold all of the most common order information in a single, properly-indexed location.
 
+## Current State of the plugin
+
+WooCommerce core is working custom order tables feature. [The plan for the WooCommerce custom order table](https://developer.woocommerce.com/2022/01/17/the-plan-for-the-woocommerce-custom-order-table/). More information can be found in this testing post. [Call for early testing – custom order table migrations](https://developer.woocommerce.com/2022/05/16/call-for-early-testing-custom-order-table-migrations/)
+
 ## Background
 
 [WooCommerce 3.0 introduced the notion of CRUD (Create, Read, Update, and Delete) interfaces](https://woocommerce.wordpress.com/2016/10/27/the-new-crud-classes-in-woocommerce-2-7/) in a move to unify the way WooCommerce data is stored and retrieved. However, orders are still stored as custom post types within WordPress, with each piece of order information (billing address, shipping address, taxes, totals, and more) being stored in post meta.
